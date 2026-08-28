@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P2-4 comprehension
+- 단계: P3-1 mutability, aliasing, copy
 - 상태: 완료
 
 ## 준비된 기반
@@ -85,18 +85,20 @@
 
 ## 현재 작은 단계
 
-- P2-4 comprehension
+- P3-1 mutability, aliasing, copy
 - 상태: 완료
-- 완료: list comprehension으로 각 제목의 길이를 즉시 계산한 새 list를 만들고 원본과 identity가 다름을 확인했다.
-- 완료: list comprehension의 뒤쪽 `if`로 길이가 9 이상인 제목 두 개만 새 list에 포함했다.
-- 완료: 필터를 통과한 제목에만 `upper()`를 적용한 새 list를 만들고 원본이 유지됨을 확인했다.
-- 완료: dict comprehension으로 각 제목을 key, 길이를 value로 가진 새 mapping을 만들었다.
-- 완료: set comprehension으로 태그를 소문자 변환하며 중복을 제거해 6개 입력을 4개 고유 값으로 만들었다.
-- 완료: generator expression 생성 시에는 계산하지 않고 첫 `next()`에서 첫 요소 하나만 계산함을 출력 순서로 확인했다.
-- 완료: 첫 요소가 소비된 generator를 list로 만들어 남은 값만 얻고, 이후 빈 list가 되는 소진 상태를 확인했다.
-- 완료: note와 내부 tags를 순회하는 중첩 set comprehension으로 고유 태그 6개를 만들었다.
-- 완료: `sorted()`로 set의 요소를 정렬한 새 list를 만들고 원본 set의 type과 상태를 유지했다.
-- 완료: in-memory note collection에서 keyword가 포함된 제목을 대소문자 구분 없이 찾아 정렬했다.
+- 완료: 두 이름이 같은 mutable list를 가리키는 aliasing을 `is`와 `id`로 확인했다.
+- 완료: 한 이름에서 `append()`한 변경이 다른 이름에서도 보이는 것을 확인했다.
+- 완료: 한 이름에 새 list를 대입해 기존 alias와 identity가 분리되는 rebinding을 확인했다.
+- 완료: rebinding 이후에도 다른 이름은 기존 list의 상태를 그대로 가리키는 것을 확인했다.
+- 완료: shallow copy에서 바깥 list는 새 객체지만 내부 mutable list는 공유됨을 `is`로 확인했다.
+- 완료: shallow copy의 내부 list를 변경하면 원본과 복사본 양쪽에서 변경이 보이는 것을 확인했다.
+- 완료: deep copy에서 바깥 list와 내부 mutable list가 모두 새 객체임을 `is`로 확인했다.
+- 완료: deep copy의 내부 list를 변경해도 원본의 상태가 유지되는 것을 확인했다.
+- 완료: 함수 parameter와 argument가 같은 mutable 객체를 가리키는 것을 `id`로 확인했다.
+- 완료: 함수 내부 mutation은 호출자에게 보이고 parameter rebinding은 호출자 이름에 영향을 주지 않음을 확인했다.
+- 완료: Knowledge Lab note를 복사하면서 바깥 dict와 내부 tags list의 상태 소유권을 분리했다.
+- 완료: 복사한 note의 tags를 변경해도 원본 note가 유지되는 공개 behavior를 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙

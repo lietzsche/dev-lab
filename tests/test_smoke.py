@@ -13,11 +13,12 @@ from knowledge_lab.lessons import (
     p2_2_mappings_and_sets,
     p2_3_strings_and_bytes,
     p2_4_comprehensions,
+    p3_1_mutability_aliasing_copy,
 )
 
 
 class MainTest(unittest.TestCase):
-    def test_main_prints_note_and_runtime_information(self) -> None:
+    def test_main_runs_current_lesson(self) -> None:
         output = io.StringIO()
 
         with redirect_stdout(output):
@@ -25,11 +26,10 @@ class MainTest(unittest.TestCase):
 
         lines = output.getvalue().splitlines()
 
-        self.assertIn("제목: 실제 제목", lines)
-        self.assertIn("내용: 실제 내용", lines)
-        self.assertIn("제목 repr: '실제 제목'", lines)
-        self.assertIn("제목 type: <class 'str'>", lines)
-        self.assertIn("내용 type: <class 'str'>", lines)
+        self.assertIn(
+            "Run mutability, aliasing, and copy experiments added during P3-1.",
+            lines,
+        )
 
 
 class NamesAndTypesTest(unittest.TestCase):
@@ -195,6 +195,25 @@ class ComprehensionsTest(unittest.TestCase):
         self.assertEqual(
             [], p2_4_comprehensions.search_note_titles(notes, "Java")
         )
+
+
+class MutabilityAliasingCopyTest(unittest.TestCase):
+    def test_copy_note_owns_an_independent_tags_list(self) -> None:
+        note = {
+            "title": "Python 객체 모델",
+            "tags": ["python", "object"],
+        }
+
+        copied_note = p3_1_mutability_aliasing_copy.copy_note(note)
+
+        self.assertEqual(note, copied_note)
+        self.assertIsNot(note, copied_note)
+        self.assertIsNot(note["tags"], copied_note["tags"])
+
+        copied_note["tags"].append("copy")
+
+        self.assertEqual(["python", "object"], note["tags"])
+        self.assertEqual(["python", "object", "copy"], copied_note["tags"])
 
 
 if __name__ == "__main__":

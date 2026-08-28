@@ -9,19 +9,21 @@ from knowledge_lab.lessons import (
     p2_2_mappings_and_sets,
     p2_3_strings_and_bytes,
     p2_4_comprehensions,
+    p3_1_mutability_aliasing_copy,
 )
 
 
 def main() -> None:
     """Run the completed lessons and the current lesson in order."""
-    p1_1_execution.run()
-    p1_2_names_and_types.run()
-    p1_3_functions_and_scope.run()
-    p1_4_control_flow.run()
-    p2_1_sequences.run()
-    p2_2_mappings_and_sets.run()
-    p2_3_strings_and_bytes.run()
-    p2_4_comprehensions.run()
+    # p1_1_execution.run()
+    # p1_2_names_and_types.run()
+    # p1_3_functions_and_scope.run()
+    # p1_4_control_flow.run()
+    # p2_1_sequences.run()
+    # p2_2_mappings_and_sets.run()
+    # p2_3_strings_and_bytes.run()
+    # p2_4_comprehensions.run()
+    p3_1_mutability_aliasing_copy.run()
 
 
 if __name__ == "__main__":
