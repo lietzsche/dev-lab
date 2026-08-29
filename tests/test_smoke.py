@@ -15,6 +15,7 @@ from knowledge_lab.lessons import (
     p2_4_comprehensions,
     p3_1_mutability_aliasing_copy,
     p3_2_classes_and_instances,
+    p3_3_dataclasses_and_value_objects,
 )
 
 
@@ -28,7 +29,7 @@ class MainTest(unittest.TestCase):
         lines = output.getvalue().splitlines()
 
         self.assertIn(
-            "Run class and instance experiments added during P3-2.",
+            "Run dataclass and value object experiments added during P3-3.",
             lines,
         )
 
@@ -231,6 +232,32 @@ class ClassesAndInstancesTest(unittest.TestCase):
         self.assertEqual("Renamed", first_note.title)
         self.assertEqual("Second", second_note.title)
         self.assertEqual(["python", "backend"], first_note.tags)
+        self.assertEqual([], second_note.tags)
+        self.assertIsNot(first_note.tags, second_note.tags)
+
+
+class DataclassesAndValueObjectsTest(unittest.TestCase):
+    def test_tag_validates_name_and_compares_by_value(self) -> None:
+        first_tag = p3_3_dataclasses_and_value_objects.Tag("python")
+        same_tag = p3_3_dataclasses_and_value_objects.Tag("python")
+
+        self.assertIsNot(first_tag, same_tag)
+        self.assertEqual(first_tag, same_tag)
+
+        with self.assertRaisesRegex(ValueError, "tag name must not be blank"):
+            p3_3_dataclasses_and_value_objects.Tag("   ")
+
+    def test_note_owns_tags_and_ignores_equal_duplicates(self) -> None:
+        first_note = p3_3_dataclasses_and_value_objects.Note("First", "One")
+        second_note = p3_3_dataclasses_and_value_objects.Note("Second", "Two")
+
+        first_note.add_tag(p3_3_dataclasses_and_value_objects.Tag("python"))
+        first_note.add_tag(p3_3_dataclasses_and_value_objects.Tag("python"))
+
+        self.assertEqual(
+            [p3_3_dataclasses_and_value_objects.Tag("python")],
+            first_note.tags,
+        )
         self.assertEqual([], second_note.tags)
         self.assertIsNot(first_note.tags, second_note.tags)
 

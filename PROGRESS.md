@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P3-2 class와 instance
+- 단계: P3-3 dataclass와 value object
 - 상태: 완료
 
 ## 준비된 기반
@@ -85,24 +85,24 @@
 
 ## 현재 작은 단계
 
-- P3-2 class와 instance
+- P3-3 dataclass와 value object
 - 상태: 완료
-- 완료: `class` statement로 `Note` class 객체를 정의했다.
-- 완료: class를 두 번 호출해 서로 다른 identity를 가진 두 instance를 만들고 runtime type을 확인했다.
-- 완료: 두 instance의 `__dict__`에 서로 다른 `title`을 binding하고 instance별 상태 소유를 확인했다.
-- 완료: 한 instance의 `title` rebinding이 다른 instance의 상태에 영향을 주지 않음을 확인했다.
-- 완료: instance에 없는 `kind`를 class에서 찾는 attribute lookup을 확인했다.
-- 완료: `first_note.kind` 대입이 class를 바꾸지 않고 instance attribute를 만들어 class 값을 가리는 것을 확인했다.
-- 완료: mutable class attribute를 한 instance에서 변경하면 다른 instance에서도 같은 상태가 보임을 확인했다.
-- 완료: class와 두 instance의 `shared_tags`가 같은 객체이며 instance `__dict__`에는 없음을 확인했다.
-- 완료: instance method 호출 시 method의 `self`와 호출한 instance가 같은 객체임을 `id`로 확인했다.
-- 완료: method가 `self.title`을 변경해 호출한 instance의 상태만 바꾸는 것을 확인했다.
-- 완료: instance에서 조회한 bound method가 instance와 class의 원래 함수를 결합함을 확인했다.
-- 완료: class의 함수를 통해 instance를 명시적으로 전달하는 호출이 같은 method body를 실행함을 확인했다.
-- 완료: `__init__`에서 생성 argument를 `self.title`에 binding하고 새 `tags` list를 만들었다.
-- 완료: 두 instance가 서로 다른 tags list를 소유하며 한쪽의 mutation이 다른 쪽에 전파되지 않음을 확인했다.
-- 완료: Knowledge Lab `Note.add_tag()` method로 호출된 instance의 tags만 변경하도록 구현했다.
-- 완료: 서로 다른 tag는 보존하고 중복 tag는 추가하지 않으며 다른 note의 상태는 유지되는 behavior를 test로 검증했다.
+- 완료: `@dataclass`의 field 선언으로 생성된 `__init__`을 통해 instance를 만들었다.
+- 완료: 생성된 `repr`, runtime type, instance `__dict__`, field attribute를 확인했다.
+- 완료: 같은 field 값을 가진 서로 다른 instance에서 identity는 다르고 equality는 같음을 확인했다.
+- 완료: 하나의 field 값이 다르면 dataclass equality가 `False`가 되는 것을 확인했다.
+- 완료: frozen instance의 field 대입이 생성된 `__setattr__`에서 runtime `FrozenInstanceError`를 내는 것을 확인했다.
+- 완료: traceback에서 `run()`의 대입과 dataclass가 생성한 `__setattr__`까지의 호출 경로를 확인했다.
+- 완료: `frozen=True`가 field rebinding은 막지만 field가 참조하는 mutable list의 mutation은 허용함을 확인했다.
+- 완료: slots dataclass instance에는 일반적인 `__dict__`가 없음을 확인했다.
+- 완료: 선언하지 않은 attribute 대입이 runtime `AttributeError`를 내는 것을 확인했다.
+- 완료: annotation과 다른 runtime type의 객체도 기본 dataclass field에 그대로 binding됨을 확인했다.
+- 완료: `__post_init__`에서 공백 tag를 검사하고 생성 경계에서 `ValueError`로 거부했다.
+- 완료: 생성된 `__init__`이 field binding 후 직접 작성한 `__post_init__`을 호출하는 traceback을 확인했다.
+- 완료: `field(default_factory=list)`가 Note instance 생성마다 새 tags list를 만드는 것을 확인했다.
+- 완료: 두 Note가 독립적인 tags list를 소유하고 실제 `Tag` value object를 담도록 모델링했다.
+- 완료: Tag의 field equality를 이용해 같은 값을 가진 서로 다른 Tag instance를 중복으로 추가하지 않았다.
+- 완료: Tag validation, value equality, Note의 tags 소유권과 중복 방지 behavior를 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙
