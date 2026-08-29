@@ -10,6 +10,7 @@ from knowledge_lab.lessons import (
     p2_3_strings_and_bytes,
     p2_4_comprehensions,
     p3_1_mutability_aliasing_copy,
+    p3_2_classes_and_instances,
 )
 
 
@@ -23,7 +24,8 @@ def main() -> None:
     # p2_2_mappings_and_sets.run()
     # p2_3_strings_and_bytes.run()
     # p2_4_comprehensions.run()
-    p3_1_mutability_aliasing_copy.run()
+    # p3_1_mutability_aliasing_copy.run()
+    p3_2_classes_and_instances.run()
 
 
 if __name__ == "__main__":

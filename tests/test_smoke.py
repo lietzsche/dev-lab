@@ -14,6 +14,7 @@ from knowledge_lab.lessons import (
     p2_3_strings_and_bytes,
     p2_4_comprehensions,
     p3_1_mutability_aliasing_copy,
+    p3_2_classes_and_instances,
 )
 
 
@@ -27,7 +28,7 @@ class MainTest(unittest.TestCase):
         lines = output.getvalue().splitlines()
 
         self.assertIn(
-            "Run mutability, aliasing, and copy experiments added during P3-1.",
+            "Run class and instance experiments added during P3-2.",
             lines,
         )
 
@@ -214,6 +215,24 @@ class MutabilityAliasingCopyTest(unittest.TestCase):
 
         self.assertEqual(["python", "object"], note["tags"])
         self.assertEqual(["python", "object", "copy"], copied_note["tags"])
+
+
+class ClassesAndInstancesTest(unittest.TestCase):
+    def test_notes_own_independent_titles_and_tags(self) -> None:
+        first_note = p3_2_classes_and_instances.Note("First")
+        second_note = p3_2_classes_and_instances.Note("Second")
+
+        with redirect_stdout(io.StringIO()):
+            first_note.rename("Renamed")
+        first_note.add_tag("python")
+        first_note.add_tag("backend")
+        first_note.add_tag("python")
+
+        self.assertEqual("Renamed", first_note.title)
+        self.assertEqual("Second", second_note.title)
+        self.assertEqual(["python", "backend"], first_note.tags)
+        self.assertEqual([], second_note.tags)
+        self.assertIsNot(first_note.tags, second_note.tags)
 
 
 if __name__ == "__main__":

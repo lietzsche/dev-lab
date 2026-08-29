@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P3-1 mutability, aliasing, copy
+- 단계: P3-2 class와 instance
 - 상태: 완료
 
 ## 준비된 기반
@@ -85,20 +85,24 @@
 
 ## 현재 작은 단계
 
-- P3-1 mutability, aliasing, copy
+- P3-2 class와 instance
 - 상태: 완료
-- 완료: 두 이름이 같은 mutable list를 가리키는 aliasing을 `is`와 `id`로 확인했다.
-- 완료: 한 이름에서 `append()`한 변경이 다른 이름에서도 보이는 것을 확인했다.
-- 완료: 한 이름에 새 list를 대입해 기존 alias와 identity가 분리되는 rebinding을 확인했다.
-- 완료: rebinding 이후에도 다른 이름은 기존 list의 상태를 그대로 가리키는 것을 확인했다.
-- 완료: shallow copy에서 바깥 list는 새 객체지만 내부 mutable list는 공유됨을 `is`로 확인했다.
-- 완료: shallow copy의 내부 list를 변경하면 원본과 복사본 양쪽에서 변경이 보이는 것을 확인했다.
-- 완료: deep copy에서 바깥 list와 내부 mutable list가 모두 새 객체임을 `is`로 확인했다.
-- 완료: deep copy의 내부 list를 변경해도 원본의 상태가 유지되는 것을 확인했다.
-- 완료: 함수 parameter와 argument가 같은 mutable 객체를 가리키는 것을 `id`로 확인했다.
-- 완료: 함수 내부 mutation은 호출자에게 보이고 parameter rebinding은 호출자 이름에 영향을 주지 않음을 확인했다.
-- 완료: Knowledge Lab note를 복사하면서 바깥 dict와 내부 tags list의 상태 소유권을 분리했다.
-- 완료: 복사한 note의 tags를 변경해도 원본 note가 유지되는 공개 behavior를 test로 검증했다.
+- 완료: `class` statement로 `Note` class 객체를 정의했다.
+- 완료: class를 두 번 호출해 서로 다른 identity를 가진 두 instance를 만들고 runtime type을 확인했다.
+- 완료: 두 instance의 `__dict__`에 서로 다른 `title`을 binding하고 instance별 상태 소유를 확인했다.
+- 완료: 한 instance의 `title` rebinding이 다른 instance의 상태에 영향을 주지 않음을 확인했다.
+- 완료: instance에 없는 `kind`를 class에서 찾는 attribute lookup을 확인했다.
+- 완료: `first_note.kind` 대입이 class를 바꾸지 않고 instance attribute를 만들어 class 값을 가리는 것을 확인했다.
+- 완료: mutable class attribute를 한 instance에서 변경하면 다른 instance에서도 같은 상태가 보임을 확인했다.
+- 완료: class와 두 instance의 `shared_tags`가 같은 객체이며 instance `__dict__`에는 없음을 확인했다.
+- 완료: instance method 호출 시 method의 `self`와 호출한 instance가 같은 객체임을 `id`로 확인했다.
+- 완료: method가 `self.title`을 변경해 호출한 instance의 상태만 바꾸는 것을 확인했다.
+- 완료: instance에서 조회한 bound method가 instance와 class의 원래 함수를 결합함을 확인했다.
+- 완료: class의 함수를 통해 instance를 명시적으로 전달하는 호출이 같은 method body를 실행함을 확인했다.
+- 완료: `__init__`에서 생성 argument를 `self.title`에 binding하고 새 `tags` list를 만들었다.
+- 완료: 두 instance가 서로 다른 tags list를 소유하며 한쪽의 mutation이 다른 쪽에 전파되지 않음을 확인했다.
+- 완료: Knowledge Lab `Note.add_tag()` method로 호출된 instance의 tags만 변경하도록 구현했다.
+- 완료: 서로 다른 tag는 보존하고 중복 tag는 추가하지 않으며 다른 note의 상태는 유지되는 behavior를 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙
