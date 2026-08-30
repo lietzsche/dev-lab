@@ -65,7 +65,16 @@ LLM이 검색·요약·도구 호출을 수행하는 애플리케이션
 
 ## 시작하기
 
-Python 3.12 이상을 권장한다. 저장소 루트에서 가상환경을 만들고 editable package로 설치한다.
+Python 3.12 이상을 권장한다. 저장소 루트에서 setup script를 실행하면 `.venv`를 만들고 package를 editable mode로 설치한다.
+
+```bash
+./scripts/setup.sh
+source .venv/bin/activate
+python -m knowledge_lab
+python -m unittest discover -s tests -v
+```
+
+직접 설정할 때는 다음 명령이 같은 작업을 수행한다.
 
 ```bash
 python3 -m venv .venv
@@ -74,6 +83,8 @@ python -m pip install -e .
 python -m knowledge_lab
 python -m unittest discover -s tests -v
 ```
+
+VS Code에서는 workspace를 WSL에서 열고 `.venv/bin/python`을 interpreter로 선택한다. editor와 terminal이 같은 interpreter를 사용하면 `src` layout의 `knowledge_lab` import도 동일하게 해석된다.
 
 설치하지 않고 확인할 때는 다음처럼 실행할 수 있다.
 
@@ -93,6 +104,7 @@ python_s/
 │   └── lessons/           # 기본기 소단원별 학습 module
 ├── tests/                 # 표준 unittest에서 시작해 pytest로 확장
 ├── examples/              # 학습 과정에서 확인을 마친 재사용 가능한 예제
+├── scripts/setup.sh       # 가상환경 생성과 editable install 자동화
 ├── AGENTS.md              # AI와 함께 공부할 때의 진행 규칙
 ├── CURRICULUM.md          # 전체 학습 로드맵
 ├── PROGRESS.md            # 현재 학습 위치
