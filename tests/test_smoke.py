@@ -16,6 +16,7 @@ from knowledge_lab.lessons import (
     p3_1_mutability_aliasing_copy,
     p3_2_classes_and_instances,
     p3_3_dataclasses_and_value_objects,
+    p3_4_protocols_and_composition,
 )
 
 
@@ -29,7 +30,7 @@ class MainTest(unittest.TestCase):
         lines = output.getvalue().splitlines()
 
         self.assertIn(
-            "Run dataclass and value object experiments added during P3-3.",
+            "Run protocol and composition experiments added during P3-4.",
             lines,
         )
 
@@ -260,6 +261,33 @@ class DataclassesAndValueObjectsTest(unittest.TestCase):
         )
         self.assertEqual([], second_note.tags)
         self.assertIsNot(first_note.tags, second_note.tags)
+
+
+class ProtocolsAndCompositionTest(unittest.TestCase):
+    def test_service_delegates_storage_to_repository_contract(self) -> None:
+        repository = p3_4_protocols_and_composition.InMemoryNoteRepository()
+        service = p3_4_protocols_and_composition.NoteService(repository)
+
+        created_note = service.create_note("Python", "Protocol")
+
+        self.assertIs(service.repository, repository)
+        self.assertIsInstance(
+            repository, p3_4_protocols_and_composition.NoteRepository
+        )
+        self.assertEqual([created_note], service.list_notes())
+        self.assertIs(created_note, service.list_notes()[0])
+
+    def test_repository_keeps_ownership_of_its_collection(self) -> None:
+        repository = p3_4_protocols_and_composition.InMemoryNoteRepository()
+        repository.add(
+            p3_3_dataclasses_and_value_objects.Note("Python", "Ownership")
+        )
+
+        returned_notes = repository.all()
+        returned_notes.clear()
+
+        self.assertEqual(1, len(repository.all()))
+        self.assertIsNot(returned_notes, repository.all())
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P3-3 dataclass와 value object
+- 단계: P3-4 protocol과 composition
 - 상태: 완료
 
 ## 준비된 기반
@@ -85,24 +85,21 @@
 
 ## 현재 작은 단계
 
-- P3-3 dataclass와 value object
+- P3-4 protocol과 composition
 - 상태: 완료
-- 완료: `@dataclass`의 field 선언으로 생성된 `__init__`을 통해 instance를 만들었다.
-- 완료: 생성된 `repr`, runtime type, instance `__dict__`, field attribute를 확인했다.
-- 완료: 같은 field 값을 가진 서로 다른 instance에서 identity는 다르고 equality는 같음을 확인했다.
-- 완료: 하나의 field 값이 다르면 dataclass equality가 `False`가 되는 것을 확인했다.
-- 완료: frozen instance의 field 대입이 생성된 `__setattr__`에서 runtime `FrozenInstanceError`를 내는 것을 확인했다.
-- 완료: traceback에서 `run()`의 대입과 dataclass가 생성한 `__setattr__`까지의 호출 경로를 확인했다.
-- 완료: `frozen=True`가 field rebinding은 막지만 field가 참조하는 mutable list의 mutation은 허용함을 확인했다.
-- 완료: slots dataclass instance에는 일반적인 `__dict__`가 없음을 확인했다.
-- 완료: 선언하지 않은 attribute 대입이 runtime `AttributeError`를 내는 것을 확인했다.
-- 완료: annotation과 다른 runtime type의 객체도 기본 dataclass field에 그대로 binding됨을 확인했다.
-- 완료: `__post_init__`에서 공백 tag를 검사하고 생성 경계에서 `ValueError`로 거부했다.
-- 완료: 생성된 `__init__`이 field binding 후 직접 작성한 `__post_init__`을 호출하는 traceback을 확인했다.
-- 완료: `field(default_factory=list)`가 Note instance 생성마다 새 tags list를 만드는 것을 확인했다.
-- 완료: 두 Note가 독립적인 tags list를 소유하고 실제 `Tag` value object를 담도록 모델링했다.
-- 완료: Tag의 field equality를 이용해 같은 값을 가진 서로 다른 Tag instance를 중복으로 추가하지 않았다.
-- 완료: Tag validation, value equality, Note의 tags 소유권과 중복 방지 behavior를 test로 검증했다.
+- 완료: `NotePresenter`가 전달받은 formatter 객체를 소유하고 `format()` 호출을 위임했다.
+- 완료: presenter와 formatter의 identity를 확인하고 위임된 반환값을 관찰했다.
+- 완료: 상속 관계가 없는 `UppercaseFormatter`도 `format()` 동작을 제공해 runtime에서 교체 가능함을 확인했다.
+- 완료: `isinstance(..., NoteFormatter)`는 `False`지만 presenter 위임 호출은 성공하는 것을 확인했다.
+- 완료: 두 concrete formatter가 명시적 상속 없이 runtime-checkable `Formatter` 구조를 만족함을 확인했다.
+- 완료: 두 formatter의 MRO에는 `Formatter`가 없어 nominal 상속과 structural 호환이 다름을 확인했다.
+- 완료: 이름만 같은 잘못된 method가 runtime Protocol 검사에는 통과하지만 실제 호출에서 `TypeError`가 됨을 확인했다.
+- 완료: traceback에서 presenter의 위임 호출과 concrete method signature 사이의 불일치를 확인했다.
+- 완료: `NoteRepository` Protocol과 이를 명시적 상속 없이 만족하는 in-memory 구현을 작성했다.
+- 완료: repository가 내부 collection을 소유하고 `all()`에서는 별도 outer list를 반환함을 확인했다.
+- 완료: `NoteService`가 `NoteRepository` contract를 composition으로 전달받아 같은 객체를 보유함을 확인했다.
+- 완료: service가 Note 생성 workflow를 조립하고 저장과 조회를 repository에 위임했다.
+- 완료: repository contract, collection 소유권, service 위임 behavior를 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙
