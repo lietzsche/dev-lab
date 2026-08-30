@@ -1,109 +1,102 @@
-# Python Knowledge Lab
+# PortKeeper (Python)
 
-Python 문법을 외우는 데서 끝나지 않고, 하나의 **지식 노트 서비스**를 계속 확장하며 Python의 실행 모델과 백엔드·AI 생태계를 함께 익히는 학습 저장소다.
+PortKeeper (Rust/egui로 만든 SSH 로컬 포트 포워딩 GUI)를 Python으로 다시 구현한
+버전입니다. 목적과 동작은 원본과 동일합니다: SSH 서버를 경유해 로컬 포트를 원격
+목적지로 포워딩하고, 연결이 끊기면 자동으로 재연결합니다.
 
-Java, JavaScript, TypeScript 경험이 있는 개발자를 기준으로 프로그래밍 입문 설명은 줄이고, Python에서 특히 달라지는 아래 주제에 집중한다.
+> 이 브랜치(`portkeeper-python`)는 `python_s` 커리큘럼과는 별개로, "이 프로젝트를
+> 파이썬으로 다시 짤 수 있는가"라는 질문에 대한 실제 참고 구현으로 만들어졌습니다.
+> `main` 브랜치의 학습 커리큘럼 내용과는 무관합니다.
 
-- 이름과 객체, mutability, identity
-- dynamic typing과 type hint의 실제 역할
-- iterable, iterator, generator와 lazy evaluation
-- exception, context manager, decorator
-- package, virtual environment, test와 정적 분석
-- thread, process, coroutine과 `asyncio`
-- HTTP API, MCP tool, LLM application의 경계
+## 스택
 
-## 최종적으로 만들 것
+- **SSH + 포트 포워딩**: [`paramiko`](https://www.paramiko.org/) — `direct-tcpip`
+  채널을 열어 로컬 소켓과 양방향으로 데이터를 중계합니다.
+- **GUI**: [`dearpygui`](https://github.com/hoffstadt/DearPyGui) — 즉시 모드(immediate
+  mode) GUI로, 원본 Rust판이 쓰는 `egui`와 개념이 비슷합니다.
+- **설정 저장**: 표준 라이브러리 `json` (평문 텍스트, 비밀번호/암호문 없음).
+- **동시성**: `threading` — 터널마다 감독 스레드 하나, 포워딩된 연결마다 중계
+  스레드 두 개(양방향 각각). asyncio 대신 스레드를 쓴 이유는 Rust판의 "터널당
+  태스크 하나" 구조와 가장 직접적으로 대응되기 때문입니다.
 
-학습 중 만드는 코드는 버리지 않고 다음 형태로 성장시킨다.
-
-```text
-작은 함수와 자료구조
-    ↓
-지식 노트 CLI
-    ↓
-파일·SQLite 저장소
-    ↓
-동시성·비동기 작업
-    ↓
-FastAPI 지식 노트 API
-    ↓
-FastMCP 도구 서버
-    ↓
-LLM이 검색·요약·도구 호출을 수행하는 애플리케이션
-```
-
-최종 결과물의 가칭은 `Knowledge Lab`이다. 노트를 생성하고 태그와 키워드로 검색하며, 같은 application service를 CLI, HTTP, MCP가 서로 다른 adapter로 사용하게 만든다. 마지막에는 LLM이 MCP tool을 통해 노트를 찾고 출처가 포함된 답변을 생성하도록 확장한다.
-
-## 학습 방식
-
-각 소단원 안에서도 개념을 한꺼번에 설명하거나 전체 과제를 먼저 던지지 않는다. 다음 짧은 주기를 한 개념씩 반복한다.
-
-```text
-개념 하나 설명 + 대화 속 최소 예제
-→ 학습자가 같은 개념을 직접 구현
-→ 실행 결과와 코드를 확인
-→ 필요한 피드백과 수정
-→ 확인된 뒤 다음 개념
-```
-
-소단원의 여러 개념을 모두 확인하면 마지막에 실제 프로젝트 코드로 연결하고 검증한다.
-
-기본기 학습 코드는 소단원별 module로 분리한다. `__main__.py`에는 학습 내용을 쌓지 않고 현재 실행할 module을 import해 호출하는 조립 코드만 둔다. 학습이 실제 애플리케이션으로 성장하면 단계별 module의 코드를 `domain`, `application`, `adapters` 같은 역할 중심 module로 옮긴다.
-
-처음부터 FastAPI나 LLM SDK를 사용하지 않는다. 동기 함수와 blocking I/O를 먼저 관찰한 뒤 `asyncio`를 도입하고, HTTP의 request/response 경계를 이해한 뒤 FastAPI를 사용한다. 일반 함수로 tool contract를 설계한 뒤 FastMCP로 노출한다.
-
-학습 과정에서는 아래 질문을 반복한다.
-
-1. 이 이름이 가리키는 객체는 어디에 있고 mutable한가?
-2. 상태는 누가 소유하고 변경하는가?
-3. 이 코드는 import 시점, 호출 시점, event loop, thread, process 중 어디에서 실행되는가?
-4. 실패는 exception, 반환값, HTTP 응답, MCP 오류 중 어느 경계로 전달되는가?
-
-한 번에 한 소단원만 진행한다. 과제와 피드백이 끝나면 완료 상태에서 멈추고, 학습자가 `넘어가자`고 요청하면 다음 단원을 시작한다.
-
-별도의 주관식 학습 일지나 실행 결과 문서는 작성하지 않는다. 이해 여부는 실행 결과와 대화로 확인하며, 소단원이 완료되면 관련 코드와 진도 문서를 검증·커밋하고 원격 저장소에 푸시한다.
-
-## 시작하기
-
-Python 3.12 이상을 권장한다. 저장소 루트에서 가상환경을 만들고 editable package로 설치한다.
+## 실행하기
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e .
-python -m knowledge_lab
-python -m unittest discover -s tests -v
+python -m venv .venv
+source .venv/bin/activate        # Windows는 .venv\Scripts\activate
+pip install -r requirements.txt
+python main.py
 ```
 
-설치하지 않고 확인할 때는 다음처럼 실행할 수 있다.
+## 사용법
+
+Rust판과 동일합니다.
+
+1. **"+ 새 터널 추가"** 로 프로필 생성 (이름/SSH 호스트·포트/사용자 이름/인증 방식/
+   로컬·원격 주소).
+2. 목록에서 **시작** 클릭 → 비밀번호(또는 키 암호문) 입력 팝업 → **연결**.
+   "이번 세션 동안 기억하기"를 켜두면 재연결 시 다시 묻지 않습니다.
+3. 비밀번호/암호문은 메모리에만 있고 설정 파일에는 절대 저장되지 않습니다.
+4. 호스트 키는 TOFU 방식으로 검증됩니다 — 처음 보는 호스트는 자동 등록, 이미
+   등록된 호스트의 키가 바뀌면 (중간자 공격 가능성) paramiko가 자동으로
+   `BadHostKeyException`을 발생시켜 연결을 차단합니다.
+
+## 설정 파일 위치
+
+Rust판과 충돌하지 않도록 별도 디렉터리를 씁니다.
+
+| OS | 경로 |
+|---|---|
+| Linux | `~/.config/portkeeper-py/config.json` |
+| macOS | `~/Library/Application Support/PortKeeperPy/config.json` |
+| Windows | `%APPDATA%\PortKeeperPy\config.json` |
+
+## 단일 실행 파일로 묶기 (PyInstaller)
 
 ```bash
-PYTHONPATH=src python3 -m knowledge_lab
-PYTHONPATH=src python3 -m unittest discover -s tests -v
+pip install pyinstaller
+# Linux/macOS (경로 구분자 ':')
+pyinstaller --noconfirm --onefile --windowed --name portkeeper \
+    --add-data "assets:assets" main.py
+# Windows (경로 구분자 ';')
+pyinstaller --noconfirm --onefile --windowed --name portkeeper ^
+    --add-data "assets;assets" main.py
 ```
 
-현재 첫 단계와 다음 과제는 [PROGRESS.md](PROGRESS.md), 전체 순서는 [CURRICULUM.md](CURRICULUM.md)를 따른다.
+`--windowed`는 Rust판의 `windows_subsystem = "windows"`와 같은 역할로, Windows에서
+콘솔 창 없이 GUI만 뜨게 합니다. 결과물은 `dist/portkeeper`(Windows는
+`dist/portkeeper.exe`)에 생성됩니다.
 
-## 저장소 구조
+주의: `--onefile`로 묶은 exe는 실행할 때마다 임시 폴더에 파일을 풀기 때문에
+Rust판보다 시작이 느리고, Windows Defender/백신이 오탐하는 경우가 종종 있습니다
+(파이썬을 실행 파일로 묶는 도구들의 공통적인 특성입니다). 배포 전에 실제 사용할
+백신으로 한 번 검사해 보는 것을 권장합니다.
 
-```text
-python_s/
-├── src/knowledge_lab/     # 단계가 진행될수록 성장하는 실제 패키지
-│   ├── __main__.py        # 실행할 학습 module을 조립하는 진입점
-│   └── lessons/           # 기본기 소단원별 학습 module
-├── tests/                 # 표준 unittest에서 시작해 pytest로 확장
-├── examples/              # 학습 과정에서 확인을 마친 재사용 가능한 예제
-├── AGENTS.md              # AI와 함께 공부할 때의 진행 규칙
-├── CURRICULUM.md          # 전체 학습 로드맵
-├── PROGRESS.md            # 현재 학습 위치
-└── pyproject.toml         # package와 tool 설정의 정본
-```
+## Rust판과의 차이
 
-처음에는 의도적으로 외부 runtime dependency가 없다. FastAPI, Pydantic, FastMCP, LLM SDK 등은 해당 단계에서 역할과 비용을 비교한 뒤 추가한다.
+| | Rust (`egui`) | Python (이 버전) |
+|---|---|---|
+| 실행 파일 크기 | ~30MB | 인터프리터를 통째로 묶어서 보통 더 큼 |
+| 시작 속도 | 빠름 | 상대적으로 느림 (특히 `--onefile`) |
+| 재연결/전달 로직 | `tokio` 태스크 | OS 스레드 |
+| 라이트/다크 테마 전환 | 있음 (상단 툴바) | 없음 (DearPyGui 기본 테마만) |
+| 코드 수정 난이도 | 컴파일 필요, 타입 체크가 오류를 미리 잡아줌 | 바로 실행하며 수정 가능, 대신 런타임에야 오류 발견 |
 
-## 현재 검증 명령
+기능적으로는 동일합니다: 여러 프로필 관리, 자동 재연결(지수 백오프), SSH
+keepalive, 비밀번호/키 인증, TOFU 호스트 키 검증, 로그 패널, 한글 폰트 내장.
+
+## 테스트
 
 ```bash
-python3 -m compileall -q src tests
-PYTHONPATH=src python3 -m unittest discover -s tests -v
+pip install -r requirements-dev.txt
+pytest
 ```
+
+`tests/test_config.py`는 프로필 직렬화가 원본 그대로 왕복되는지, 그리고
+비밀번호가 저장되는 JSON 구조 어디에도 절대 나타나지 않는지를 검증합니다.
+
+## 라이선스
+
+앱에는 한글이 깨지지 않도록 [나눔고딕](https://github.com/google/fonts/tree/main/ofl/nanumgothic)
+폰트(`assets/fonts/NanumGothic-Regular.ttf`, SIL Open Font License 1.1,
+전문은 `assets/fonts/OFL.txt`)가 포함되어 있습니다.
