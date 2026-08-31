@@ -17,6 +17,7 @@ from knowledge_lab.lessons import (
     p3_2_classes_and_instances,
     p3_3_dataclasses_and_value_objects,
     p3_4_protocols_and_composition,
+    p4_1_exceptions,
 )
 
 
@@ -30,7 +31,7 @@ class MainTest(unittest.TestCase):
         lines = output.getvalue().splitlines()
 
         self.assertIn(
-            "Run protocol and composition experiments added during P3-4.",
+            "Run exception and traceback experiments added during P4-1.",
             lines,
         )
 
@@ -288,6 +289,30 @@ class ProtocolsAndCompositionTest(unittest.TestCase):
 
         self.assertEqual(1, len(repository.all()))
         self.assertIsNot(returned_notes, repository.all())
+
+
+class ExceptionsAndTracebacksTest(unittest.TestCase):
+    def test_empty_title_raises_specific_domain_error(self) -> None:
+        with self.assertRaisesRegex(
+            p4_1_exceptions.EmptyTitleError,
+            "title must not be empty",
+        ):
+            p4_1_exceptions.require_title("   ")
+
+    def test_invalid_note_id_preserves_conversion_cause(self) -> None:
+        with self.assertRaises(p4_1_exceptions.InvalidNoteIdError) as caught:
+            p4_1_exceptions.parse_note_id("unknown")
+
+        self.assertIsInstance(caught.exception.__cause__, ValueError)
+
+    def test_missing_note_hides_storage_detail_and_preserves_cause(self) -> None:
+        notes = {1: "Python"}
+
+        with self.assertRaises(p4_1_exceptions.NoteNotFoundError) as caught:
+            p4_1_exceptions.find_note(2, notes)
+
+        self.assertIsInstance(caught.exception.__cause__, KeyError)
+        self.assertEqual({1: "Python"}, notes)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P3-4 protocol과 composition
+- 단계: P4-1 exception과 traceback
 - 상태: 완료
 
 ## 준비된 기반
@@ -85,21 +85,22 @@
 
 ## 현재 작은 단계
 
-- P3-4 protocol과 composition
-- 상태: 완료
-- 완료: `NotePresenter`가 전달받은 formatter 객체를 소유하고 `format()` 호출을 위임했다.
-- 완료: presenter와 formatter의 identity를 확인하고 위임된 반환값을 관찰했다.
-- 완료: 상속 관계가 없는 `UppercaseFormatter`도 `format()` 동작을 제공해 runtime에서 교체 가능함을 확인했다.
-- 완료: `isinstance(..., NoteFormatter)`는 `False`지만 presenter 위임 호출은 성공하는 것을 확인했다.
-- 완료: 두 concrete formatter가 명시적 상속 없이 runtime-checkable `Formatter` 구조를 만족함을 확인했다.
-- 완료: 두 formatter의 MRO에는 `Formatter`가 없어 nominal 상속과 structural 호환이 다름을 확인했다.
-- 완료: 이름만 같은 잘못된 method가 runtime Protocol 검사에는 통과하지만 실제 호출에서 `TypeError`가 됨을 확인했다.
-- 완료: traceback에서 presenter의 위임 호출과 concrete method signature 사이의 불일치를 확인했다.
-- 완료: `NoteRepository` Protocol과 이를 명시적 상속 없이 만족하는 in-memory 구현을 작성했다.
-- 완료: repository가 내부 collection을 소유하고 `all()`에서는 별도 outer list를 반환함을 확인했다.
-- 완료: `NoteService`가 `NoteRepository` contract를 composition으로 전달받아 같은 객체를 보유함을 확인했다.
-- 완료: service가 Note 생성 workflow를 조립하고 저장과 조회를 repository에 위임했다.
-- 완료: repository contract, collection 소유권, service 위임 behavior를 test로 검증했다.
+- P4-1 exception과 traceback
+- 상태: 진행 중
+- 완료: `raise`로 `ValueError`를 발생시키고 정상 반환이 중단되는 것을 확인했다.
+- 완료: 처리되지 않은 exception이 `require_title()`에서 module 실행 경계까지 전파되는 traceback을 확인했다.
+- 완료: traceback의 마지막 줄에서 최초 원인의 exception type과 message를 확인하고 위쪽 frame에서 호출 경로를 추적했다.
+- 완료: `run()` 경계에서 `ValueError`만 선택적으로 처리하고 exception 객체의 type과 repr을 관찰했다.
+- 완료: 처리된 exception은 호출자에게 전파되지 않아 process가 정상 종료되는 것을 확인했다.
+- 완료: `try`에서는 실패 가능한 호출만 수행하고 `else`에서 성공 후속 출력을 분리했다.
+- 완료: 정상 입력은 `else`, 잘못된 입력은 `except` 중 한 경로로만 실행되는 것을 확인했다.
+- 완료: 정상 경로와 `ValueError` 처리 경로 모두에서 `finally`가 마지막에 실행되는 것을 확인했다.
+- 완료: `EmptyTitleError`를 `ValueError`의 subclass로 정의하고 구체적인 domain 실패를 표현했다.
+- 완료: subclass 객체가 기존 `except ValueError` 처리 경계에 잡히는 exception hierarchy를 확인했다.
+- 완료: `ValueError`를 `InvalidNoteIdError`로 변환하면서 `raise ... from ...`으로 원인 객체를 보존했다.
+- 완료: 변환된 exception의 `__cause__`가 최초 `ValueError` 객체를 참조하는 것을 type과 repr로 확인했다.
+- 완료: `dict` 조회의 `KeyError`를 `NoteNotFoundError`로 변환해 infrastructure 세부사항과 domain 의미를 분리했다.
+- 완료: title 검증과 exception chaining의 공개 behavior를 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙

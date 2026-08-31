@@ -13,6 +13,7 @@ from knowledge_lab.lessons import (
     p3_2_classes_and_instances,
     p3_3_dataclasses_and_value_objects,
     p3_4_protocols_and_composition,
+    p4_1_exceptions,
 )
 
 
@@ -29,7 +30,8 @@ def main() -> None:
     # p3_1_mutability_aliasing_copy.run()
     # p3_2_classes_and_instances.run()
     # p3_3_dataclasses_and_value_objects.run()
-    p3_4_protocols_and_composition.run()
+    # p3_4_protocols_and_composition.run()
+    p4_1_exceptions.run()
 
 
 if __name__ == "__main__":
