@@ -14,6 +14,7 @@ from knowledge_lab.lessons import (
     p3_3_dataclasses_and_value_objects,
     p3_4_protocols_and_composition,
     p4_1_exceptions,
+    p4_2_context_managers,
 )
 
 
@@ -31,7 +32,8 @@ def main() -> None:
     # p3_2_classes_and_instances.run()
     # p3_3_dataclasses_and_value_objects.run()
     # p3_4_protocols_and_composition.run()
-    p4_1_exceptions.run()
+    # p4_1_exceptions.run()
+    p4_2_context_managers.run()
 
 
 if __name__ == "__main__":

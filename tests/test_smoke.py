@@ -31,7 +31,7 @@ class MainTest(unittest.TestCase):
         lines = output.getvalue().splitlines()
 
         self.assertIn(
-            "Run exception and traceback experiments added during P4-1.",
+            "after exception stream closed: True",
             lines,
         )
 
