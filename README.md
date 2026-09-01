@@ -98,7 +98,7 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 ## 저장소 구조
 
 ```text
-python_s/
+dev-lab/
 ├── src/knowledge_lab/     # 단계가 진행될수록 성장하는 실제 패키지
 │   ├── __main__.py        # 실행할 학습 module을 조립하는 진입점
 │   └── lessons/           # 기본기 소단원별 학습 module
