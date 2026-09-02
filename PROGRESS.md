@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P4-3 module, package, import
+- 단계: P4-4 project와 dependency
 - 상태: 완료
 
 ## 준비된 기반
@@ -83,6 +83,32 @@
 - 중첩 set comprehension의 순서와 가독성 범위를 확인하고 `sorted()`로 안정적인 새 list를 만들었다.
 - in-memory note collection에서 대소문자 무시 keyword 검색 결과를 정렬하는 `search_note_titles()`를 구현했다.
 
+### P3-1. mutability, aliasing, copy
+
+- 여러 이름이 같은 mutable 객체를 참조할 때 한 경로의 변경이 다른 경로에서도 관찰되는 aliasing을 확인했다.
+- shallow copy가 바깥 collection만 복사하고 내부 mutable 객체는 공유하는 것을 확인했다.
+- 중첩된 tag collection까지 독립적으로 소유하도록 복사 경계를 구현했다.
+- 함수 인자 전달을 객체 참조가 공유되는 call by sharing으로 확인했다.
+
+### P3-2. class와 instance
+
+- instance와 class attribute의 lookup 순서 및 instance별 상태 소유권을 확인했다.
+- method 호출에서 instance가 `self` parameter에 binding되는 것을 확인했다.
+- note마다 독립적인 title과 tag collection을 소유하도록 구현했다.
+
+### P3-3. dataclass와 value object
+
+- dataclass가 생성하는 초기화, representation, equality 동작을 확인했다.
+- `Tag`를 값으로 비교하고 빈 이름을 검증하는 value object로 구현했다.
+- `Note`가 자신의 tag collection을 소유하고 동등한 tag의 중복을 방지하도록 구현했다.
+
+### P3-4. protocol과 composition
+
+- 명시적 상속 없이 같은 동작을 제공하는 duck typing과 structural compatibility를 확인했다.
+- `Protocol`의 runtime 검사는 method signature 전체를 보장하지 않는 한계를 재현했다.
+- `NoteRepository` contract와 in-memory 구현을 만들고 collection 소유권을 확인했다.
+- `NoteService`가 repository를 composition으로 전달받아 저장과 조회를 위임하도록 구현했다.
+
 ### P4-1. exception과 traceback
 
 - `raise` 이후 정상 반환이 중단되고 처리되지 않은 exception이 module 실행 경계까지 전파되는 것을 확인했다.
@@ -112,10 +138,40 @@
 - 불필요한 반대 방향 dependency를 제거해 module 초기화 순서를 한 방향으로 만들었다.
 - module dependency의 초기화 순서를 공개 behavior test로 검증했다.
 
+### P4-4. project와 dependency
+
+- distribution 이름과 import package 이름이 서로 다른 설치·실행 경계의 식별자임을 확인했다.
+- virtual environment의 interpreter, 현재 prefix, 기반 prefix를 직접 비교했다.
+- editable install이 `.venv`의 distribution metadata와 작업 중인 source를 연결하는 것을 확인했다.
+- `pyproject.toml`의 build system, project metadata, runtime dependency 역할을 구분했다.
+- build dependency가 runtime 환경에 반드시 설치되는 것은 아님을 격리된 build 경계로 설명했다.
+- 선언된 runtime dependency와 설치된 distribution metadata를 비교했다.
+- project script metadata가 `.venv/bin/knowledge-lab` console wrapper로 생성되는 것을 확인했다.
+- 현재 dependency graph에는 lockfile이 필요하지 않다고 판단하고 `pip check`로 설치 정합성을 검증했다.
+- project metadata와 CLI entry point 경계를 공개 behavior test로 검증했다.
+
 ## 현재 작은 단계
 
-- P4-3 module, package, import
+- P4-4 project와 dependency
 - 상태: 완료
+- 완료: distribution 이름 `knowledge-lab`과 import package 이름 `knowledge_lab`이 서로 다른 경계의 식별자임을 확인했다.
+- 완료: import된 module 객체의 `__name__`이 import package 이름을 사용하는 것을 확인했다.
+- 완료: `sys.executable`, `sys.prefix`, `sys.base_prefix`를 비교해 `.venv` interpreter와 기반 Python의 경계를 확인했다.
+- 완료: `sys.prefix != sys.base_prefix`가 `True`인 virtual environment 실행 상태를 확인했다.
+- 완료: `python -m pip show`와 `importlib.metadata.distribution()`이 같은 설치 환경의 distribution 이름과 version을 조회하는 것을 확인했다.
+- 완료: editable install이 `.venv`의 metadata와 작업 중인 source directory를 연결해 `PYTHONPATH` 없이 import되는 것을 확인했다.
+- 완료: `tomllib`으로 `pyproject.toml`의 build backend와 project metadata를 읽고 두 section의 역할을 구분했다.
+- 완료: TOML을 읽은 뒤 file resource는 닫히고 별도로 생성된 config dict는 계속 사용되는 소유권 경계를 확인했다.
+- 완료: build requirement인 setuptools가 격리된 build 환경에서 사용될 수 있으며 현재 runtime 환경에는 설치되지 않은 것을 확인했다.
+- 완료: `[project].dependencies`가 비어 있어 애플리케이션 runtime dependency도 없음을 `pip freeze`와 비교했다.
+- 완료: `[project].dependencies`가 설치 시 distribution의 `Requires-Dist` metadata로 변환되는 경계를 확인했다.
+- 완료: dependency가 없는 metadata의 `None`을 빈 list로 정규화해 선언 상태와 비교했다.
+- 완료: `[project.scripts]`의 `knowledge_lab.__main__:main`이 `.venv/bin/knowledge-lab` wrapper로 생성되는 것을 확인했다.
+- 완료: console script의 shebang, import, 함수 호출을 거쳐 `python -m knowledge_lab`과 같은 entry point가 실행되는 것을 확인했다.
+- 완료: `pip check`로 현재 environment에 누락되거나 충돌하는 requirement가 없음을 확인했다.
+- 완료: dependency 선언, 설치 environment snapshot, lockfile의 서로 다른 역할을 구분했다.
+- 완료: 외부 runtime dependency가 없는 현재 단계에서는 별도 lockfile을 만들지 않고 표준 `venv`, pip, `pyproject.toml`을 유지하기로 했다.
+- 완료: project metadata와 console entry point의 공개 behavior를 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙
