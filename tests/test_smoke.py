@@ -18,6 +18,7 @@ from knowledge_lab.lessons import (
     p3_3_dataclasses_and_value_objects,
     p3_4_protocols_and_composition,
     p4_1_exceptions,
+    p4_3_modules_and_imports,
 )
 
 
@@ -30,9 +31,12 @@ class MainTest(unittest.TestCase):
 
         lines = output.getvalue().splitlines()
 
-        self.assertIn(
-            "after exception stream closed: True",
-            lines,
+        self.assertIn("P4-3 module, package, import 시작", lines)
+
+    def test_current_lesson_module_is_importable(self) -> None:
+        self.assertEqual(
+            "knowledge_lab.lessons.p4_3_modules_and_imports",
+            p4_3_modules_and_imports.__name__,
         )
 
 

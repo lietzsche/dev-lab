@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P4-2 context manager
+- 단계: P4-3 module, package, import
 - 상태: 완료
 
 ## 준비된 기반
@@ -93,23 +93,29 @@
 - `KeyError`를 `NoteNotFoundError`로 변환해 infrastructure 세부사항과 domain 의미를 분리했다.
 - title 검증과 exception chaining의 공개 behavior를 test로 검증했다.
 
+### P4-2. context manager
+
+- `with` 진입 전, block 내부, 정상·예외 종료 후의 resource 상태를 관찰했다.
+- class 기반 context manager에서 `__enter__`와 `__exit__`의 호출 및 소유권 경계를 확인했다.
+- `__exit__` 반환값에 따른 exception 전파와 억제를 비교했다.
+- generator 기반 context manager가 `finally`에서 resource를 해제하는 것을 확인했다.
+- class 및 generator 기반 context manager의 공개 behavior를 test로 검증했다.
+
+### P4-3. module, package, import
+
+- module 최상위 코드와 함수 본문의 import·call 실행 시점을 구분했다.
+- 같은 process의 import cache가 동일한 module 객체를 반환하는 것을 identity로 확인했다.
+- `__name__`과 `__package__`로 module 정규 이름과 package 경계를 관찰했다.
+- absolute import와 relative import가 같은 module 객체로 해석되는 것을 확인했다.
+- 파일 직접 실행에는 알려진 parent package가 없어 relative import가 실패하는 것을 재현했다.
+- circular import에서 부분 초기화된 module의 아직 생성되지 않은 attribute 접근 오류를 재현했다.
+- 불필요한 반대 방향 dependency를 제거해 module 초기화 순서를 한 방향으로 만들었다.
+- module dependency의 초기화 순서를 공개 behavior test로 검증했다.
+
 ## 현재 작은 단계
 
-- P4-2 context manager
+- P4-3 module, package, import
 - 상태: 완료
-- 완료: `StringIO`를 사용해 `with` 진입 전, block 내부, 종료 후의 `closed` 상태를 관찰했다.
-- 완료: `with ... as ...`의 두 이름이 같은 resource 객체를 참조하는 것을 `is`로 확인했다.
-- 완료: `with` block의 exception이 바깥 `except`로 전달되기 전에 resource가 해제되는 것을 확인했다.
-- 완료: 수동 `close()`가 exception 이후에 배치되면 실행되지 않아 resource가 열린 채 남는 문제를 재현했다.
-- 완료: `ManagedStream`의 `__enter__`와 `__exit__`로 class 기반 context manager의 정상 경로를 구현했다.
-- 완료: dataclass가 resource를 생성 시점부터 소유하고 `__enter__`가 같은 객체를 반환하도록 상태 경계를 명확히 했다.
-- 완료: 정상 종료와 예외 종료에서 `__exit__`에 전달되는 exception type, value, traceback을 비교했다.
-- 완료: resource를 닫은 뒤 `__exit__`가 `False`를 반환하면 exception이 바깥 `except`까지 전파되는 것을 확인했다.
-- 완료: `__exit__`가 참인 값을 반환하면 exception이 억제되어 `with` 다음 문장부터 실행이 계속되는 것을 확인했다.
-- 완료: `contextlib.contextmanager`, `yield`, `finally`로 generator 기반 context manager의 정상 경로를 구현했다.
-- 완료: `with`가 새 scope를 만들지 않아 block 밖의 이름이 닫힌 동일 stream 객체를 계속 참조하는 것을 확인했다.
-- 완료: generator 기반 context manager의 exception 경로에서도 `finally`가 resource를 해제한 뒤 오류가 전파되는 것을 확인했다.
-- 완료: class 및 generator 기반 context manager의 정상·예외 경계를 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙
