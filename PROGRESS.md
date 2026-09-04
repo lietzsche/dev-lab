@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P4-4 project와 dependency
+- 단계: P5-1 first-class function과 closure
 - 상태: 완료
 
 ## 준비된 기반
@@ -150,28 +150,21 @@
 - 현재 dependency graph에는 lockfile이 필요하지 않다고 판단하고 `pip check`로 설치 정합성을 검증했다.
 - project metadata와 CLI entry point 경계를 공개 behavior test로 검증했다.
 
+### P5-1. first-class function과 closure
+
+- 함수 이름과 별칭이 같은 함수 객체를 참조하는 것을 identity로 확인했다.
+- 함수 객체를 argument와 반환값으로 전달하고 실제 호출 시점을 구분했다.
+- 내부 함수가 외부 함수 호출 이후에도 closure cell을 통해 상태를 보존하는 것을 확인했다.
+- factory 호출마다 독립적인 함수 객체와 closure cell이 생성되는 것을 확인했다.
+- loop의 여러 함수가 같은 cell을 공유해 마지막 값을 읽는 late binding 문제를 재현했다.
+- 별도의 factory 호출로 각 함수가 독립적인 cell을 소유하도록 late binding을 해결했다.
+- `nonlocal` rebinding으로 closure가 여러 호출 사이의 count 상태를 보존하도록 구현했다.
+- first-class function과 closure의 공개 behavior를 test로 검증했다.
+
 ## 현재 작은 단계
 
-- P4-4 project와 dependency
+- P5-1 first-class function과 closure
 - 상태: 완료
-- 완료: distribution 이름 `knowledge-lab`과 import package 이름 `knowledge_lab`이 서로 다른 경계의 식별자임을 확인했다.
-- 완료: import된 module 객체의 `__name__`이 import package 이름을 사용하는 것을 확인했다.
-- 완료: `sys.executable`, `sys.prefix`, `sys.base_prefix`를 비교해 `.venv` interpreter와 기반 Python의 경계를 확인했다.
-- 완료: `sys.prefix != sys.base_prefix`가 `True`인 virtual environment 실행 상태를 확인했다.
-- 완료: `python -m pip show`와 `importlib.metadata.distribution()`이 같은 설치 환경의 distribution 이름과 version을 조회하는 것을 확인했다.
-- 완료: editable install이 `.venv`의 metadata와 작업 중인 source directory를 연결해 `PYTHONPATH` 없이 import되는 것을 확인했다.
-- 완료: `tomllib`으로 `pyproject.toml`의 build backend와 project metadata를 읽고 두 section의 역할을 구분했다.
-- 완료: TOML을 읽은 뒤 file resource는 닫히고 별도로 생성된 config dict는 계속 사용되는 소유권 경계를 확인했다.
-- 완료: build requirement인 setuptools가 격리된 build 환경에서 사용될 수 있으며 현재 runtime 환경에는 설치되지 않은 것을 확인했다.
-- 완료: `[project].dependencies`가 비어 있어 애플리케이션 runtime dependency도 없음을 `pip freeze`와 비교했다.
-- 완료: `[project].dependencies`가 설치 시 distribution의 `Requires-Dist` metadata로 변환되는 경계를 확인했다.
-- 완료: dependency가 없는 metadata의 `None`을 빈 list로 정규화해 선언 상태와 비교했다.
-- 완료: `[project.scripts]`의 `knowledge_lab.__main__:main`이 `.venv/bin/knowledge-lab` wrapper로 생성되는 것을 확인했다.
-- 완료: console script의 shebang, import, 함수 호출을 거쳐 `python -m knowledge_lab`과 같은 entry point가 실행되는 것을 확인했다.
-- 완료: `pip check`로 현재 environment에 누락되거나 충돌하는 requirement가 없음을 확인했다.
-- 완료: dependency 선언, 설치 environment snapshot, lockfile의 서로 다른 역할을 구분했다.
-- 완료: 외부 runtime dependency가 없는 현재 단계에서는 별도 lockfile을 만들지 않고 표준 `venv`, pip, `pyproject.toml`을 유지하기로 했다.
-- 완료: project metadata와 console entry point의 공개 behavior를 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙

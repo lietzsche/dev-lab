@@ -16,6 +16,7 @@ from knowledge_lab.lessons import (
     p4_1_exceptions,
     p4_2_context_managers,
     p4_4_projects_and_dependencies,
+    p5_1_first_class_functions_and_closures,
 )
 
 
@@ -35,7 +36,8 @@ def main() -> None:
     # p3_4_protocols_and_composition.run()
     # p4_1_exceptions.run()
     # p4_2_context_managers.run()
-    p4_4_projects_and_dependencies.run()
+    # p4_4_projects_and_dependencies.run()
+    p5_1_first_class_functions_and_closures.run()
 
 
 if __name__ == "__main__":

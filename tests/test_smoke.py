@@ -19,6 +19,7 @@ from knowledge_lab.lessons import (
     p3_4_protocols_and_composition,
     p4_1_exceptions,
     p4_4_projects_and_dependencies,
+    p5_1_first_class_functions_and_closures,
 )
 
 
@@ -31,12 +32,12 @@ class MainTest(unittest.TestCase):
 
         lines = output.getvalue().splitlines()
 
-        self.assertIn("P4-4 project와 dependency 시작", lines)
+        self.assertIn("P5-1 first-class function과 closure 시작", lines)
 
     def test_current_lesson_module_is_importable(self) -> None:
         self.assertEqual(
-            "knowledge_lab.lessons.p4_4_projects_and_dependencies",
-            p4_4_projects_and_dependencies.__name__,
+            "knowledge_lab.lessons.p5_1_first_class_functions_and_closures",
+            p5_1_first_class_functions_and_closures.__name__,
         )
 
 
