@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P5-1 first-class function과 closure
+- 단계: P5-2 iterable과 iterator
 - 상태: 완료
 
 ## 준비된 기반
@@ -161,10 +161,38 @@
 - `nonlocal` rebinding으로 closure가 여러 호출 사이의 count 상태를 보존하도록 구현했다.
 - first-class function과 closure의 공개 behavior를 test로 검증했다.
 
+### P5-2. iterable과 iterator
+
+- iterable과 iterator가 서로 다른 객체이며 같은 iterable에서 독립적인 iterator를 만들 수 있음을 확인했다.
+- `iter`, `next`, `StopIteration`을 통해 iterator가 순회 위치를 소유하고 이동하는 protocol을 관찰했다.
+- `for`가 `StopIteration`을 정상적인 반복 종료로 처리하고 전달받은 iterator를 소비하는 것을 확인했다.
+- 한 번 소비된 iterator를 재사용하면 두 번째 결과가 비는 버그를 재현했다.
+- `NoteTitles`가 입력 list의 복사본을 소유하고 호출마다 새 iterator를 제공하도록 구현했다.
+- `NoteTitleIterator`에 `__iter__`, `__next__`, index 상태, 종료 조건을 직접 구현했다.
+- iterator 독립성, 지속되는 소진 상태, collection 소유권을 공개 behavior test로 검증했다.
+
 ## 현재 작은 단계
 
-- P5-1 first-class function과 closure
+- P5-2 iterable과 iterator
 - 상태: 완료
+- 완료: list iterable과 `iter()`가 생성한 `list_iterator`가 서로 다른 객체임을 확인했다.
+- 완료: 같은 iterable에서 만든 두 iterator가 독립적인 객체이고 iterator의 `iter()`는 자기 자신을 반환함을 확인했다.
+- 완료: `next()` 호출마다 iterator가 다음 객체를 반환하고 자신의 순회 위치를 이동하는 것을 확인했다.
+- 완료: 두 iterator가 독립적인 위치를 소유하며 값을 소비해도 원본 list는 변경되지 않음을 확인했다.
+- 완료: 소진된 iterator에 `next()`를 호출해 값 대신 `StopIteration`이 발생하는 호출 시점을 traceback으로 확인했다.
+- 완료: `StopIteration`을 처리한 뒤에도 iterator가 소진 상태를 유지하고 `next(iterator, default)`가 기본 객체를 반환함을 확인했다.
+- 완료: 한 iterator의 소진이 같은 iterable에서 만든 다른 iterator의 순회 상태에는 영향을 주지 않음을 확인했다.
+- 완료: `for`가 iterator에서 값을 차례로 소비하고 `StopIteration`을 정상적인 loop 종료로 처리함을 확인했다.
+- 완료: `for` 종료 뒤 전달한 iterator가 소진 상태임을 `next(iterator, default)`로 확인했다.
+- 완료: 같은 iterator를 두 번 소비하면 첫 결과만 값을 가지고 두 번째 결과는 비는 재사용 버그를 확인했다.
+- 완료: list iterable은 소비할 때마다 새 iterator와 새 결과 list를 만들 수 있음을 identity로 확인했다.
+- 완료: `NoteTitles.__iter__()`가 내부 list에서 새 iterator를 반환하는 사용자 정의 iterable을 구현했다.
+- 완료: `iter(note_titles_collection)` 호출마다 별도 `list_iterator`가 생성되어 반복 가능한 것을 확인했다.
+- 완료: `NoteTitles`가 입력 list를 복사해 내부 collection의 소유권을 분리했다.
+- 완료: `NoteTitleIterator`가 자신의 index를 소유하고 `__iter__`, `__next__`, `StopIteration`으로 iterator protocol을 구현했다.
+- 완료: 서로 다른 iterator가 독립적인 index 상태를 소유하는 behavior를 test로 검증했다.
+- 완료: `StopIteration` 이후에도 iterator가 소진 상태를 유지하는 behavior를 test로 검증했다.
+- 완료: `NoteTitles`가 외부 입력 list의 이후 변경에서 독립적인 collection을 소유함을 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙
