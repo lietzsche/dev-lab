@@ -18,6 +18,14 @@ from knowledge_lab.lessons import (
     p4_4_projects_and_dependencies,
     p5_1_first_class_functions_and_closures,
     p5_2_iterables_and_iterators,
+    p5_3_generators,
+    p5_4_decorators,
+    p6_1_type_hints,
+    p6_2_generics_and_protocols,
+    p6_3_test_design,
+    p6_4_quality_tools,
+    p7_1_paths_and_file_io,
+    p7_2_json_persistence,
 )
 
 
@@ -39,7 +47,15 @@ def main() -> None:
     # p4_2_context_managers.run()
     # p4_4_projects_and_dependencies.run()
     # p5_1_first_class_functions_and_closures.run()
-    p5_2_iterables_and_iterators.run()
+    # p5_2_iterables_and_iterators.run()
+    # p5_3_generators.run()
+    # p5_4_decorators.run()
+    # p6_1_type_hints.run()
+    # p6_2_generics_and_protocols.run()
+    # p6_3_test_design.run()
+    # p6_4_quality_tools.run()
+    # p7_1_paths_and_file_io.run()
+    p7_2_json_persistence.run()
 
 
 if __name__ == "__main__":

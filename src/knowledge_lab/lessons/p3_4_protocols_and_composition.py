@@ -7,8 +7,7 @@ from knowledge_lab.lessons.p3_3_dataclasses_and_value_objects import Note
 
 @runtime_checkable
 class Formatter(Protocol):
-    def format(self, value: str) -> str:
-        ...
+    def format(self, value: str) -> str: ...
 
 
 class NoteFormatter:
@@ -36,11 +35,9 @@ class NotePresenter:
 
 @runtime_checkable
 class NoteRepository(Protocol):
-    def add(self, note: Note) -> None:
-        ...
+    def add(self, note: Note) -> None: ...
 
-    def all(self) -> list[Note]:
-        ...
+    def all(self) -> list[Note]: ...
 
 
 class InMemoryNoteRepository:
@@ -96,10 +93,7 @@ def run() -> None:
         "isinstance(uppercase_formatter, Formatter): "
         f"{isinstance(uppercase_formatter, Formatter)}"
     )
-    print(
-        "Formatter in NoteFormatter.__mro__: "
-        f"{Formatter in NoteFormatter.__mro__}"
-    )
+    print(f"Formatter in NoteFormatter.__mro__: {Formatter in NoteFormatter.__mro__}")
     print(
         "Formatter in UppercaseFormatter.__mro__: "
         f"{Formatter in UppercaseFormatter.__mro__}"

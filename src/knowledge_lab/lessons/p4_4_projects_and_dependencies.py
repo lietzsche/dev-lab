@@ -1,6 +1,5 @@
 """P4-4: project와 dependency 경계를 관찰한다."""
 
-
 import sys
 import tomllib
 from importlib.metadata import distribution
@@ -25,23 +24,15 @@ def run() -> None:
     print(f"sys.executable: {sys.executable}")
     print(f"sys.prefix: {sys.prefix}")
     print(f"sys.base_prefix: {sys.base_prefix}")
-    print(
-        f"sys.prefix != sys.base_prefix: {sys.prefix != sys.base_prefix}"
-    )
+    print(f"sys.prefix != sys.base_prefix: {sys.prefix != sys.base_prefix}")
     installed_distribution = distribution(distribution_name)
-    print(
-        "installed_distribution's Name: "
-        f"{installed_distribution.metadata['Name']}"
-    )
+    print(f"installed_distribution's Name: {installed_distribution.metadata['Name']}")
     print(f"installed_distribution.version: {installed_distribution.version}")
     with open("pyproject.toml", "rb") as file:
         config = tomllib.load(file)
         print(f"in block, pyproject file closed: {file.closed}")
     print(f"after block, pyproject file closed: {file.closed}")
-    print(
-        "build-system/build-backend: "
-        f"{config['build-system']['build-backend']}"
-    )
+    print(f"build-system/build-backend: {config['build-system']['build-backend']}")
     print(f"project/name: {config['project']['name']}")
     print(f"project/dependencies: {config['project']['dependencies']}")
     build_dependencies = config["build-system"]["requires"]

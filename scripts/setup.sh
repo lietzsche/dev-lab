@@ -7,7 +7,7 @@ venv_dir="${project_root}/.venv"
 python_bin="${PYTHON_BIN:-python3}"
 
 "${python_bin}" -m venv "${venv_dir}"
-"${venv_dir}/bin/python" -m pip install -e "${project_root}"
+"${venv_dir}/bin/python" -m pip install -e "${project_root}[quality,test]"
 
 echo
 echo "Development environment is ready."

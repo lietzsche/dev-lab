@@ -65,10 +65,7 @@ def run() -> None:
         "returned formatter is format_note_title: "
         f"{returned_formatter is format_note_title}"
     )
-    print(
-        "formatted by returned function: "
-        f"{returned_formatter('Returned function')}"
-    )
+    print(f"formatted by returned function: {returned_formatter('Returned function')}")
 
     prefix = "[NOTE]"
     note_formatter = make_note_formatter(prefix)
@@ -84,17 +81,12 @@ def run() -> None:
     print(f"formatters are same object: {note_formatter is todo_formatter}")
     print(f"closure cells are same object: {prefix_cell is todo_prefix_cell}")
 
-    prefix_readers = make_prefix_readers(
-        ["[NOTE]", "[TODO]", "[DONE]"]
-    )
+    prefix_readers = make_prefix_readers(["[NOTE]", "[TODO]", "[DONE]"])
     values = [reader() for reader in prefix_readers]
     print(f"reader values: {values!r}")
     first_reader_cell = prefix_readers[0].__closure__[0]
     last_reader_cell = prefix_readers[-1].__closure__[0]
-    print(
-        "reader cells are same object: "
-        f"{first_reader_cell is last_reader_cell}"
-    )
+    print(f"reader cells are same object: {first_reader_cell is last_reader_cell}")
 
     counter = make_note_counter()
     print(f"first note count: {counter()}")

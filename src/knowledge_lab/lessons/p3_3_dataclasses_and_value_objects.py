@@ -68,10 +68,7 @@ def run() -> None:
     slotted_note = SlottedNote("slot title")
     print(f"slotted_note repr: {slotted_note!r}")
     print(f"slotted_note title: {slotted_note.title}")
-    print(
-        "slotted_note hasattr __dict__: "
-        f"{hasattr(slotted_note, '__dict__')}"
-    )
+    print(f"slotted_note hasattr __dict__: {hasattr(slotted_note, '__dict__')}")
     # slotted_note.content = "add content"  # AttributeError 관찰 완료
 
     bad_draft_note = NoteDraft(title=1990, content=None)

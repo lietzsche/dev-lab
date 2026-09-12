@@ -51,7 +51,7 @@ def run() -> None:
     print(f"normalized_tags type: {type(normalized_tags)}")
     print(f"tags length: {len(tags)}")
     print(f"normalized_tags length: {len(normalized_tags)}")
-    print(f'python in normalized_tags: {"python" in normalized_tags}')
+    print(f"python in normalized_tags: {'python' in normalized_tags}")
 
     generate_length_from_notes = (
         get_title_length_after_print_title(note) for note in notes
@@ -85,15 +85,12 @@ def run() -> None:
     print(f"all_normalized_tags repr: {all_normalized_tags!r}")
     print(f"all_normalized_tags type: {type(all_normalized_tags)}")
     print(f"all_normalized_tags length: {len(all_normalized_tags)}")
-    print(f'python in all_normalized_tags: {"python" in all_normalized_tags}')
+    print(f"python in all_normalized_tags: {'python' in all_normalized_tags}")
 
     sorted_tags = sorted(all_normalized_tags)
     print(f"sorted_tags repr: {sorted_tags!r}")
     print(f"sorted_tags type: {type(sorted_tags)}")
-    print(
-        "sorted_tags is all_normalized_tags: "
-        f"{sorted_tags is all_normalized_tags}"
-    )
+    print(f"sorted_tags is all_normalized_tags: {sorted_tags is all_normalized_tags}")
     print(f"all_normalized_tags type: {type(all_normalized_tags)}")
 
     search_notes = [

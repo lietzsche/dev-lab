@@ -41,8 +41,8 @@ def run() -> None:
     print(f"content truthy: {bool(content)}")
     show_content_truthy("")
     show_content_truthy("Python if")
-    print(f'content state: {content_state("")}')
-    print(f'content state: {content_state("Python")}')
+    print(f"content state: {content_state('')}")
+    print(f"content state: {content_state('Python')}")
 
     for character in "Lab":
         print(f"character: {character}")
@@ -82,6 +82,6 @@ def run() -> None:
     find_character("Lab", "a")
     find_character("Lab", "z")
 
-    print(f'command: {describe_command("create")}')
-    print(f'command: {describe_command("add")}')
-    print(f'command: {describe_command("delete")}')
+    print(f"command: {describe_command('create')}")
+    print(f"command: {describe_command('add')}")
+    print(f"command: {describe_command('delete')}")

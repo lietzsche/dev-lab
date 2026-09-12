@@ -99,4 +99,3 @@ def run() -> None:
         print(f"error: {error!r}")
 
     print(f"after exception stream closed: {error_stream.closed}")
-    

@@ -22,10 +22,7 @@ def run() -> None:
     print(f"relevance: {relevance}, relevance type: {type(relevance)}")
 
     same_relevance = relevance
-    print(
-        f"same_relevance id: {id(same_relevance)}, "
-        f"relevance id: {id(relevance)}"
-    )
+    print(f"same_relevance id: {id(same_relevance)}, relevance id: {id(relevance)}")
     print(f"same_relevance is relevance: {same_relevance is relevance}")
 
     expected_relevance = float("1.0")

@@ -18,8 +18,7 @@ from knowledge_lab.lessons import (
     p3_3_dataclasses_and_value_objects,
     p3_4_protocols_and_composition,
     p4_1_exceptions,
-    p4_4_projects_and_dependencies,
-    p5_2_iterables_and_iterators,
+    p7_2_json_persistence,
 )
 
 
@@ -32,12 +31,12 @@ class MainTest(unittest.TestCase):
 
         lines = output.getvalue().splitlines()
 
-        self.assertIn("P5-2 iterable과 iterator 시작", lines)
+        self.assertIn("P7-2 JSON persistence 시작", lines)
 
     def test_current_lesson_module_is_importable(self) -> None:
         self.assertEqual(
-            "knowledge_lab.lessons.p5_2_iterables_and_iterators",
-            p5_2_iterables_and_iterators.__name__,
+            "knowledge_lab.lessons.p7_2_json_persistence",
+            p7_2_json_persistence.__name__,
         )
 
 
@@ -128,9 +127,7 @@ class MappingsAndSetsTest(unittest.TestCase):
         note = {"title": "검색 노트", "tags": note_tags}
         required_tags = {"python", "llm"}
 
-        missing_tags = p2_2_mappings_and_sets.find_missing_tags(
-            note, required_tags
-        )
+        missing_tags = p2_2_mappings_and_sets.find_missing_tags(note, required_tags)
 
         self.assertEqual({"llm"}, missing_tags)
         self.assertEqual({"python", "backend"}, note["tags"])
@@ -161,16 +158,12 @@ class StringsAndBytesTest(unittest.TestCase):
 
         note = p2_3_strings_and_bytes.parse_note_payload(payload)
 
-        self.assertEqual(
-            {"title": "검색 노트", "content": "UTF-8 경계"}, note
-        )
+        self.assertEqual({"title": "검색 노트", "content": "UTF-8 경계"}, note)
         self.assertEqual("검색 노트|UTF-8 경계".encode("utf-8"), payload)
 
     def test_parse_note_payload_preserves_failure_boundaries(self) -> None:
         self.assertIsNone(
-            p2_3_strings_and_bytes.parse_note_payload(
-                "구분자 없음".encode("utf-8")
-            )
+            p2_3_strings_and_bytes.parse_note_payload("구분자 없음".encode("utf-8"))
         )
 
         with self.assertRaises(UnicodeDecodeError):
@@ -201,9 +194,7 @@ class ComprehensionsTest(unittest.TestCase):
     def test_search_note_titles_returns_empty_list_without_match(self) -> None:
         notes = [{"title": "Python"}, {"title": "Rust"}]
 
-        self.assertEqual(
-            [], p2_4_comprehensions.search_note_titles(notes, "Java")
-        )
+        self.assertEqual([], p2_4_comprehensions.search_note_titles(notes, "Java"))
 
 
 class MutabilityAliasingCopyTest(unittest.TestCase):
@@ -277,17 +268,13 @@ class ProtocolsAndCompositionTest(unittest.TestCase):
         created_note = service.create_note("Python", "Protocol")
 
         self.assertIs(service.repository, repository)
-        self.assertIsInstance(
-            repository, p3_4_protocols_and_composition.NoteRepository
-        )
+        self.assertIsInstance(repository, p3_4_protocols_and_composition.NoteRepository)
         self.assertEqual([created_note], service.list_notes())
         self.assertIs(created_note, service.list_notes()[0])
 
     def test_repository_keeps_ownership_of_its_collection(self) -> None:
         repository = p3_4_protocols_and_composition.InMemoryNoteRepository()
-        repository.add(
-            p3_3_dataclasses_and_value_objects.Note("Python", "Ownership")
-        )
+        repository.add(p3_3_dataclasses_and_value_objects.Note("Python", "Ownership"))
 
         returned_notes = repository.all()
         returned_notes.clear()

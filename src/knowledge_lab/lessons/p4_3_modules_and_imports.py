@@ -1,6 +1,5 @@
 """P4-3: module, package, import 실행 경계를 관찰한다."""
 
-
 print("P4-3 module imported")
 
 

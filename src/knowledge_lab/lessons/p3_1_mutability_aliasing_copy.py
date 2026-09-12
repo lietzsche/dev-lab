@@ -1,4 +1,5 @@
 """P3-1: mutability, aliasing, and copy."""
+
 from copy import deepcopy
 
 
@@ -66,10 +67,7 @@ def run() -> None:
     copied_note = copy_note(note)
     copied_note["tags"].append("copy")
     print(f"note is copied note: {note is copied_note}")
-    print(
-        "note tags is copied note tags: "
-        f"{note['tags'] is copied_note['tags']}"
-    )
+    print(f"note tags is copied note tags: {note['tags'] is copied_note['tags']}")
     print(f"note tags: {note['tags']}")
     print(f"copied_note tags: {copied_note['tags']}")
 

@@ -19,19 +19,11 @@ def run() -> None:
 
     sample = "한글"
     encoded = sample.encode("utf-8")
-    print(
-        f"sample: repr: {sample!r}, type: {type(sample)}, length: {len(sample)}"
-    )
-    print(
-        f"encoded: repr: {encoded!r}, type: {type(encoded)}, "
-        f"length: {len(encoded)}"
-    )
+    print(f"sample: repr: {sample!r}, type: {type(sample)}, length: {len(sample)}")
+    print(f"encoded: repr: {encoded!r}, type: {type(encoded)}, length: {len(encoded)}")
 
     decoded = encoded.decode("utf-8")
-    print(
-        f"decoded: repr: {decoded!r}, type: {type(decoded)}, "
-        f"length: {len(decoded)}"
-    )
+    print(f"decoded: repr: {decoded!r}, type: {type(decoded)}, length: {len(decoded)}")
     print(f"decoded == sample: {decoded == sample}")
 
     title_content = "첫 노트|문자열 parsing"

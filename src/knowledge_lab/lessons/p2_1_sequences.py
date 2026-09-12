@@ -27,10 +27,7 @@ def run() -> None:
     print(f"selected titles type: {type(selected_titles)}")
 
     print(f"selected titles is note titles: {selected_titles is note_titles}")
-    print(
-        "selected first is original index 1: "
-        f"{selected_titles[0] is note_titles[1]}"
-    )
+    print(f"selected first is original index 1: {selected_titles[0] is note_titles[1]}")
 
     selected_titles[0] = "수정된 두 번째 노트"
     print(f"selected titles after replacement: {selected_titles}")

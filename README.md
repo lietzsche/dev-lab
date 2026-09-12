@@ -71,7 +71,7 @@ Python 3.12 이상을 권장한다. 저장소 루트에서 setup script를 실�
 ./scripts/setup.sh
 source .venv/bin/activate
 python -m knowledge_lab
-python -m unittest discover -s tests -v
+pytest
 ```
 
 직접 설정할 때는 다음 명령이 같은 작업을 수행한다.
@@ -79,9 +79,9 @@ python -m unittest discover -s tests -v
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e .
+python -m pip install -e ".[quality,test]"
 python -m knowledge_lab
-python -m unittest discover -s tests -v
+pytest
 ```
 
 VS Code에서는 workspace를 WSL에서 열고 `.venv/bin/python`을 interpreter로 선택한다. editor와 terminal이 같은 interpreter를 사용하면 `src` layout의 `knowledge_lab` import도 동일하게 해석된다.
@@ -90,7 +90,7 @@ VS Code에서는 workspace를 WSL에서 열고 `.venv/bin/python`을 interpreter
 
 ```bash
 PYTHONPATH=src python3 -m knowledge_lab
-PYTHONPATH=src python3 -m unittest discover -s tests -v
+PYTHONPATH=src python3 -m pytest
 ```
 
 현재 첫 단계와 다음 과제는 [PROGRESS.md](PROGRESS.md), 전체 순서는 [CURRICULUM.md](CURRICULUM.md)를 따른다.
@@ -116,6 +116,8 @@ dev-lab/
 ## 현재 검증 명령
 
 ```bash
-python3 -m compileall -q src tests
-PYTHONPATH=src python3 -m unittest discover -s tests -v
+./scripts/check.sh
 ```
+
+이 script는 source를 수정하지 않고 Ruff formatter, Ruff linter, mypy,
+pytest를 차례로 실행한다. 하나라도 실패하면 즉시 non-zero status로 종료한다.

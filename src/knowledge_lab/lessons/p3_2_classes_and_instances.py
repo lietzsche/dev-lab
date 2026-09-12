@@ -96,10 +96,7 @@ def run() -> None:
     Note.rename(second_note, "new second note title")
     print(f"after second_note.title: {second_note.title}")
 
-    print(
-        "first note tags is second note tags: "
-        f"{first_note.tags is second_note.tags}"
-    )
+    print(f"first note tags is second note tags: {first_note.tags is second_note.tags}")
     first_note.tags.append("first tags")
     print(f"first_note tags: {first_note.tags}")
     print(f"second_note tags: {second_note.tags}")

@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P5-2 iterable과 iterator
+- 단계: P7-2 JSON persistence
 - 상태: 완료
 
 ## 준비된 기반
@@ -171,7 +171,80 @@
 - `NoteTitleIterator`에 `__iter__`, `__next__`, index 상태, 종료 조건을 직접 구현했다.
 - iterator 독립성, 지속되는 소진 상태, collection 소유권을 공개 behavior test로 검증했다.
 
-## 현재 작은 단계
+### P5-3. generator
+
+- generator function 호출과 첫 `next()` 사이의 lazy execution 경계를 확인했다.
+- 여러 `yield` 사이에서 실행 위치와 local 상태가 보존되는 것을 확인했다.
+- 함수 종료 시 `StopIteration`이 전달되고 generator가 소진 상태를 유지함을 확인했다.
+- generator pipeline이 아래쪽 요청에 필요한 값만 source에서 가져오는 pull 방식을 확인했다.
+- eager list와 lazy generator의 얕은 메모리 크기를 비교했다.
+- `yield from`으로 여러 하위 generator의 값을 순서대로 위임했다.
+- `Note` 제목을 대소문자 구분 없이 lazy하게 검색하는 streaming 함수를 구현했다.
+- lazy 중단, 전체 검색, 입력 보존, 위임 순서를 공개 behavior test로 검증했다.
+
+### P5-4. decorator
+
+- 함수를 감싸 호출 전후 동작을 추가하면서 argument와 반환값을 보존했다.
+- decorator의 import 시점 적용과 wrapper의 함수 호출 시점 실행을 구분했다.
+- `functools.wraps`로 원본 함수의 이름과 문서 metadata를 보존했다.
+- `time.perf_counter`를 이용해 함수 실행 시간을 측정했다.
+- 인자를 받는 decorator factory가 설정값을 closure에 보존하는 과정을 확인했다.
+- framework 형태의 decorator가 원본 함수를 path registry에 등록하는 방식을 구현했다.
+- wrapping, metadata, timing, closure, route 등록을 공개 behavior test로 검증했다.
+
+### P6-1. type hint의 역할
+
+- function annotation이 runtime type을 강제하지 않는다는 점을 직접 확인했다.
+- union과 optional type을 `isinstance`, `is None`으로 narrowing했다.
+- optional annotation과 parameter 기본값이 서로 다른 역할임을 구분했다.
+- `list[str]`으로 collection element type을 표현하고 원본 소유권을 보존했다.
+- `Any`가 정적 검사를 우회하지만 runtime 안전성을 제공하지 않음을 확인했다.
+- 구체적인 입력·반환 type을 기존 `Note` domain 객체 생성 경계에 적용했다.
+- runtime 비강제, narrowing, collection, `Any`, domain 생성을 공개 behavior test로 검증했다.
+
+### P6-2. generic과 protocol
+
+- `TypeVar`로 입력 collection과 반환값 사이의 type 관계를 표현했다.
+- `Generic[T]` class와 in-memory repository가 저장·반환 type 관계를 유지하도록 구현했다.
+- `Protocol[T]`로 구체 구현을 상속하지 않는 구조적 repository 계약을 선언했다.
+- `Callable[[T], str]`로 값과 formatter 함수 사이의 호출 계약을 표현했다.
+- `@runtime_checkable`이 method signature 전체를 검증하지 않는 한계를 확인했다.
+- generic repository와 protocol, callable을 기존 `Note` domain 흐름에 연결했다.
+- generic 상태, 구조적 계약, callable, runtime 검사 한계를 공개 behavior test로 검증했다.
+
+### P6-3. test 설계
+
+- arrange, act, assert로 하나의 behavior를 읽기 쉽게 분리했다.
+- 단일 함수 unit test와 실제 component를 연결한 integration test의 boundary를 구분했다.
+- fake, stub, mock이 각각 상태, 고정 응답, 호출 interaction을 제공하는 차이를 확인했다.
+- pytest parameterization으로 같은 behavior의 여러 입력 사례를 중복 없이 표현했다.
+- pytest fixture로 준비 객체를 test마다 새로 생성해 상태를 격리했다.
+- pytest를 test extra로 선언하고 기본 setup과 검증 명령에 연결했다.
+
+### P6-4. formatter, lint, type checker
+
+- Ruff formatter의 검사와 수정 모드를 구분하고 저장소 전체에 formatting 기준선을 적용했다.
+- Ruff linter의 핵심 규칙을 선택하고 의도적인 위반은 파일 단위로만 허용했다.
+- 안전한 자동 수정으로 실제 미사용 import만 제거하고 test로 동작 보존을 확인했다.
+- runtime과 mypy의 type 검사 경계를 비교하고 엄격한 검사 범위를 project 설정에 고정했다.
+- formatter, lint, type checker, test를 fail-fast script 하나로 재현하도록 구성했다.
+
+### P7-1. path와 file I/O
+
+- `Path` 객체의 조합과 상대 경로가 process의 현재 작업 directory를 기준으로 해석되는 방식을 확인했다.
+- text mode와 binary mode의 encoding 책임 및 문자 수와 byte 수의 차이를 비교했다.
+- buffered writer의 `write`, `flush`, `close`에 따른 data 가시성과 resource 수명을 관찰했다.
+- 같은 filesystem의 임시 파일을 `replace()`해 대상 경로를 원자적으로 교체했다.
+- domain 객체의 serialization과 파일 저장 I/O를 별도 함수로 분리했다.
+
+### P7-2. JSON persistence
+
+- Python과 JSON의 type 변환 및 문자열·파일 serialization 경계를 확인했다.
+- parsing 성공과 application schema 검증을 분리하고 잘못된 data를 명시적인 오류로 변환했다.
+- 과거 schema의 기본 version 해석과 새 schema 객체로의 비파괴 migration을 구현했다.
+- partial write를 재현하고 serialization 선행 및 임시 파일 교체로 기존 JSON을 보호했다.
+
+## P5-2 세부 완료 기록
 
 - P5-2 iterable과 iterator
 - 상태: 완료
@@ -193,6 +266,133 @@
 - 완료: 서로 다른 iterator가 독립적인 index 상태를 소유하는 behavior를 test로 검증했다.
 - 완료: `StopIteration` 이후에도 iterator가 소진 상태를 유지하는 behavior를 test로 검증했다.
 - 완료: `NoteTitles`가 외부 입력 list의 이후 변경에서 독립적인 collection을 소유함을 test로 검증했다.
+
+## P5-3 세부 완료 기록
+
+- P5-3 generator
+- 상태: 완료
+- 완료: generator function 호출은 본문을 실행하지 않고 generator 객체를 반환함을 확인했다.
+- 완료: 첫 `next()`가 본문을 시작해 첫 `yield`까지 실행하는 lazy execution을 출력 순서로 확인했다.
+- 완료: 다음 `next()`가 직전 `yield` 이후부터 재개되고 local `title` 상태를 보존함을 확인했다.
+- 완료: 마지막 `yield` 이후 함수가 끝날 때 `StopIteration`이 전달되고 소진 상태가 유지됨을 확인했다.
+- 완료: generator pipeline에서 아래쪽의 값 하나 요청이 source와 변환 단계를 필요한 지점까지만 실행함을 확인했다.
+- 완료: eager list와 lazy generator가 직접 소유하는 얕은 메모리 크기를 `getsizeof()`로 비교했다.
+- 완료: `yield from`이 첫 하위 generator를 소진한 뒤 두 번째 generator로 이동하며 값을 위임함을 확인했다.
+- 완료: `Note` 객체의 제목을 lazy하게 검색하는 streaming 함수를 Knowledge Lab에 연결했다.
+- 완료: lazy 중단, 전체 검색, 입력 보존, 위임 순서를 공개 behavior test로 검증했다.
+
+## P5-4 세부 완료 기록
+
+- P5-4 decorator
+- 상태: 완료
+- 완료: 함수를 인자로 받아 closure로 원본을 보존하는 새 wrapper 함수를 반환했다.
+- 완료: wrapper가 원본 함수 호출 전후 동작과 반환값을 보존함을 확인했다.
+- 완료: `@decorator`가 함수 정의 직후 이름을 wrapper 함수로 다시 binding함을 확인했다.
+- 완료: decorator 본문은 module import 시점에, wrapper 본문은 함수 호출 시점에 실행됨을 확인했다.
+- 완료: wrapping 후 외부 이름이 wrapper의 `__name__`과 `__doc__` metadata를 노출하는 문제를 확인했다.
+- 완료: `functools.wraps`가 wrapper에 원본 함수의 `__name__`과 `__doc__` metadata를 복사함을 확인했다.
+- 완료: `*args`와 `**kwargs`로 서로 다른 signature의 위치·키워드 argument를 원본 함수에 전달했다.
+- 완료: `time.perf_counter`로 함수 호출 전후 경과 시간을 측정하고 원본 반환값을 보존했다.
+- 완료: 인자를 받는 decorator factory가 설정값을 closure에 보존하는 세 호출 단계를 확인했다.
+- 완료: framework decorator가 import 시점에 원본 함수를 path registry에 등록하고 그대로 반환함을 확인했다.
+- 완료: wrapping, metadata, timing, closure, route 등록을 공개 behavior test로 검증했다.
+
+## P6-1 세부 완료 기록
+
+- P6-1 type hint의 역할
+- 상태: 완료
+- 완료: function annotation이 `__annotations__`에 저장되지만 runtime 호출과 반환 type을 강제하지 않음을 확인했다.
+- 완료: `int | str` union과 `isinstance` 분기로 입력 type을 좁혀 각 type에 맞는 연산을 적용했다.
+- 완료: `str | None`과 `is None` 분기로 값 부재를 명시하고 나머지 branch를 `str`로 좁혔다.
+- 완료: optional annotation만으로는 argument를 생략할 수 없으며 함수 본문 진입 전 binding `TypeError`가 발생함을 확인했다.
+- 완료: `None` 기본값이 `__defaults__`에 저장되고 argument 생략 시 parameter에 binding됨을 확인했다.
+- 완료: `list[str]` generic annotation으로 collection과 element type을 표현하고 새 list를 반환했다.
+- 완료: `Any`가 indexing을 정적으로 허용해도 실제 객체가 protocol을 지원하지 않으면 runtime `TypeError`가 발생함을 확인했다.
+- 완료: 구체적인 입력과 반환 type을 사용해 정규화된 `Note`와 `Tag` domain 객체를 생성했다.
+- 완료: runtime 비강제, narrowing, collection 소유권, `Any`, domain 생성을 공개 behavior test로 검증했다.
+
+## P6-2 세부 완료 기록
+
+- P6-2 generic과 protocol
+- 상태: 완료
+- 완료: `TypeVar`로 list element와 반환값이 같은 type이라는 호출별 관계를 표현했다.
+- 완료: `Generic[T]` class가 저장한 상태와 반환 type의 관계를 유지하면서 runtime에는 같은 class임을 확인했다.
+- 완료: generic in-memory repository가 독립적인 dict에 한 종류의 객체를 저장하고 같은 type으로 반환하도록 구현했다.
+- 완료: `Protocol[T]` 계약과 generic loader를 구현해 명목 상속 없이 repository를 구조적으로 사용했다.
+- 완료: `Callable[[T], str]`로 값과 formatter parameter의 type 관계 및 반환 계약을 표현했다.
+- 완료: `@runtime_checkable` 검사가 method 존재만 확인하고 signature 전체를 보장하지 않음을 확인했다.
+- 완료: `Repository[Note]`와 `Callable[[Note], str]`를 조합해 note 조회와 formatting 경계를 구현했다.
+- 완료: generic 상태, 구조적 계약, callable, runtime 검사 한계를 공개 behavior test로 검증했다.
+
+## P6-3 세부 완료 기록
+
+- P6-3 test 설계
+- 상태: 완료
+- 완료: `unittest.TestCase`에서 arrange, act, assert를 분리해 title 정규화 behavior 하나를 검증했다.
+- 완료: 단일 함수 unit test와 service·in-memory adapter를 연결한 integration test의 boundary를 구분했다.
+- 완료: test 전용 fake가 실제 list 상태를 소유하도록 구현해 service를 production adapter에서 분리했다.
+- 완료: 미리 준비한 note list를 반환하는 stub으로 service의 조회 경로를 고립해 검증했다.
+- 완료: `unittest.mock.Mock`으로 repository의 `add` 호출 인자와 횟수를 검증했다.
+- 완료: pytest parameterization으로 title 정규화의 여러 입력 사례를 하나의 behavior test에 표현했다.
+- 완료: pytest fixture가 test마다 새 fake와 service를 생성해 상태를 격리함을 확인했다.
+- 완료: pytest를 test extra로 선언하고 setup 및 기본 검증 명령에 연결했다.
+
+## P6-4 세부 완료 기록
+
+- P6-4 formatter, lint, type checker
+- 상태: 완료
+- 완료: Ruff formatter의 check/write 모드로 공백과 표현을 표준화하고 함수 scope는 변경하지 않음을 확인했다.
+- 완료: Ruff linter가 formatting과 별개로 사용되지 않는 local 이름을 `F841`로 진단하는 방식을 확인했다.
+- 완료: 프로젝트의 lint 기준을 실행 오류와 미사용 이름 중심의 `E4`, `E7`, `E9`, `F` 규칙으로 선택했다.
+- 완료: 의도적인 `F401`, `E402`는 파일별로만 허용하고 실제 불필요한 import와 구분했다.
+- 완료: Ruff의 안전한 자동 수정으로 실제 미사용 import만 제거하고 lint, test, 실행 결과가 보존됨을 확인했다.
+- 완료: runtime은 f-string에서 정수 입력을 처리하지만 mypy는 annotation 계약 위반을 `[arg-type]`으로 진단함을 확인했다.
+- 완료: 의도적으로 만든 type 오류를 제거하고 현재 lesson의 mypy 검사 기준선을 복구했다.
+- 완료: mypy의 Python 버전, 검사 대상, `strict` 기준을 `pyproject.toml`에 고정하고 인자 없는 실행으로 확인했다.
+- 완료: 저장소의 Python 파일 40개를 Ruff formatting 기준선에 맞추고 lint, type check, test 통과를 확인했다.
+- 완료: formatter, lint, type checker, test를 fail-fast 검증 script 하나로 재현했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P7-1 세부 완료 기록
+
+- P7-1 path와 file I/O
+- 상태: 완료
+- 완료: 문자열 조각을 `/` 연산자로 조합해 `Path` 객체를 만들고 이름, 확장자, 부모 경로를 조회했다.
+- 완료: 상대 경로 객체 생성은 파일을 만들지 않으며 `.exists()` 호출이 현재 파일시스템 상태를 조회함을 확인했다.
+- 완료: 같은 상대 경로가 module 위치가 아니라 process의 현재 작업 directory를 기준으로 절대 경로로 해석됨을 확인했다.
+- 완료: text mode에서 `str`을 UTF-8로 저장하고 다시 `str`로 읽어 원본 값이 보존됨을 확인했다.
+- 완료: `TemporaryDirectory`의 context 안에서 파일이 존재하고 종료 뒤 실제 directory가 정리되는 resource 수명을 확인했다.
+- 완료: binary mode에서 caller가 UTF-8 encode/decode 경계를 직접 소유하고 `bytes`를 그대로 저장·복원함을 확인했다.
+- 완료: 같은 내용이 Python에서는 9문자이고 UTF-8에서는 13 byte인 차이를 비교했다.
+- 완료: buffered writer에 쓴 내용이 `flush()` 전에는 다른 reader에 보이지 않고 호출 후 보이는 것을 확인했다.
+- 완료: file context 안팎에서 같은 writer 객체의 `closed` 상태가 `False`에서 `True`로 바뀌는 resource 수명을 확인했다.
+- 완료: 같은 directory에서 완성한 임시 파일을 `Path.replace()`로 대상 이름에 원자적으로 교체했다.
+- 완료: 대상 경로 이름은 유지되지만 그 이름이 가리키는 inode는 기존 파일에서 임시 파일 identity로 바뀜을 확인했다.
+- 완료: immutable domain 객체를 text로 직렬화하는 책임과 이미 직렬화된 `str`을 저장하는 I/O 책임을 분리했다.
+- 완료: text, binary, serialization의 공개 behavior를 임시 경로 기반 test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## 현재 작은 단계
+
+- P7-2 JSON persistence
+- 상태: 완료
+- 완료: `json.dumps()`가 Python 객체를 JSON `str`로 만들고 `json.loads()`가 새 Python 객체로 복원하는 경계를 확인했다.
+- 완료: Python의 `False`, `None`이 JSON의 `false`, `null`로 표현되고 tuple이 JSON array를 거쳐 list로 복원됨을 확인했다.
+- 완료: `json.dump()`와 `json.load()`가 열린 text file 객체를 사용하고 file resource 수명은 caller의 context가 소유함을 확인했다.
+- 완료: 문자열과 파일이라는 서로 다른 입력 경계에서 복원한 Python 객체가 동등함을 확인했다.
+- 완료: 가공하지 않은 잘못된 JSON text를 읽을 때 `JSONDecodeError`의 message와 실패 위치가 전달됨을 확인했다.
+- 완료: `json.load()`가 실패해도 `with`를 빠져나오면서 reader가 닫힌 뒤 `except`가 오류를 처리함을 확인했다.
+- 완료: 문법상 유효한 JSON도 application이 기대하는 객체 구조가 아닐 수 있고, 잘못된 key 접근은 parsing 이후 `TypeError`로 드러남을 확인했다.
+- 완료: `isinstance()`로 JSON 값의 top-level 구조를 검사하고 잘못된 구조를 명시적인 `ValueError`로 변환했다.
+- 완료: `require_note_title()`에서 필수 field를 `str`로 검증하고 `json.loads()`의 `Any`를 그대로 신뢰하지 않는 경계를 구성했다.
+- 완료: schema version이 없는 과거 JSON을 version 1로 해석하면서 입력 dict를 변경하지 않는 호환 읽기를 확인했다.
+- 완료: 구버전 dict를 복사한 뒤 version과 새 field를 추가해 원본과 migration 결과의 소유권을 분리했다.
+- 완료: 기존 JSON 파일을 직접 열어 직렬화하다 실패하면 앞부분만 기록되어 기존 data까지 손상되는 partial write를 재현했다.
+- 완료: target file을 열기 전에 `json.dumps()`를 완료해 serialization 실패 시 기존 data가 보존됨을 확인했다.
+- 완료: 같은 directory의 임시 파일에 완성된 JSON을 기록한 뒤 `replace()`해 target을 원자적으로 교체했다.
+- 완료: atomic 저장의 serialization 실패 시 임시 파일과 target이 변경되지 않고 기존 JSON이 보존됨을 확인했다.
+- 완료: Python에서 `bool`이 `int`의 subclass인 특성을 고려해 schema version의 정확한 JSON type을 검증했다.
+- 완료: JSON 구조 검증, migration, atomic 저장의 공개 behavior를 임시 경로 기반 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙

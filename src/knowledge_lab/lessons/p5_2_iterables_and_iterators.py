@@ -34,13 +34,8 @@ def run() -> None:
     first_iterator = iter(note_titles)
     second_iterator = iter(note_titles)
     print(f"first iterator type: {type(first_iterator)}")
-    print(
-        f"first iterator is note titles: {first_iterator is note_titles}"
-    )
-    print(
-        "first iterator is second iterator: "
-        f"{first_iterator is second_iterator}"
-    )
+    print(f"first iterator is note titles: {first_iterator is note_titles}")
+    print(f"first iterator is second iterator: {first_iterator is second_iterator}")
     print(
         "iter(first iterator) is first iterator: "
         f"{iter(first_iterator) is first_iterator}"
