@@ -26,6 +26,7 @@ from knowledge_lab.lessons import (
     p6_4_quality_tools,
     p7_1_paths_and_file_io,
     p7_2_json_persistence,
+    p7_3_sqlite_and_transactions,
 )
 
 
@@ -55,7 +56,8 @@ def main() -> None:
     # p6_3_test_design.run()
     # p6_4_quality_tools.run()
     # p7_1_paths_and_file_io.run()
-    p7_2_json_persistence.run()
+    # p7_2_json_persistence.run()
+    p7_3_sqlite_and_transactions.run()
 
 
 if __name__ == "__main__":

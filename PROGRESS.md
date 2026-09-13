@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P7-2 JSON persistence
+- 단계: P7-3 SQLite와 transaction
 - 상태: 완료
 
 ## 준비된 기반
@@ -244,6 +244,14 @@
 - 과거 schema의 기본 version 해석과 새 schema 객체로의 비파괴 migration을 구현했다.
 - partial write를 재현하고 serialization 선행 및 임시 파일 교체로 기존 JSON을 보호했다.
 
+### P7-3. SQLite와 transaction
+
+- `sqlite3`의 Connection, Cursor 객체 관계와 쿼리 실행·소진 경계를 확인했다.
+- `?` parameter binding을 사용해 SQL injection 공격을 방어하고 특수문자 데이터를 안전하게 저장했다.
+- 수동 commit/rollback과 `with connection:` 트랜잭션 context manager의 자동 롤백·커밋 경계를 확인했다.
+- 파일 기반 다중 connection 환경에서 커밋 전/후의 트랜잭션 격리성(isolation)과 데이터 가시성을 확인했다.
+- SQLite 기반의 테이블 초기화, 노트 삽입, ID 단건 조회, 키워드 검색 함수를 구현하고 공개 behavior test로 검증했다.
+
 ## P5-2 세부 완료 기록
 
 - P5-2 iterable과 iterator
@@ -372,7 +380,7 @@
 - 완료: text, binary, serialization의 공개 behavior를 임시 경로 기반 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
-## 현재 작은 단계
+## P7-2 세부 완료 기록
 
 - P7-2 JSON persistence
 - 상태: 완료
@@ -393,6 +401,20 @@
 - 완료: atomic 저장의 serialization 실패 시 임시 파일과 target이 변경되지 않고 기존 JSON이 보존됨을 확인했다.
 - 완료: Python에서 `bool`이 `int`의 subclass인 특성을 고려해 schema version의 정확한 JSON type을 검증했다.
 - 완료: JSON 구조 검증, migration, atomic 저장의 공개 behavior를 임시 경로 기반 test로 검증했다.
+
+## 현재 작은 단계
+
+- P7-3 SQLite와 transaction
+- 상태: 완료
+- 완료: `sqlite3.connect()`로 `Connection`을 생성하고 `cursor()`를 통해 쿼리 실행 및 순회 커서를 획득했다.
+- 완료: `fetchone()`이 행을 `tuple`로 반환하며 위치를 이동하고, `fetchall()`로 소진 후 다시 호출 시 `None`을 반환함을 확인했다.
+- 완료: `?` parameter binding을 사용해 작은따옴표가 포함된 데이터를 안전하게 저장하고 조회했다.
+- 완료: f-string 기반 동적 쿼리가 악의적 입력(`' OR '1'='1`)에 의해 전체 데이터를 유출하는 취약점을 재현하고, parameter binding이 이를 안전하게 방어함을 확인했다.
+- 완료: `connection.commit()`으로 트랜잭션을 확정하고, `connection.rollback()`으로 미커밋 변경사항을 취소해 직전 커밋 상태를 복원함을 확인했다.
+- 완료: `with connection:` 트랜잭션 context manager가 예외 시 자동 롤백, 정상 종료 시 자동 커밋을 수행하며 커넥션 자체는 닫지 않음을 확인했다.
+- 완료: 파일 기반 DB에서 `writer_conn`의 미커밋 변경사항이 `reader_conn`에 노출되지 않고, 커밋 후 비로소 가시화되는 트랜잭션 격리성을 확인했다.
+- 완료: `init_notes_table`, `insert_note`(`lastrowid`), `find_note_by_id`, `search_notes_by_title` 모듈화 함수를 구현했다.
+- 완료: 테이블 초기화, 자동 증가 ID 생성, 단건 조회, SQL injection 방어 검색, 트랜잭션 롤백·커밋, 다중 연결 격리의 공개 behavior를 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙

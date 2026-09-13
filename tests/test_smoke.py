@@ -18,7 +18,7 @@ from knowledge_lab.lessons import (
     p3_3_dataclasses_and_value_objects,
     p3_4_protocols_and_composition,
     p4_1_exceptions,
-    p7_2_json_persistence,
+    p7_3_sqlite_and_transactions,
 )
 
 
@@ -31,12 +31,12 @@ class MainTest(unittest.TestCase):
 
         lines = output.getvalue().splitlines()
 
-        self.assertIn("P7-2 JSON persistence 시작", lines)
+        self.assertIn("P7-3 SQLite와 transaction 시작", lines)
 
     def test_current_lesson_module_is_importable(self) -> None:
         self.assertEqual(
-            "knowledge_lab.lessons.p7_2_json_persistence",
-            p7_2_json_persistence.__name__,
+            "knowledge_lab.lessons.p7_3_sqlite_and_transactions",
+            p7_3_sqlite_and_transactions.__name__,
         )
 
 

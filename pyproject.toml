@@ -43,5 +43,6 @@ files = [
     "src/knowledge_lab/lessons/p6_4_quality_tools.py",
     "src/knowledge_lab/lessons/p7_1_paths_and_file_io.py",
     "src/knowledge_lab/lessons/p7_2_json_persistence.py",
+    "src/knowledge_lab/lessons/p7_3_sqlite_and_transactions.py",
 ]
 strict = true
