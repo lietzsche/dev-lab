@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P7-3 SQLite와 transaction
+- 단계: P8-3 coroutine과 event loop
 - 상태: 완료
 
 ## 준비된 기반
@@ -252,6 +252,37 @@
 - 파일 기반 다중 connection 환경에서 커밋 전/후의 트랜잭션 격리성(isolation)과 데이터 가시성을 확인했다.
 - SQLite 기반의 테이블 초기화, 노트 삽입, ID 단건 조회, 키워드 검색 함수를 구현하고 공개 behavior test로 검증했다.
 
+### P7-4. repository adapter
+
+- 하나의 `NoteRepository` contract를 통해 in-memory, JSON, SQLite 구현을 교체했다.
+- domain 객체와 persistence 표현 사이의 mapper가 값은 보존하고 객체 소유권은 분리하도록 구현했다.
+- 기존 SQLite schema에 `tags_json`을 한 번만 추가하고 legacy row를 보존하는 migration을 구현했다.
+- JSON atomic 저장과 SQLite transaction을 각 adapter가 소유하고, 주입받은 connection의 수명은 호출자가 관리하도록 분리했다.
+- mapper, migration, adapter 교체와 파일 재접속 persistence를 공개 behavior test로 검증했다.
+
+### P8-1. blocking I/O와 thread
+
+- 동기 blocking 호출의 대기 위치와 순차 실행 시간을 `MainThread`와 `perf_counter()`로 관찰했다.
+- `Thread.start()`와 `join()`의 실행·대기 경계를 구분하고 blocking 작업을 겹쳐 실행했다.
+- worker 반환값과 shared mutable 결과 객체를 통한 명시적 결과 전달의 차이를 확인했다.
+- 공유 상태의 race condition을 재현하고 GIL이 application의 복합 변경을 보호하지 않음을 구분했다.
+- 하나의 `Lock`으로 critical section을 보호해 lost update를 방지하고 공개 behavior test로 검증했다.
+
+### P8-2. process와 CPU-bound work
+
+- CPU-bound 함수의 PID와 thread를 관찰하고 순차·thread·process pool의 실행 위치를 비교했다.
+- `spawn` process가 별도 interpreter와 상태를 소유하며 argument와 결과를 pickle 기반으로 전달함을 확인했다.
+- pickle payload의 값 보존, 객체 분리, 구조 검증과 payload 크기에 따른 serialization 비용을 관찰했다.
+- CPython thread의 concurrency와 process의 병렬 실행 가능성을 구분하고 overhead를 포함해 실행 방식을 선택해야 함을 확인했다.
+- checksum, serialization, thread/process 결과와 process 상태 분리를 공개 behavior test로 검증했다.
+
+### P8-3. coroutine과 event loop
+
+- coroutine 객체의 지연 실행과 `asyncio.run()`, `await`, Task의 실행·상태 경계를 확인했다.
+- 순차 await와 먼저 생성한 여러 Task의 대기 시간을 비교해 event loop의 동시성을 관찰했다.
+- `time.sleep()`이 event loop thread를 막는 현상을 재현하고 `asyncio.to_thread()`로 blocking 호출을 worker thread에 격리했다.
+- 단일 event loop의 동시성과 thread·process의 병렬 실행을 구분하고 공개 behavior test로 검증했다.
+
 ## P5-2 세부 완료 기록
 
 - P5-2 iterable과 iterator
@@ -402,7 +433,7 @@
 - 완료: Python에서 `bool`이 `int`의 subclass인 특성을 고려해 schema version의 정확한 JSON type을 검증했다.
 - 완료: JSON 구조 검증, migration, atomic 저장의 공개 behavior를 임시 경로 기반 test로 검증했다.
 
-## 현재 작은 단계
+## P7-3 세부 완료 기록
 
 - P7-3 SQLite와 transaction
 - 상태: 완료
@@ -415,6 +446,72 @@
 - 완료: 파일 기반 DB에서 `writer_conn`의 미커밋 변경사항이 `reader_conn`에 노출되지 않고, 커밋 후 비로소 가시화되는 트랜잭션 격리성을 확인했다.
 - 완료: `init_notes_table`, `insert_note`(`lastrowid`), `find_note_by_id`, `search_notes_by_title` 모듈화 함수를 구현했다.
 - 완료: 테이블 초기화, 자동 증가 ID 생성, 단건 조회, SQL injection 방어 검색, 트랜잭션 롤백·커밋, 다중 연결 격리의 공개 behavior를 test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P7-4 세부 완료 기록
+
+- P7-4 repository adapter
+- 상태: 완료
+- 완료: `save_and_list_notes()`가 구체 저장소를 생성하지 않고 기존 `NoteRepository` contract를 통해 저장과 조회를 호출하도록 구성했다.
+- 완료: `InMemoryNoteRepository`가 상태를 소유하고 입력받은 동일한 `Note` 객체를 보관함을 identity로 확인했다.
+- 완료: `note_to_data()`가 domain `Note`와 `Tag`를 새 dict와 `list[str]` persistence 표현으로 변환하고 collection 소유권을 분리했다.
+- 완료: `note_from_data()`가 persistence 구조를 검증하고 값이 같은 새 `Note`, tags list, `Tag` 객체로 복원했다.
+- 완료: `JsonNoteRepository.all()`이 path를 소유하고 missing file은 빈 목록으로, JSON array는 새 domain 객체 목록으로 읽도록 구현했다.
+- 완료: `JsonNoteRepository.add()`가 read-modify-write와 atomic JSON 저장을 수행해 기존 `NoteRepository` contract와 구조적으로 호환됨을 확인했다.
+- 완료: `PRAGMA table_info(notes)`로 transaction을 변경하지 않고 기존 SQLite schema의 column을 읽어 `tags_json` 부재를 확인했다.
+- 완료: 기존 row에 기본 JSON 값을 적용하면서 `tags_json` column을 한 번만 추가하는 idempotent migration을 구현했다.
+- 완료: `SqliteNoteRepository`가 주입받은 connection을 닫지 않고 `add()`의 parameter binding과 transaction을 소유하도록 구현했다.
+- 완료: `SqliteNoteRepository.all()`이 SQLite row와 `tags_json`을 값이 같은 새 domain `Note` 목록으로 복원하도록 구현했다.
+- 완료: 같은 application 함수에서 in-memory, JSON, SQLite adapter를 교체하고 각 저장소의 객체 identity와 resource 소유권 차이를 확인했다.
+- 완료: mapper, migration, adapter 교체와 실제 파일 재접속 persistence를 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P8-1 세부 완료 기록
+
+- P8-1 blocking I/O와 thread
+- 상태: 완료
+- 완료: `load_note_source()`의 blocking 대기 동안 `MainThread`의 현재 call stack이 호출 지점에 머물고, 함수 반환 후에야 호출자가 다시 실행됨을 순서와 경과 시간으로 확인했다.
+- 완료: 같은 thread에서 두 blocking 작업을 순차 호출하면 첫 호출이 반환된 뒤 다음 호출이 시작되어 대기 시간이 합산됨을 약 `0.4초`의 기준선으로 확인했다.
+- 완료: `Thread.start()`로 별도 call stack에서 두 blocking 작업을 겹쳐 실행하고, `join()`이 완료를 기다려 전체 시간이 약 `0.2초`가 되는 것을 확인했다.
+- 완료: `Thread.join()`은 worker 완료만 기다리고 target 함수의 `str` 반환값 대신 `None`을 반환함을 확인했다.
+- 완료: 여러 worker에 같은 mutable 결과 목록을 전달하고 `join()` 이후 MainThread에서 target 결과를 명시적으로 관찰했다.
+- 완료: 공유 상태의 `읽기 → 계산 → 쓰기` 사이에 thread 전환 지점을 두고 여러 worker가 같은 이전 값을 덮어써 갱신을 잃는 race condition을 재현했다.
+- 완료: GIL은 한 시점의 Python bytecode 실행을 제한하지만 여러 동작으로 구성된 application 불변식을 보호하는 lock이 아님을 구분했다.
+- 완료: 모든 worker가 하나의 `Lock` 객체를 공유하고 복합 변경을 critical section으로 묶어 lost update를 방지했다.
+- 완료: blocking 호출, 순차·thread 실행, 결과 공유, Lock 보호의 공개 behavior를 scheduling 시간에 과도하게 의존하지 않는 test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P8-2 세부 완료 기록
+
+- P8-2 process와 CPU-bound work
+- 상태: 완료
+- 완료: `calculate_note_checksum()`가 외부 대기 없이 현재 process의 `MainThread`에서 Python 연산을 수행하는 위치와 단일 작업 시간을 확인했다.
+- 완료: `spawn` context의 별도 process에서 같은 CPU-bound 함수를 실행해 부모와 다른 PID, 독립된 `MainThread`, 정상 종료 `exitcode`를 확인했다.
+- 완료: `spawn` process의 list argument가 같은 객체 참조로 공유되지 않고 전달 시점의 값으로 복원되어 부모와 child가 독립된 상태를 소유함을 확인했다.
+- 완료: `pickle`이 Python 객체를 immutable binary payload로 직렬화하고 값이 같은 새 객체로 복원하는 경계를 확인했다.
+- 완료: pickle 입력 형식 오류와 역직렬화 후 application 구조 검증 오류를 서로 다른 exception boundary로 구분했다.
+- 완료: process 전달 전후에 필요한 pickle 직렬화·복원 비용이 payload 크기에 따라 증가하는 것을 bytes 크기와 경과 시간으로 측정했다.
+- 완료: 같은 CPU-bound 작업 두 개를 순차 실행과 thread pool로 실행해 동일 PID의 `MainThread`와 여러 worker thread를 구분하고 결과의 동등성을 확인했다.
+- 완료: 한 번의 wall-clock 측정 차이는 interpreter warm-up과 system load가 섞이므로 GIL 아래의 CPU 병렬성 증거로 일반화할 수 없음을 구분했다.
+- 완료: `ProcessPoolExecutor`와 `spawn` context로 CPU-bound 작업을 서로 다른 PID에서 실행하고 pickle 기반 결과를 입력 순서대로 복원했다.
+- 완료: process 병렬 실행 가능성과 process 시작·interpreter import·serialization·통신·종료 overhead를 함께 비교했다.
+- 완료: Java thread의 JVM 병렬 실행과 CPython thread의 GIL 기반 concurrency 차이를 구분했다.
+- 완료: checksum 결정성, pickle 왕복과 검증, thread/process pool 결과, 부모·child 상태 분리를 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## 현재 작은 단계
+
+- P8-3 coroutine과 event loop
+- 상태: 완료
+- 완료: `async def` 함수 호출은 본문을 실행하지 않고 coroutine 객체를 만들며, `inspect.iscoroutine()`과 미실행 본문 출력 부재로 이를 확인했다.
+- 완료: `asyncio.run()`이 동기 진입점에서 event loop를 생성·종료하고 coroutine 본문을 실행한 뒤 반환값을 동기 호출자에게 전달함을 확인했다.
+- 완료: async 함수 내부의 `await`가 하위 coroutine을 실행하고 완료된 반환값을 현재 coroutine에 연결한 뒤 다음 줄로 진행하는 순서를 확인했다.
+- 완료: `asyncio.create_task()`가 coroutine을 event loop에 스케줄하고 Task 객체가 pending·done 상태와 반환값을 소유하는 경계를 확인했다.
+- 완료: `await asyncio.sleep()`에서 coroutine이 일시 중단되지만 다음 coroutine을 첫 완료 뒤에 생성하면 두 대기 시간이 합산됨을 약 `0.4초`의 순차 기준선으로 확인했다.
+- 완료: 두 coroutine을 Task로 먼저 스케줄해 한 Task의 async 대기 동안 event loop가 다른 Task를 진행하고 전체 시간이 약 `0.2초`가 됨을 확인했다.
+- 완료: async 함수 안의 `time.sleep()`이 단일 event loop thread를 점유해 이미 스케줄된 다른 Task의 진행까지 막고 시간이 약 `0.4초`로 합산되는 문제를 재현했다.
+- 완료: 두 `asyncio.to_thread()` awaitable을 Task로 먼저 스케줄해 blocking 호출을 서로 다른 worker thread에 격리하고 전체 대기 시간이 약 `0.2초`로 회복됨을 확인했다.
+- 완료: coroutine 생성, await 연결, Task 상태, 순차·동시 실행, blocking 호출의 thread 위임을 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙

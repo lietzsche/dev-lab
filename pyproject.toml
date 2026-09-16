@@ -44,5 +44,9 @@ files = [
     "src/knowledge_lab/lessons/p7_1_paths_and_file_io.py",
     "src/knowledge_lab/lessons/p7_2_json_persistence.py",
     "src/knowledge_lab/lessons/p7_3_sqlite_and_transactions.py",
+    "src/knowledge_lab/lessons/p7_4_repository_adapter.py",
+    "src/knowledge_lab/lessons/p8_1_blocking_io_and_threads.py",
+    "src/knowledge_lab/lessons/p8_2_processes_and_cpu_bound_work.py",
+    "src/knowledge_lab/lessons/p8_3_coroutines_and_event_loop.py",
 ]
 strict = true

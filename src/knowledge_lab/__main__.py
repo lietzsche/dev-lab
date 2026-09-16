@@ -27,6 +27,10 @@ from knowledge_lab.lessons import (
     p7_1_paths_and_file_io,
     p7_2_json_persistence,
     p7_3_sqlite_and_transactions,
+    p7_4_repository_adapter,
+    p8_1_blocking_io_and_threads,
+    p8_2_processes_and_cpu_bound_work,
+    p8_3_coroutines_and_event_loop,
 )
 
 
@@ -57,7 +61,11 @@ def main() -> None:
     # p6_4_quality_tools.run()
     # p7_1_paths_and_file_io.run()
     # p7_2_json_persistence.run()
-    p7_3_sqlite_and_transactions.run()
+    # p7_3_sqlite_and_transactions.run()
+    # p7_4_repository_adapter.run()
+    # p8_1_blocking_io_and_threads.run()
+    # p8_2_processes_and_cpu_bound_work.run()
+    p8_3_coroutines_and_event_loop.run()
 
 
 if __name__ == "__main__":

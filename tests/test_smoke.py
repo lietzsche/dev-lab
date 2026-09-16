@@ -3,6 +3,7 @@
 import io
 import unittest
 from contextlib import redirect_stdout
+from unittest.mock import AsyncMock, patch
 
 from knowledge_lab.__main__ import main
 from knowledge_lab.lessons import (
@@ -18,7 +19,7 @@ from knowledge_lab.lessons import (
     p3_3_dataclasses_and_value_objects,
     p3_4_protocols_and_composition,
     p4_1_exceptions,
-    p7_3_sqlite_and_transactions,
+    p8_3_coroutines_and_event_loop,
 )
 
 
@@ -26,17 +27,23 @@ class MainTest(unittest.TestCase):
     def test_main_runs_current_lesson(self) -> None:
         output = io.StringIO()
 
-        with redirect_stdout(output):
+        with (
+            patch(
+                "knowledge_lab.lessons.p8_3_coroutines_and_event_loop.load_sources_with_to_thread",
+                new=AsyncMock(return_value=["Python docs", "SQLite docs"]),
+            ),
+            redirect_stdout(output),
+        ):
             main()
 
         lines = output.getvalue().splitlines()
 
-        self.assertIn("P7-3 SQLite와 transaction 시작", lines)
+        self.assertIn("P8-3 coroutine과 event loop 시작", lines)
 
     def test_current_lesson_module_is_importable(self) -> None:
         self.assertEqual(
-            "knowledge_lab.lessons.p7_3_sqlite_and_transactions",
-            p7_3_sqlite_and_transactions.__name__,
+            "knowledge_lab.lessons.p8_3_coroutines_and_event_loop",
+            p8_3_coroutines_and_event_loop.__name__,
         )
 
 
