@@ -31,6 +31,8 @@ from knowledge_lab.lessons import (
     p8_1_blocking_io_and_threads,
     p8_2_processes_and_cpu_bound_work,
     p8_3_coroutines_and_event_loop,
+    p8_4_cancellation_timeout_backpressure,
+    p9_1_http_boundary,
 )
 
 
@@ -65,7 +67,9 @@ def main() -> None:
     # p7_4_repository_adapter.run()
     # p8_1_blocking_io_and_threads.run()
     # p8_2_processes_and_cpu_bound_work.run()
-    p8_3_coroutines_and_event_loop.run()
+    # p8_3_coroutines_and_event_loop.run()
+    # p8_4_cancellation_timeout_backpressure.run()
+    p9_1_http_boundary.run()
 
 
 if __name__ == "__main__":

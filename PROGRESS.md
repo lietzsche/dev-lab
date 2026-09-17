@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P8-3 coroutine과 event loop
+- 단계: P9-1 HTTP boundary
 - 상태: 완료
 
 ## 준비된 기반
@@ -283,6 +283,20 @@
 - `time.sleep()`이 event loop thread를 막는 현상을 재현하고 `asyncio.to_thread()`로 blocking 호출을 worker thread에 격리했다.
 - 단일 event loop의 동시성과 thread·process의 병렬 실행을 구분하고 공개 behavior test로 검증했다.
 
+### P8-4. cancellation, timeout, backpressure
+
+- `TaskGroup`이 하위 Task의 정상 완료와 sibling 실패 시 취소 lifecycle을 하나의 scope에서 소유하도록 구성했다.
+- 명시적 cancellation, cleanup 재전파, timeout의 `TimeoutError` 변환 경계를 확인했다.
+- bounded Queue의 용량 제한과 미완료 항목 카운터를 구분하고 생산자에게 backpressure가 적용되는 것을 관찰했다.
+- 종료 sentinel과 `task_done()`·`join()`을 사용해 여러 note source를 순서대로 처리하는 생산자·소비자 pipeline을 구현했다.
+
+### P9-1. HTTP boundary
+
+- 표준 라이브러리 request에서 method, path, query, headers, body를 분리하고 JSON `str`을 UTF-8 body bytes로 변환했다.
+- 로컬 HTTP server와 실제 요청을 주고받으며 status, headers, response stream과 connection resource 수명을 확인했다.
+- response body bytes를 JSON 객체로 복원하고 `HTTPError`의 protocol 실패와 `URLError`의 network 실패를 구분했다.
+- 순수 변환, loopback 성공·404 응답, 하위 network 원인 보존을 공개 behavior test로 검증했다.
+
 ## P5-2 세부 완료 기록
 
 - P5-2 iterable과 iterator
@@ -499,7 +513,7 @@
 - 완료: checksum 결정성, pickle 왕복과 검증, thread/process pool 결과, 부모·child 상태 분리를 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
-## 현재 작은 단계
+## P8-3 세부 완료 기록
 
 - P8-3 coroutine과 event loop
 - 상태: 완료
@@ -512,6 +526,37 @@
 - 완료: async 함수 안의 `time.sleep()`이 단일 event loop thread를 점유해 이미 스케줄된 다른 Task의 진행까지 막고 시간이 약 `0.4초`로 합산되는 문제를 재현했다.
 - 완료: 두 `asyncio.to_thread()` awaitable을 Task로 먼저 스케줄해 blocking 호출을 서로 다른 worker thread에 격리하고 전체 대기 시간이 약 `0.2초`로 회복됨을 확인했다.
 - 완료: coroutine 생성, await 연결, Task 상태, 순차·동시 실행, blocking 호출의 thread 위임을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P8-4 세부 완료 기록
+
+- P8-4 cancellation, timeout, backpressure
+- 상태: 완료
+- 완료: `TaskGroup`의 lexical scope가 여러 하위 Task의 생성을 소유하고 block 종료 시 모든 완료를 기다리는 structured concurrency의 정상 lifecycle을 확인했다.
+- 완료: coroutine을 `await`하지 않아 실행되지 않는 `RuntimeWarning`을 재현하고, 실제 suspension point를 복구해 두 Task의 대기가 겹치는 것을 확인했다.
+- 완료: `TaskGroup`의 한 자식이 실패하면 같은 group의 sibling Task가 취소되고, 원인 예외가 `ExceptionGroup`으로 scope 밖에 전달되는 실패 lifecycle을 확인했다.
+- 완료: `Task.cancel()`의 반환값은 취소 요청 수락 여부이며 다음 suspension point에서 `CancelledError`가 전달된 뒤 Task가 `done`과 `cancelled` 상태가 됨을 확인했다.
+- 완료: `asyncio.timeout()`이 deadline을 넘긴 await를 약 `0.1초`에 중단하고 context 밖에서 `TimeoutError`로 변환하며, 처리 후 현재 coroutine은 계속 실행됨을 확인했다.
+- 완료: 하위 coroutine이 cancellation을 관찰하고 `finally`에서 정리한 뒤 `CancelledError`를 다시 전달해 바깥 timeout 경계가 유지되는 것을 확인했다.
+- 완료: `Queue(maxsize=1)`이 가득 찼을 때 두 번째 `put()` Task가 중단되고, 소비자가 `get()`으로 공간을 만든 뒤 완료되는 backpressure를 확인했다.
+- 완료: `get()`은 buffer 크기만 줄이고 `task_done()`이 별도의 미완료 항목 수를 줄이며, `join()`은 모든 항목의 처리 완료 통보까지 기다리는 것을 확인했다.
+- 완료: `None` sentinel로 생산 종료를 전달하고 bounded Queue, TaskGroup, `task_done()`·`join()`을 연결한 생산자·소비자 pipeline을 구현했다.
+- 완료: TaskGroup 실패, 명시적 취소, cleanup 재전파, Queue 완료 추적, bounded pipeline을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## 현재 작은 단계
+
+- P9-1 HTTP boundary
+- 상태: 완료
+- 완료: 표준 라이브러리 `Request` 객체를 network 전송 없이 생성하고 HTTP method, path, query, headers, body bytes를 서로 다른 transport 요소로 관찰했다.
+- 완료: HTTP header 이름은 대소문자를 구분하지 않으며 `Request`의 내부 표현에서 정규화될 수 있음을 확인했다.
+- 완료: Python dict를 JSON `str`로 직렬화하고 UTF-8 `bytes`로 encode해 request body로 전달하면서 문자 수와 byte 수의 차이를 확인했다.
+- 완료: 로컬 HTTP server에 blocking request를 전송하고 response의 `201` status, content type, body bytes를 서로 다른 protocol 요소로 확인했다.
+- 완료: response stream의 첫 `read()`가 body를 소비해 두 번째 읽기는 비고, context 종료 후 connection resource가 닫히는 수명을 확인했다.
+- 완료: response body bytes를 UTF-8 JSON 문자열로 decode하고 새 Python dict로 deserialize해 transport 표현과 application 객체를 분리했다.
+- 완료: 연결에 성공한 서버의 `404` response가 `HTTPError`로 전달되며 code, reason, headers, body stream과 닫아야 할 resource를 함께 소유함을 확인했다.
+- 완료: HTTP response 전에 연결이 거부되면 `URLError`에 status나 body가 없고 `reason`에 `ConnectionRefusedError`가 보존됨을 확인했다.
+- 완료: request 구성, JSON 왕복, loopback 성공·404 응답, network 원인 보존을 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙

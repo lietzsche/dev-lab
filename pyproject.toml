@@ -48,5 +48,7 @@ files = [
     "src/knowledge_lab/lessons/p8_1_blocking_io_and_threads.py",
     "src/knowledge_lab/lessons/p8_2_processes_and_cpu_bound_work.py",
     "src/knowledge_lab/lessons/p8_3_coroutines_and_event_loop.py",
+    "src/knowledge_lab/lessons/p8_4_cancellation_timeout_backpressure.py",
+    "src/knowledge_lab/lessons/p9_1_http_boundary.py",
 ]
 strict = true
