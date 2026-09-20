@@ -18,7 +18,7 @@ from knowledge_lab.lessons import (
     p3_3_dataclasses_and_value_objects,
     p3_4_protocols_and_composition,
     p4_1_exceptions,
-    p9_1_http_boundary,
+    p9_2_pydantic_validation,
 )
 
 
@@ -31,12 +31,12 @@ class MainTest(unittest.TestCase):
 
         lines = output.getvalue().splitlines()
 
-        self.assertIn("P9-1 HTTP boundary 시작", lines)
+        self.assertIn("P9-2 Pydantic validation 시작", lines)
 
     def test_current_lesson_module_is_importable(self) -> None:
         self.assertEqual(
-            "knowledge_lab.lessons.p9_1_http_boundary",
-            p9_1_http_boundary.__name__,
+            "knowledge_lab.lessons.p9_2_pydantic_validation",
+            p9_2_pydantic_validation.__name__,
         )
 
 

@@ -9,7 +9,9 @@ description = "A progressive Python backend, MCP, and LLM learning project"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "Python Knowledge Lab learner" }]
-dependencies = []
+dependencies = [
+    "pydantic>=2.13,<3",
+]
 
 [project.optional-dependencies]
 quality = [
@@ -50,5 +52,6 @@ files = [
     "src/knowledge_lab/lessons/p8_3_coroutines_and_event_loop.py",
     "src/knowledge_lab/lessons/p8_4_cancellation_timeout_backpressure.py",
     "src/knowledge_lab/lessons/p9_1_http_boundary.py",
+    "src/knowledge_lab/lessons/p9_2_pydantic_validation.py",
 ]
 strict = true

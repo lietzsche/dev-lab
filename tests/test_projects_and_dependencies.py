@@ -20,15 +20,17 @@ class ProjectsAndDependenciesTest(unittest.TestCase):
 
         self.assertEqual(config["project"]["name"], installed.metadata["Name"])
         self.assertEqual(config["project"]["version"], installed.version)
-        self.assertEqual([], config["project"]["dependencies"])
 
+        declared_runtime_requirements = [
+            Requirement(value) for value in config["project"]["dependencies"]
+        ]
         requirements = [Requirement(value) for value in installed.requires or []]
         runtime_requirements = [
             requirement
             for requirement in requirements
             if requirement.marker is None or requirement.marker.evaluate({"extra": ""})
         ]
-        self.assertEqual([], runtime_requirements)
+        self.assertEqual(declared_runtime_requirements, runtime_requirements)
 
     def test_run_reports_project_and_entry_point_boundaries(self) -> None:
         output = io.StringIO()

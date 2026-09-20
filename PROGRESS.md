@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P9-1 HTTP boundary
+- 단계: P9-2 Pydantic validation
 - 상태: 완료
 
 ## 준비된 기반
@@ -544,7 +544,7 @@
 - 완료: TaskGroup 실패, 명시적 취소, cleanup 재전파, Queue 완료 추적, bounded pipeline을 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
-## 현재 작은 단계
+## P9-1 세부 완료 기록
 
 - P9-1 HTTP boundary
 - 상태: 완료
@@ -557,6 +557,20 @@
 - 완료: 연결에 성공한 서버의 `404` response가 `HTTPError`로 전달되며 code, reason, headers, body stream과 닫아야 할 resource를 함께 소유함을 확인했다.
 - 완료: HTTP response 전에 연결이 거부되면 `URLError`에 status나 body가 없고 `reason`에 `ConnectionRefusedError`가 보존됨을 확인했다.
 - 완료: request 구성, JSON 왕복, loopback 성공·404 응답, network 원인 보존을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## 현재 작은 단계
+
+- P9-2 Pydantic validation
+- 상태: 완료
+- 완료: Pydantic `2.13.5`를 첫 runtime dependency로 선언하고 editable environment와 distribution metadata 검증을 갱신했다.
+- 완료: `BaseModel.model_validate()`가 외부 문자열 값을 annotation에 맞는 `int`와 `bool`로 parsing해 새 transport schema 객체를 만들고 원본 dict는 보존함을 확인했다.
+- 완료: 누락되거나 parsing할 수 없는 여러 field가 하나의 `ValidationError`에 모이고 `loc`, `type`, `msg`, `input`의 구조화된 detail로 표현됨을 확인했다.
+- 완료: annotation 타입에는 맞는 빈 문자열과 정수 0도 `Field`의 길이·범위 constraint를 위반하면 구조화된 오류로 거부됨을 확인했다.
+- 완료: 같은 문자열 입력을 기본 validation은 `int`와 `bool`로 coercion하지만 `strict=True`는 exact type 오류로 거부함을 확인했다.
+- 완료: 검증된 model을 `model_dump()`의 새 dict와 `model_dump_json()`의 JSON str로 serialization하고, JSON에서 동등하지만 identity가 다른 새 model을 복원했다.
+- 완료: HTTP transport의 `list[str]`를 별도 `list[Tag]`로 변환해 Pydantic schema와 기존 `Note` domain model의 타입과 상태 소유권을 분리했다.
+- 완료: constraint 오류, 기본 parsing과 strict validation, JSON 왕복, transport-domain mapping을 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙

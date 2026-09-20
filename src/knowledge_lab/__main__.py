@@ -33,6 +33,7 @@ from knowledge_lab.lessons import (
     p8_3_coroutines_and_event_loop,
     p8_4_cancellation_timeout_backpressure,
     p9_1_http_boundary,
+    p9_2_pydantic_validation,
 )
 
 
@@ -69,7 +70,8 @@ def main() -> None:
     # p8_2_processes_and_cpu_bound_work.run()
     # p8_3_coroutines_and_event_loop.run()
     # p8_4_cancellation_timeout_backpressure.run()
-    p9_1_http_boundary.run()
+    # p9_1_http_boundary.run()
+    p9_2_pydantic_validation.run()
 
 
 if __name__ == "__main__":
