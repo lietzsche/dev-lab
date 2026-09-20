@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P9-2 Pydantic validation
+- 단계: P9-3 FastAPI application
 - 상태: 완료
 
 ## 준비된 기반
@@ -297,6 +297,23 @@
 - response body bytes를 JSON 객체로 복원하고 `HTTPError`의 protocol 실패와 `URLError`의 network 실패를 구분했다.
 - 순수 변환, loopback 성공·404 응답, 하위 network 원인 보존을 공개 behavior test로 검증했다.
 
+### P9-2. Pydantic validation
+
+- Pydantic을 첫 runtime dependency로 도입하고 BaseModel과 Field 제약 조건을 확인했다.
+- `model_validate()`의 타입 강제와 `strict=True`의 엄격한 타입 검사를 비교했다.
+- `model_dump()`와 `model_dump_json()`의 직렬화 및 역직렬화 왕복을 확인했다.
+- transport schema와 domain 객체 사이의 변환 및 상태 소유권 분리를 공개 behavior test로 검증했다.
+
+### P9-3. FastAPI application
+
+- FastAPI와 Starlette의 관계 및 TestClient를 통한 in-memory ASGI 호출을 확인했다.
+- `async def` 엔드포인트의 이벤트 루프 실행과 일반 `def`의 worker thread 풀 위임을 구분했다.
+- Pydantic request body 파싱, 201 Created 응답, 422 Unprocessable Entity 자동 검증을 확인했다.
+- 반환 타입 힌트 불일치 시의 `ResponseValidationError`와 FastAPI 응답 검증 메커니즘을 확인했다.
+- `Depends` 의존성 주입을 통해 `NoteService`를 주입받아 노트를 생성하고 조회하도록 연결했다.
+- `@asynccontextmanager` 기반 `lifespan`으로 애플리케이션의 startup과 shutdown 수명을 관리했다.
+- lifespan 준비 상태, sync/async 스레드 격리, payload 검증, 의존성 주입 조회의 공개 behavior를 test로 검증했다.
+
 ## P5-2 세부 완료 기록
 
 - P5-2 iterable과 iterator
@@ -559,7 +576,7 @@
 - 완료: request 구성, JSON 왕복, loopback 성공·404 응답, network 원인 보존을 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
-## 현재 작은 단계
+## P9-2 세부 완료 기록
 
 - P9-2 Pydantic validation
 - 상태: 완료
@@ -571,6 +588,19 @@
 - 완료: 검증된 model을 `model_dump()`의 새 dict와 `model_dump_json()`의 JSON str로 serialization하고, JSON에서 동등하지만 identity가 다른 새 model을 복원했다.
 - 완료: HTTP transport의 `list[str]`를 별도 `list[Tag]`로 변환해 Pydantic schema와 기존 `Note` domain model의 타입과 상태 소유권을 분리했다.
 - 완료: constraint 오류, 기본 parsing과 strict validation, JSON 왕복, transport-domain mapping을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P9-3 세부 완료 기록
+
+- P9-3 FastAPI application
+- 상태: 완료
+- 완료: FastAPI와 Starlette 및 TestClient의 in-memory ASGI 호출 구조를 확인했다.
+- 완료: `async def` 엔드포인트는 이벤트 루프 스레드에서 직접 실행되고, 일반 `def` 엔드포인트는 worker thread 풀로 위임됨을 확인했다.
+- 완료: Pydantic model 기반의 request body 파싱, `201 Created` 응답, 제약 조건 위반 시의 `422 Unprocessable Entity` 자동 검증을 확인했다.
+- 완료: 반환 타입 힌트와 실제 데이터의 불일치 시 발생하는 `ResponseValidationError`와 FastAPI의 응답 검증 메커니즘을 확인했다.
+- 완료: `Depends`를 통해 `NoteService`를 엔드포인트에 주입하고, POST로 생성한 노트가 GET `/api/notes`에서 조회되는 애플리케이션 서비스 연동을 확인했다.
+- 완료: `@asynccontextmanager` 기반의 `lifespan`으로 앱 시작(`startup`)과 종료(`shutdown`) 시점의 상태 관리와 `with TestClient(app)`의 수명 경계를 확인했다.
+- 완료: lifespan 준비 상태, sync/async 스레드 격리, payload 검증, 의존성 주입 조회의 공개 behavior를 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙
