@@ -35,6 +35,8 @@ from knowledge_lab.lessons import (
     p9_1_http_boundary,
     p9_2_pydantic_validation,
     p9_3_fastapi_application,
+    p9_4_api_testing_and_operations,
+    p10_1_configuration_and_secrets,
 )
 
 
@@ -72,7 +74,9 @@ def main() -> None:
     # p8_3_coroutines_and_event_loop.run()
     # p8_4_cancellation_timeout_backpressure.run()
     # p9_2_pydantic_validation.run()
-    p9_3_fastapi_application.run()
+    # p9_3_fastapi_application.run()
+    # p9_4_api_testing_and_operations.run()
+    p10_1_configuration_and_secrets.run()
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P9-3 FastAPI application
+- 단계: P10-1 configuration과 secret
 - 상태: 완료
 
 ## 준비된 기반
@@ -314,6 +314,20 @@
 - `@asynccontextmanager` 기반 `lifespan`으로 애플리케이션의 startup과 shutdown 수명을 관리했다.
 - lifespan 준비 상태, sync/async 스레드 격리, payload 검증, 의존성 주입 조회의 공개 behavior를 test로 검증했다.
 
+### P9-4. API test와 운영 경계
+
+- TestClient의 in-process 호출과 Uvicorn loopback TCP 호출의 경계를 비교했다.
+- domain 예외를 404 JSON으로 변환하고, 로그·환경 설정·client timeout의 운영 경계를 관찰했다.
+- 순차 요청에서 idempotency key별 결과를 재사용하고, 정렬된 목록을 offset/limit으로 조회했다.
+- 공개 API 동작을 test로 검증했다.
+
+### P10-1. configuration과 secret
+
+- 환경 변수 문자열을 포트 정수와 실행 모드로 변환하고 허용 범위를 검증했다.
+- 검증된 값을 immutable `AppSettings`에 모으고, 토큰은 환경 변수에서 읽되 기본 객체 표현에서 숨겼다.
+- production에서 토큰이 없으면 설정 객체를 만들기 전에 실패하도록 했다.
+- 기본값, override, 잘못된 설정, 모드별 토큰 요구와 비노출을 공개 behavior test로 검증했다.
+
 ## P5-2 세부 완료 기록
 
 - P5-2 iterable과 iterator
@@ -601,6 +615,39 @@
 - 완료: `Depends`를 통해 `NoteService`를 엔드포인트에 주입하고, POST로 생성한 노트가 GET `/api/notes`에서 조회되는 애플리케이션 서비스 연동을 확인했다.
 - 완료: `@asynccontextmanager` 기반의 `lifespan`으로 앱 시작(`startup`)과 종료(`shutdown`) 시점의 상태 관리와 `with TestClient(app)`의 수명 경계를 확인했다.
 - 완료: lifespan 준비 상태, sync/async 스레드 격리, payload 검증, 의존성 주입 조회의 공개 behavior를 test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P9-4 세부 완료 기록
+
+- P9-4 API test와 운영 경계
+- 상태: 완료
+- 완료: `TestClient`의 합성 `http://testserver` URL과 같은 process PID를 관찰해 TCP socket 없이 ASGI application을 호출하는 in-process test 경계를 확인했다.
+- 완료: JSON 응답을 `object`에서 시작해 필요한 dict와 `pid` 정수만 검사하며 type narrowing하는 boundary를 적용했다.
+- 완료: 임시 Uvicorn server와 loopback TCP port를 통과해 `HTTPResponse`와 body bytes를 받는 실제 network test를 수행하고 response 및 server resource 정리를 확인했다.
+- 완료: network test 여부는 별도 process 여부가 아니며 background thread의 server도 실제 TCP 경계를 통과할 수 있음을 같은 PID로 확인했다.
+- 완료: `NoteNotFoundError`를 FastAPI exception handler에서 `404`와 구조화된 JSON error body로 변환해 domain 실패와 HTTP 표현을 분리했다.
+- 완료: exception handler에서 사건명·경로·오류 타입을 일관된 `key=value` 로그로 남기고 client response와 운영 로그의 책임을 분리했다. log argument를 별도로 전달해 문자열 formatting을 기록 시점까지 미루는 방식도 확인했다.
+- 완료: `get_runtime_mode()`가 호출 시점의 `KNOWLEDGE_LAB_MODE` 환경 변수를 읽고 누락 시 `development`를 반환함을 별도 process 실행으로 확인했다.
+- 완료: 실제 HTTP 요청에서 client의 `timeout=0.2`가 느린 응답 대기를 `TimeoutError`로 중단하고, 호출자가 예외를 처리해 계속 실행함을 확인했다.
+- 완료: client timeout 이후에도 server endpoint가 sleep 뒤 `Event.set()`까지 도달함을 확인해 client 대기 중단과 server 작업 취소가 별개임을 관찰했다.
+- 완료: 같은 `POST /jobs`를 두 번 호출했을 때 count가 1에서 2로 증가해 재시도만으로 상태 변경이 중복됨을 확인했다.
+- 완료: `Idempotency-Key`별 첫 생성 결과를 별도 dict에 보존해 순차 재시도 `A → A → B → A`가 `1 → 1 → 2 → 1`을 반환하고 실제 생성 count는 2번만 증가함을 확인했다. 메모리 캐시이므로 동시성·재시작 보장은 아직 다루지 않았다.
+- 완료: 키를 정렬해 안정적인 순서로 `offset`과 `limit` 페이지를 나누고, 각 페이지와 관계없이 `total=3`을 반환함을 확인했다.
+- 완료: `limit=0`과 음수 `offset`을 FastAPI의 `Query` 제약으로 `422` 응답으로 거부함을 확인했다.
+- 완료: in-process 및 loopback API 호출, 예외 변환, 환경 설정, client timeout 이후 server 완료, 순차 idempotency, pagination을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P10-1 세부 완료 기록
+
+- P10-1 configuration과 secret
+- 상태: 완료
+- 완료: `KNOWLEDGE_LAB_PORT`의 기본값과 shell에서 주입한 값을 `load_http_port()`에서 정수로 변환해 각각 `8000`, `9000`을 반환함을 확인했다.
+- 완료: 정수로 변환된 값도 HTTP 포트 범위 `1..65535` 밖이면 `load_http_port()`에서 `ValueError`로 거부함을 확인했다.
+- 완료: `load_settings()`에서 검증된 포트를 immutable `AppSettings` 객체로 묶고 기본값과 환경 변수 override의 dataclass 표현을 확인했다.
+- 완료: 선택적 토큰을 환경 변수에서 `AppSettings`에 저장하고 `field(repr=False)`로 기본 객체 표현에 값이 노출되지 않음을 확인했다.
+- 완료: 실행 모드를 development/test/production으로 제한하고 `unknown` 값을 `load_mode()`에서 `ValueError`로 거부함을 확인했다.
+- 완료: production 모드에서 토큰이 `None` 또는 빈 문자열이면 `AppSettings` 생성 전에 `ValueError`로 거부하고, 토큰이 있으면 설정을 생성함을 확인했다.
+- 완료: development와 test에서는 토큰 없이 실행할 수 있으며, 토큰이 있어도 기본 객체 표현과 lesson 출력에는 값이 노출되지 않음을 test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙
