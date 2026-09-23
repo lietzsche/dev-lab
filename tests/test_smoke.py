@@ -18,7 +18,7 @@ from knowledge_lab.lessons import (
     p3_3_dataclasses_and_value_objects,
     p3_4_protocols_and_composition,
     p4_1_exceptions,
-    p10_1_configuration_and_secrets,
+    p10_2_dependency_boundary,
 )
 
 
@@ -31,12 +31,12 @@ class MainTest(unittest.TestCase):
 
         lines = output.getvalue().splitlines()
 
-        self.assertIn("P10-1 configuration과 secret 시작", lines)
+        self.assertIn("P10-2 dependency boundary 시작", lines)
 
     def test_current_lesson_module_is_importable(self) -> None:
         self.assertEqual(
-            "knowledge_lab.lessons.p10_1_configuration_and_secrets",
-            p10_1_configuration_and_secrets.__name__,
+            "knowledge_lab.lessons.p10_2_dependency_boundary",
+            p10_2_dependency_boundary.__name__,
         )
 
 

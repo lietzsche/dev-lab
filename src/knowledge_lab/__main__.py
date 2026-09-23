@@ -37,6 +37,7 @@ from knowledge_lab.lessons import (
     p9_3_fastapi_application,
     p9_4_api_testing_and_operations,
     p10_1_configuration_and_secrets,
+    p10_2_dependency_boundary,
 )
 
 
@@ -76,7 +77,8 @@ def main() -> None:
     # p9_2_pydantic_validation.run()
     # p9_3_fastapi_application.run()
     # p9_4_api_testing_and_operations.run()
-    p10_1_configuration_and_secrets.run()
+    # p10_1_configuration_and_secrets.run()
+    p10_2_dependency_boundary.run()
 
 
 if __name__ == "__main__":

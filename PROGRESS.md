@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P10-1 configuration과 secret
+- 단계: P10-2 dependency boundary
 - 상태: 완료
 
 ## 준비된 기반
@@ -328,6 +328,13 @@
 - production에서 토큰이 없으면 설정 객체를 만들기 전에 실패하도록 했다.
 - 기본값, override, 잘못된 설정, 모드별 토큰 요구와 비노출을 공개 behavior test로 검증했다.
 
+### P10-2. dependency boundary
+
+- FastAPI 객체를 모르는 core 함수와 HTTP 입력을 변환하는 adapter의 책임을 분리했다.
+- application 함수가 callable을 인자로 받아 실제 구현과 fake 구현을 교체할 수 있게 했다.
+- FastAPI provider와 `Depends`로 endpoint 조립을 분리하고 test override 후 상태를 복원했다.
+- core, application, HTTP adapter와 dependency override를 공개 behavior test로 검증했다.
+
 ## P5-2 세부 완료 기록
 
 - P5-2 iterable과 iterator
@@ -648,6 +655,18 @@
 - 완료: 실행 모드를 development/test/production으로 제한하고 `unknown` 값을 `load_mode()`에서 `ValueError`로 거부함을 확인했다.
 - 완료: production 모드에서 토큰이 `None` 또는 빈 문자열이면 `AppSettings` 생성 전에 `ValueError`로 거부하고, 토큰이 있으면 설정을 생성함을 확인했다.
 - 완료: development와 test에서는 토큰 없이 실행할 수 있으며, 토큰이 있어도 기본 객체 표현과 lesson 출력에는 값이 노출되지 않음을 test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P10-2 세부 완료 기록
+
+- P10-2 dependency boundary
+- 상태: 완료
+- 완료: `build_note_label()`이 FastAPI 객체 없이 `title`과 `source` 문자열만 받아 결과를 만드는 core 함수임을 annotation과 실행 결과로 확인했다.
+- 완료: FastAPI endpoint가 `Request.query_params`의 선택적 값을 확정된 문자열로 바꿔 framework를 모르는 `build_note_label()`에 전달함을 확인했다.
+- 완료: `execute_label_use_case()`가 `Callable[[str, str], str]`을 인자로 받아 실제 builder와 fake builder를 바꿔 실행할 수 있음을 확인했다.
+- 완료: FastAPI `Depends`가 `get_label_builder()` provider의 함수 객체를 endpoint에 주입하고, endpoint가 이를 application 함수에 전달함을 확인했다.
+- 완료: `app.dependency_overrides`에서 production provider를 fake provider로 교체해 endpoint 응답을 바꾸고, 정리 후 원래 응답으로 복원됨을 확인했다.
+- 완료: core 직접 호출, callable 주입, HTTP adapter 기본 조립, dependency override와 복원을 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙
