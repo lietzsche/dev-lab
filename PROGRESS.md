@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P10-2 dependency boundary
+- 단계: P10-3 observability
 - 상태: 완료
 
 ## 준비된 기반
@@ -334,6 +334,14 @@
 - application 함수가 callable을 인자로 받아 실제 구현과 fake 구현을 교체할 수 있게 했다.
 - FastAPI provider와 `Depends`로 endpoint 조립을 분리하고 test override 후 상태를 복원했다.
 - core, application, HTTP adapter와 dependency override를 공개 behavior test로 검증했다.
+
+### P10-3. observability
+
+- Logger, StreamHandler, Formatter를 분리해 전역 상태 없이 메모리 버퍼로 로그를 캡처했다.
+- `JsonFormatter`로 레벨·메시지·로거명 및 extra 메타데이터(event, note_id)를 구조화된 JSON으로 직렬화했다.
+- `contextvars.ContextVar`를 사용해 비동기·스레드 안전한 request_id 바인딩 및 자동 주입과 리셋을 확인했다.
+- `MetricsCollector`로 작업 수, 실패 수, 경과 시간을 안전하게 집계하고 예외를 재전파했다.
+- 내부 스택트레이스를 JSON 로그의 exception에 보존하면서 외부 클라이언트에는 정제된 에러 응답만 전달하는 경계를 공개 behavior test로 검증했다.
 
 ## P5-2 세부 완료 기록
 
@@ -667,6 +675,18 @@
 - 완료: FastAPI `Depends`가 `get_label_builder()` provider의 함수 객체를 endpoint에 주입하고, endpoint가 이를 application 함수에 전달함을 확인했다.
 - 완료: `app.dependency_overrides`에서 production provider를 fake provider로 교체해 endpoint 응답을 바꾸고, 정리 후 원래 응답으로 복원됨을 확인했다.
 - 완료: core 직접 호출, callable 주입, HTTP adapter 기본 조립, dependency override와 복원을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P10-3 세부 완료 기록
+
+- P10-3 observability
+- 상태: 완료
+- 완료: `setup_memory_logger()`로 독립된 Logger, StreamHandler, Formatter를 구성하고 INFO 레벨 필터링과 포맷 경계를 확인했다.
+- 완료: `JsonFormatter`를 구현해 기본 로그 속성과 `extra`로 전달된 `event`, `note_id`를 JSON으로 직렬화함을 확인했다.
+- 완료: `contextvars.ContextVar`와 `bind_request_id()` 컨텍스트 매니저로 요청별 ID를 바인딩하고 `JsonFormatter`에서 자동 주입 및 종료 후 리셋을 확인했다.
+- 완료: `MetricsCollector`의 `track()` 컨텍스트 매니저로 총 요청 수, 오류 수, 소요 시간을 집계하고 예외가 호출자에게 안전하게 재전파됨을 확인했다.
+- 완료: `handle_note_request()`에서 사용자에게는 정제된 에러 메시지와 코드만 반환하고, 내부 로그에는 `exc_info=True`로 전체 Traceback을 JSON에 보존하는 오류 경계를 분리했다.
+- 완료: 메모리 로거 레벨 필터링, JSON 직렬화, request ID 컨텍스트 전파, 메트릭 집계, 내부 스택트레이스 분리를 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙

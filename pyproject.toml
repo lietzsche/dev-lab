@@ -60,5 +60,6 @@ files = [
     "src/knowledge_lab/lessons/p9_4_api_testing_and_operations.py",
     "src/knowledge_lab/lessons/p10_1_configuration_and_secrets.py",
     "src/knowledge_lab/lessons/p10_2_dependency_boundary.py",
+    "src/knowledge_lab/lessons/p10_3_observability.py",
 ]
 strict = true
