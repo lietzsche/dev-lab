@@ -1,0 +1,15 @@
+services:
+  git-sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: git-sandbox
+    hostname: git-sandbox
+    volumes:
+      - sandbox_data:/workspace
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+
+volumes:
+  sandbox_data:

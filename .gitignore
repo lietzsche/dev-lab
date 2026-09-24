@@ -14,3 +14,4 @@ build/
 dist/
 data/*.db
 data/*.sqlite3
+.git-sandbox/
