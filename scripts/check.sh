@@ -62,7 +62,10 @@ echo "==> 5. setup_sandbox.sh init / status / reset / clean 전체 동작 검증
 test_sandbox_dir="/tmp/git-test-sandbox-$$"
 GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh init > /dev/null
 GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh status > /dev/null
-GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh reset > /dev/null
+
+# README가 안내하는 것처럼 샌드박스에 복사된 관리 스크립트를 직접 실행합니다.
+"${test_sandbox_dir}/sandbox.sh" reset > /dev/null
+"${test_sandbox_dir}/sandbox.sh" status > /dev/null
 
 # 샌드박스 내부 헬퍼 도구 동작 확인
 if [ ! -f "${test_sandbox_dir}/inspect_object.py" ] || [ ! -f "${test_sandbox_dir}/sandbox.sh" ]; then
@@ -70,6 +73,20 @@ if [ ! -f "${test_sandbox_dir}/inspect_object.py" ] || [ ! -f "${test_sandbox_di
     GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh clean > /dev/null
     exit 1
 fi
+
+# marker가 없는 임의 디렉터리는 clean/reset 대상이 되어서는 안 됩니다.
+unsafe_dir="/tmp/git-test-unsafe-$$"
+mkdir -p "${unsafe_dir}"
+touch "${unsafe_dir}/keep-me"
+if GIT_SANDBOX_DIR="${unsafe_dir}" ./scripts/setup_sandbox.sh clean > /dev/null 2>&1; then
+    echo "오류: marker가 없는 디렉터리의 clean이 허용되었습니다." >&2
+    exit 1
+fi
+if [ ! -f "${unsafe_dir}/keep-me" ]; then
+    echo "오류: marker가 없는 디렉터리의 파일이 삭제되었습니다." >&2
+    exit 1
+fi
+rm -rf "${unsafe_dir}"
 
 GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh clean > /dev/null
 echo "  [OK] 샌드박스 라이프사이클 및 헬퍼 배포 검증 완료"

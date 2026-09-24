@@ -4,21 +4,66 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+MARKER_NAME=".git-lab-sandbox"
 
-RAW_SANDBOX_DIR="${GIT_SANDBOX_DIR:-/tmp/git-lab-sandbox}"
+# 샌드박스에 복사된 sandbox.sh는 자신의 위치를 대상으로 삼습니다.
+if [ -f "${SCRIPT_DIR}/${MARKER_NAME}" ]; then
+    RAW_SANDBOX_DIR="${SCRIPT_DIR}"
+else
+    RAW_SANDBOX_DIR="${GIT_SANDBOX_DIR:-/tmp/git-lab-sandbox}"
+fi
 # 상대 경로 또는 환경별 경로를 표준 절대 경로로 정규화
 SANDBOX_DIR="$(python3 -c "import os, sys; print(os.path.abspath(sys.argv[1]))" "${RAW_SANDBOX_DIR}")"
 
-init_sandbox() {
-    echo "==> Git 학습용 격리 샌드박스를 생성합니다: ${SANDBOX_DIR}"
-    
-    if [ -d "${SANDBOX_DIR}" ]; then
-        echo "경고: 기존 샌드박스 디렉터리가 이미 존재합니다: ${SANDBOX_DIR}"
-        echo "완전히 초기화하려면 '$0 reset'을 실행하세요."
+assert_safe_target() {
+    if [ "${SANDBOX_DIR}" = "/" ] || [ "${SANDBOX_DIR}" = "${PROJECT_ROOT}" ]; then
+        echo "오류: 안전하지 않은 샌드박스 경로입니다: ${SANDBOX_DIR}" >&2
         exit 1
     fi
+}
 
-    mkdir -p "${SANDBOX_DIR}"
+assert_owned_sandbox() {
+    assert_safe_target
+    if [ ! -f "${SANDBOX_DIR}/${MARKER_NAME}" ]; then
+        echo "오류: 이 도구가 만든 샌드박스가 아니므로 삭제하지 않습니다: ${SANDBOX_DIR}" >&2
+        exit 1
+    fi
+}
+
+install_helpers() {
+    local inspect_source setup_source
+    if [ -f "${SCRIPT_DIR}/inspect_object.py" ]; then
+        inspect_source="${SCRIPT_DIR}/inspect_object.py"
+    else
+        inspect_source="${PROJECT_ROOT}/scripts/inspect_object.py"
+    fi
+    setup_source="${SCRIPT_DIR}/$(basename -- "${BASH_SOURCE[0]}")"
+
+    if [ "${inspect_source}" != "${SANDBOX_DIR}/inspect_object.py" ]; then
+        cp "${inspect_source}" "${SANDBOX_DIR}/inspect_object.py"
+    fi
+    if [ "${setup_source}" != "${SANDBOX_DIR}/sandbox.sh" ]; then
+        cp "${setup_source}" "${SANDBOX_DIR}/sandbox.sh"
+    fi
+    chmod +x "${SANDBOX_DIR}/inspect_object.py" "${SANDBOX_DIR}/sandbox.sh"
+}
+
+init_sandbox() {
+    echo "==> Git 학습용 격리 샌드박스를 생성합니다: ${SANDBOX_DIR}"
+
+    assert_safe_target
+    if [ -d "${SANDBOX_DIR}" ]; then
+        if [ "${ALLOW_EXISTING_SANDBOX:-0}" != "1" ]; then
+            echo "경고: 기존 샌드박스 디렉터리가 이미 존재합니다: ${SANDBOX_DIR}"
+            echo "완전히 초기화하려면 '$0 reset'을 실행하세요."
+            exit 1
+        fi
+        assert_owned_sandbox
+    else
+        mkdir -p "${SANDBOX_DIR}"
+        : > "${SANDBOX_DIR}/${MARKER_NAME}"
+    fi
+
     cd "${SANDBOX_DIR}"
 
     # 1. 중앙 원격 베어(Bare) 저장소 생성
@@ -68,11 +113,7 @@ init_sandbox() {
     )
 
     # 6. 샌드박스 내부용 헬퍼 유틸리티 복사 (샌드박스 내부에서 상대 경로로 바로 실행 가능)
-    cp "${PROJECT_ROOT}/scripts/inspect_object.py" "${SANDBOX_DIR}/inspect_object.py"
-    chmod +x "${SANDBOX_DIR}/inspect_object.py"
-
-    cp "${PROJECT_ROOT}/scripts/setup_sandbox.sh" "${SANDBOX_DIR}/sandbox.sh"
-    chmod +x "${SANDBOX_DIR}/sandbox.sh"
+    install_helpers
 
     echo ""
     echo "=========================================================="
@@ -96,6 +137,7 @@ init_sandbox() {
 
 clean_sandbox() {
     if [ -d "${SANDBOX_DIR}" ]; then
+        assert_owned_sandbox
         echo "==> 샌드박스 디렉터리를 삭제합니다: ${SANDBOX_DIR}"
         rm -rf "${SANDBOX_DIR}"
         echo "삭제 완료."
@@ -105,8 +147,15 @@ clean_sandbox() {
 }
 
 reset_sandbox() {
-    clean_sandbox
-    init_sandbox
+    assert_owned_sandbox
+    echo "==> 샌드박스를 초기 상태로 되돌립니다: ${SANDBOX_DIR}"
+    rm -rf \
+        "${SANDBOX_DIR}/remote.git" \
+        "${SANDBOX_DIR}/temp-init" \
+        "${SANDBOX_DIR}/alice" \
+        "${SANDBOX_DIR}/bob" \
+        "${SANDBOX_DIR}/learner"
+    ALLOW_EXISTING_SANDBOX=1 init_sandbox
 }
 
 status_sandbox() {
