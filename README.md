@@ -15,13 +15,13 @@ Git의 내부 객체 모델(Content-Addressed Storage, Merkle DAG)과 분산 협
    - 히스토리는 커밋 객체들이 부모 커밋을 단방향으로 참조하는 그래프입니다.
    - 브랜치와 `HEAD`는 특정 커밋 노드를 가리키는 단순한 '가변 포인터(참조)'에 불과합니다.
 3. **저장소 격리 절대 원칙 (Repository Isolation)**
-   - 학습 중 파괴적인 실험(`reset --hard`, `rebase -i`, 브랜치 강제 삭제, 객체 손상 등)을 자유롭게 수행할 수 있도록, **모든 실습은 독립된 샌드박스(Docker 컨테이너 또는 `/tmp/git-lab-sandbox`)에서 진행**합니다.
+   - 학습 중 파괴적인 실험(`reset --hard`, `rebase -i`, 브랜치 강제 삭제, 객체 손상 등)을 자유롭게 수행할 수 있도록, **모든 실습은 독립된 샌드박스(Docker 컨테이너 또는 로컬 임시 디렉터리)에서 진행**합니다.
 
 ---
 
 ## 🚀 빠른 시작 (Quick Start)
 
-실습 환경은 **Docker 컨테이너** 또는 **WSL/Linux 로컬 디렉터리** 중 원하는 방식으로 구성할 수 있습니다.
+실습 환경은 **Docker 컨테이너** 또는 **로컬 OS/WSL 디렉터리** 중 원하는 방식으로 구성할 수 있습니다.
 
 ### 방법 A. Docker 환경 (권장: 완전 격리)
 
@@ -32,8 +32,9 @@ docker compose -f docker/docker-compose.yml up -d --build
 # 2. 샌드박스 컨테이너 쉘 진입
 docker compose -f docker/docker-compose.yml exec git-sandbox bash
 
-# 3. 컨테이너 내부에서 실습 진행 (/workspace)
-learner@git-sandbox:/workspace$ ls -la
+# 3. 컨테이너 내부에서 실습 진행 (/workspace/learner)
+cd /workspace/learner
+git status
 ```
 
 실습을 마치거나 초기화할 때:
@@ -43,9 +44,9 @@ docker compose -f docker/docker-compose.yml down -v
 
 ---
 
-### 방법 B. 로컬 WSL 환경 (경량: 즉시 실행)
+### 방법 B. 로컬 OS/WSL 환경 (경량: 즉시 실행)
 
-Docker 데몬 없이 로컬 파일시스템의 임시 디렉터리(`/tmp/git-lab-sandbox`)를 사용합니다:
+Docker 데몬 없이 로컬 파일시스템의 격리 디렉터리(기본값: `/tmp/git-lab-sandbox`)를 사용합니다:
 
 ```bash
 # 1. 샌드박스 초기화 (중앙 베어 저장소 + alice + bob + learner 자동 구성)
@@ -54,9 +55,17 @@ Docker 데몬 없이 로컬 파일시스템의 임시 디렉터리(`/tmp/git-lab
 # 2. 학습자 작업 디렉터리로 이동하여 실습 시작
 cd /tmp/git-lab-sandbox/learner
 
-# 3. 샌드박스 리셋 (언제든 처음 깨끗한 상태로 되돌리기)
-/mnt/c/study/dev-lab/scripts/setup_sandbox.sh reset
+# 3. 객체 분석 및 샌드박스 관리 (상대 경로로 언제든 실행 가능)
+python3 ../inspect_object.py <hash>   # Git 객체 구조 분석
+../sandbox.sh status                  # 각 작업 공간 상태 확인
+../sandbox.sh reset                   # 샌드박스 초기 깨끗한 상태로 리셋
 ```
+
+> 💡 **팁**: 샌드박스 경로를 변경하고 싶다면 `GIT_SANDBOX_DIR` 환경 변수를 지정할 수 있습니다:
+> ```bash
+> export GIT_SANDBOX_DIR=./sandbox
+> ./scripts/setup_sandbox.sh init
+> ```
 
 ---
 

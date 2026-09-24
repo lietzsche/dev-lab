@@ -17,15 +17,25 @@
 
 ## 2. 절대 원칙: 저장소 격리 (Repository Isolation)
 
-- **`dev-lab` 본 저장소에서는 어떠한 실습 Git 명령어도 실행하지 않습니다.**
+- **학습 가이드가 위치한 본 저장소(Repository Root)에서는 어떠한 실습 Git 명령어도 실행하지 않습니다.**
 - 모든 Git 실습(커밋, 브랜칭, 리베이스, 리셋, 머지, 원격 푸시, 객체 손상 등)은 반드시 다음 격리된 샌드박스 중 하나에서만 실행합니다:
   1. Docker 컨테이너 내부 (`docker compose -f docker/docker-compose.yml exec git-sandbox bash`)
-  2. 로컬 WSL 임시 디렉터리 (`/tmp/git-lab-sandbox/learner` — `./scripts/setup_sandbox.sh init`로 생성)
-- 실습 중 커밋 해시가 꼬이거나 작업 트리가 삭제되어도 `dev-lab` 본 저장소는 절대 오염되지 않아야 합니다.
+  2. 로컬 격리 디렉터리 (`/tmp/git-lab-sandbox/learner` 또는 `GIT_SANDBOX_DIR` 지정 경로)
+- 실습 중 커밋 해시가 꼬이거나 작업 트리가 삭제되어도 본 저장소는 절대 오염되지 않아야 합니다.
 
 ---
 
-## 3. 학습자 프로필 및 설명 철학
+## 3. 이식성 및 경로 규칙 (Portability & Relative Paths)
+
+- **특정 머신에 종속된 절대 경로(예: OS 마운트 경로, 사용자 홈 디렉터리, 드라이브 문자 등)를 문서나 가이드 명령어에 절대 하드코딩하지 않습니다.**
+- 모든 명령어와 경로는 다음 원칙을 따릅니다:
+  - 본 저장소 기준: 저장소 루트 상대 경로 (`./scripts/setup_sandbox.sh`, `scripts/inspect_object.py`)
+  - 샌드박스 내부 기준: 샌드박스 상대 경로 (`../sandbox.sh`, `../inspect_object.py` 또는 PATH 등록 도구)
+- 다른 컴퓨터나 다른 OS(Linux, macOS, WSL)로 저장소를 복제하더라도 즉시 동일하게 학습을 이어갈 수 있어야 합니다.
+
+---
+
+## 4. 학습자 프로필 및 설명 철학
 
 - 학습자는 Java, JavaScript/TypeScript, Rust 경험이 있는 현업 개발자입니다.
 - 단순 porcelain 명령어(`git add`, `git commit`) 암기가 아니라, Git의 내부 데이터 구조(Object DB, Index, Ref, DAG)를 직접 까보고 상태 전이를 이해하는 것이 목표입니다.
@@ -38,7 +48,7 @@
 
 ---
 
-## 4. 공통 학습 흐름
+## 5. 공통 학습 흐름
 
 한 소단원을 작은 개념 단위로 나누고, 다음 사이클을 엄격하게 반복합니다:
 
@@ -51,13 +61,13 @@
 ```
 
 - 한 번의 응답에서 여러 개의 새로운 개념이나 소단원 전체 과제를 한꺼번에 제시하지 않습니다.
-- 각 단계마다 `.git/objects`, `.git/refs`, `git cat-file -p`, `git ls-tree`, `git log --graph`, `scripts/inspect_object.py` 등으로 **Git 내부 파일시스템의 변화를 눈으로 직접 확인**하게 합니다.
+- 각 단계마다 `.git/objects`, `.git/refs`, `git cat-file -p`, `git ls-tree`, `git log --graph`, `inspect_object.py` 등으로 **Git 내부 파일시스템의 변화를 눈으로 직접 확인**하게 합니다.
 - 학습자의 터미널 실행 결과와 관찰 결과를 확인하기 전에는 다음 개념으로 넘어가지 않습니다.
 - 첫 요청에는 방향 힌트, 두 번째에는 더 구체적인 힌트, 명시적으로 요청하면 정답 명령어와 해설을 제공합니다.
 
 ---
 
-## 5. 실습 시나리오와 복구 훈련
+## 6. 실습 시나리오와 복구 훈련
 
 - 충돌(Merge/Rebase Conflict), non-fast-forward push 거부, Detached HEAD 등 실무에서 자주 겪는 당황스러운 상황을 샌드박스에서 일부러 유도합니다.
 - 오류 메시지를 읽고 현재 Git의 내부 상태(어떤 ref가 어디를 가리키는지, 어떤 파일이 충돌 상태인지)를 진단하는 방법을 먼저 설명합니다.

@@ -96,21 +96,36 @@ def inspect_git_object(target_path: Path) -> None:
         print(payload[:128])
 
 
-def resolve_object_file(arg: str, git_dir: Path) -> Path:
+def find_git_dir(start: Path) -> Path:
+    """현재 경로 또는 상위 디렉터리에서 .git 디렉터리를 탐색합니다."""
+    current = start.resolve()
+    for parent in [current, *current.parents]:
+        git_candidate = parent / ".git"
+        if git_candidate.is_dir():
+            return git_candidate
+        if git_candidate.is_file():
+            content = git_candidate.read_text().strip()
+            if content.startswith("gitdir:"):
+                return (parent / content[7:].strip()).resolve()
+    return current / ".git"
+
+
+def resolve_object_file(arg: str, git_dir: Path | None) -> Path:
     """해시 문자열 또는 파일 경로를 바탕으로 실제 객체 파일 경로를 찾습니다."""
     path = Path(arg)
     if path.is_file():
         return path
 
+    effective_git_dir = git_dir if git_dir is not None else find_git_dir(Path.cwd())
     clean_hash = arg.strip().lower()
     if len(clean_hash) == 40:
-        candidate = git_dir / "objects" / clean_hash[:2] / clean_hash[2:]
+        candidate = effective_git_dir / "objects" / clean_hash[:2] / clean_hash[2:]
         if candidate.is_file():
             return candidate
 
     print(
         f"오류: 객체를 찾을 수 없습니다. 경로 또는 40자리 해시를 입력하세요: {arg}\n"
-        f"검색 기준 git_dir: {git_dir.resolve()}",
+        f"검색 기준 git_dir: {effective_git_dir}",
         file=sys.stderr,
     )
     sys.exit(1)
@@ -123,12 +138,12 @@ def main() -> None:
     parser.add_argument("target", help="객체 파일 경로 또는 40자리 SHA-1 해시")
     parser.add_argument(
         "--git-dir",
-        default=".git",
-        help="Git 디렉터리 경로 (기본값: .git)",
+        default=None,
+        help="Git 디렉터리 경로 (미지정 시 현재/상위 디렉터리 자동 탐색)",
     )
     args = parser.parse_args()
 
-    git_dir = Path(args.git_dir)
+    git_dir = Path(args.git_dir) if args.git_dir is not None else None
     target_path = resolve_object_file(args.target, git_dir)
     inspect_git_object(target_path)
 

@@ -2,7 +2,12 @@
 
 set -euo pipefail
 
-SANDBOX_DIR="${GIT_SANDBOX_DIR:-/tmp/git-lab-sandbox}"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+
+RAW_SANDBOX_DIR="${GIT_SANDBOX_DIR:-/tmp/git-lab-sandbox}"
+# 상대 경로 또는 환경별 경로를 표준 절대 경로로 정규화
+SANDBOX_DIR="$(python3 -c "import os, sys; print(os.path.abspath(sys.argv[1]))" "${RAW_SANDBOX_DIR}")"
 
 init_sandbox() {
     echo "==> Git 학습용 격리 샌드박스를 생성합니다: ${SANDBOX_DIR}"
@@ -62,6 +67,13 @@ init_sandbox() {
         git config user.email "learner@devlab.local"
     )
 
+    # 6. 샌드박스 내부용 헬퍼 유틸리티 복사 (샌드박스 내부에서 상대 경로로 바로 실행 가능)
+    cp "${PROJECT_ROOT}/scripts/inspect_object.py" "${SANDBOX_DIR}/inspect_object.py"
+    chmod +x "${SANDBOX_DIR}/inspect_object.py"
+
+    cp "${PROJECT_ROOT}/scripts/setup_sandbox.sh" "${SANDBOX_DIR}/sandbox.sh"
+    chmod +x "${SANDBOX_DIR}/sandbox.sh"
+
     echo ""
     echo "=========================================================="
     echo " [성공] Git 샌드박스 초기화가 완료되었습니다!"
@@ -71,6 +83,11 @@ init_sandbox() {
     echo "  - 학습자 작업 공간: ${SANDBOX_DIR}/learner (메인 실습 공간)"
     echo "  - 동료 Alice 공간: ${SANDBOX_DIR}/alice   (동시성/충돌 시뮬레이션용)"
     echo "  - 동료 Bob 공간:   ${SANDBOX_DIR}/bob     (동시성/충돌 시뮬레이션용)"
+    echo ""
+    echo "학습자 작업 공간 내부 편의 도구:"
+    echo "  - 객체 분석: python3 ../inspect_object.py <hash>"
+    echo "  - 샌드박스 리셋: ../sandbox.sh reset"
+    echo "  - 샌드박스 상태: ../sandbox.sh status"
     echo ""
     echo "실습 시작 명령:"
     echo "  cd ${SANDBOX_DIR}/learner"

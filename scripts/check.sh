@@ -13,6 +13,7 @@ required_files=(
     "AGENTS.md"
     "docker/Dockerfile"
     "docker/docker-compose.yml"
+    "docker/entrypoint.sh"
     "scripts/setup_sandbox.sh"
     "scripts/inspect_object.py"
 )
@@ -27,7 +28,7 @@ done
 
 echo ""
 echo "==> 2. Bash 스크립트 문법 검사 (bash -n)..."
-for script in scripts/*.sh; do
+for script in scripts/*.sh docker/*.sh; do
     bash -n "${script}"
     echo "  [OK] ${script}"
 done
@@ -42,11 +43,36 @@ fi
 echo "  [OK] scripts/inspect_object.py 컴파일 성공"
 
 echo ""
-echo "==> 4. setup_sandbox.sh init / clean 동작 검증..."
+echo "==> 4. 특정 머신 절대 경로 하드코딩 여부 검사..."
+forbidden_pattern="(/mnt/[a-z]/|/home/[^/]+/|(^|[[:blank:]\"'\`])[A-Za-z]:[/\\\\])"
+set +e
+grep_matches=$(git grep -n -E "${forbidden_pattern}" -- ':!scripts/check.sh' 2>&1)
+grep_exit=$?
+set -e
+
+if [ ${grep_exit} -eq 0 ]; then
+    echo "오류: 파일에 특정 머신 종속 절대 경로가 포함되어 있습니다:" >&2
+    echo "${grep_matches}" >&2
+    exit 1
+fi
+echo "  [OK] 특정 머신 종속 절대 경로 없음 (완전한 이식성 유지)"
+
+echo ""
+echo "==> 5. setup_sandbox.sh init / status / reset / clean 전체 동작 검증..."
 test_sandbox_dir="/tmp/git-test-sandbox-$$"
 GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh init > /dev/null
+GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh status > /dev/null
+GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh reset > /dev/null
+
+# 샌드박스 내부 헬퍼 도구 동작 확인
+if [ ! -f "${test_sandbox_dir}/inspect_object.py" ] || [ ! -f "${test_sandbox_dir}/sandbox.sh" ]; then
+    echo "오류: 샌드박스 내부에 헬퍼 도구가 올바르게 복사되지 않았습니다." >&2
+    GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh clean > /dev/null
+    exit 1
+fi
+
 GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh clean > /dev/null
-echo "  [OK] 샌드박스 생성 및 정리 검증 완료"
+echo "  [OK] 샌드박스 라이프사이클 및 헬퍼 배포 검증 완료"
 
 echo ""
 echo "=========================================================="
