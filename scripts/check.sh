@@ -11,6 +11,7 @@ required_files=(
     "CURRICULUM.md"
     "PROGRESS.md"
     "AGENTS.md"
+    "STUDY_ROADMAP.md"
     "docker/Dockerfile"
     "docker/docker-compose.yml"
     "docker/entrypoint.sh"

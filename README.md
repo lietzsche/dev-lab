@@ -8,6 +8,8 @@ Git의 내부 객체 모델(Content-Addressed Storage, Merkle DAG)과 분산 협
 `learn/git-internals`는 Git 학습 문서와 도구만 관리합니다. 실제 Git 명령 실습은 이
 브랜치 자체가 아니라 아래에서 생성하는 별도 샌드박스 저장소에서 수행합니다.
 
+전체 학습 순서와 과목 선택 기준은 [STUDY_ROADMAP.md](STUDY_ROADMAP.md)를 따릅니다.
+
 ---
 
 ## 💡 학습 철학
