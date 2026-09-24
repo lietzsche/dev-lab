@@ -12,6 +12,17 @@ Java, JavaScript, TypeScript 경험이 있는 개발자를 기준으로 프로�
 - thread, process, coroutine과 `asyncio`
 - HTTP API, MCP tool, LLM application의 경계
 
+## 학습 브랜치
+
+이 저장소는 과목별 장기 브랜치로 학습 자료와 진도를 관리한다.
+
+- `main`: Python
+- `learn/git-internals`: Git 내부 구조와 협업 워크플로우
+- 향후 다른 과목: `learn/<subject>`
+
+각 과목 브랜치는 독립된 학습 과정이며 서로 병합하지 않는다. 브랜치를 전환해 해당
+과목의 문서, 코드 및 진도를 이어서 관리한다.
+
 ## 최종적으로 만들 것
 
 학습 중 만드는 코드는 버리지 않고 다음 형태로 성장시킨다.
