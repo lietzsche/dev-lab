@@ -18,7 +18,7 @@ from knowledge_lab.lessons import (
     p3_3_dataclasses_and_value_objects,
     p3_4_protocols_and_composition,
     p4_1_exceptions,
-    p10_3_observability,
+    p10_4_process_and_deployment,
 )
 
 
@@ -31,12 +31,12 @@ class MainTest(unittest.TestCase):
 
         lines = output.getvalue().splitlines()
 
-        self.assertIn("P10-3 observability 시작", lines)
+        self.assertIn("P10-4 process와 deployment 시작", lines)
 
     def test_current_lesson_module_is_importable(self) -> None:
         self.assertEqual(
-            "knowledge_lab.lessons.p10_3_observability",
-            p10_3_observability.__name__,
+            "knowledge_lab.lessons.p10_4_process_and_deployment",
+            p10_4_process_and_deployment.__name__,
         )
 
 

@@ -3,8 +3,8 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P10-3 observability
-- 상태: 완료
+- 단계: P10-4 process와 deployment
+- 상태: 진행 중
 
 ## 준비된 기반
 
@@ -688,6 +688,20 @@
 - 완료: `handle_note_request()`에서 사용자에게는 정제된 에러 메시지와 코드만 반환하고, 내부 로그에는 `exc_info=True`로 전체 Traceback을 JSON에 보존하는 오류 경계를 분리했다.
 - 완료: 메모리 로거 레벨 필터링, JSON 직렬화, request ID 컨텍스트 전파, 메트릭 집계, 내부 스택트레이스 분리를 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P10-4 세부 진행 기록
+
+- P10-4 process와 deployment
+- 상태: 진행 중
+- 완료: `uvicorn.Config`가 import string과 host, port, worker 설정을 소유하지만 생성만으로 application을 import하거나 server를 시작하지 않음을 확인했다.
+- 완료: `config.load()`가 같은 process에서 ASGI callable을 import하고 middleware stack을 준비하며 socket이나 worker를 시작하지 않는 경계를 확인했다.
+- 완료: `uvicorn.Server` 객체 생성과 `server.run()`의 실제 socket·event loop·lifespan 시작 시점을 구분했다.
+- 완료: 임시 loopback socket과 background thread로 server startup을 관찰하고 `should_exit=True`로 graceful shutdown을 요청해 thread 종료와 같은 PID 유지를 확인했다.
+- 완료: `time.monotonic()` 기반 deadline으로 startup 대기를 제한하고 server 조기 종료와 timeout을 별도 오류로 구분했다.
+- 완료: liveness는 process 응답 가능성, readiness는 traffic 수신 가능성을 표현하도록 상태 의미를 분리했다.
+- 완료: FastAPI lifespan 전·중·후 readiness가 `503 → 200 → 503` 상태로 바뀌고 liveness는 `200`을 유지하도록 HTTP endpoint에 연결했다.
+- 완료: server lifecycle과 health endpoint의 공개 behavior를 test로 검증했다.
+- 다음 개념: container 실행 명령과 Uvicorn worker process 모델
 
 ## 진행 규칙
 
