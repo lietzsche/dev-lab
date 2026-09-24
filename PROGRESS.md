@@ -4,7 +4,7 @@
 
 - 프로젝트: Python Knowledge Lab
 - 단계: P10-4 process와 deployment
-- 상태: 진행 중
+- 상태: 완료
 
 ## 준비된 기반
 
@@ -342,6 +342,12 @@
 - `contextvars.ContextVar`를 사용해 비동기·스레드 안전한 request_id 바인딩 및 자동 주입과 리셋을 확인했다.
 - `MetricsCollector`로 작업 수, 실패 수, 경과 시간을 안전하게 집계하고 예외를 재전파했다.
 - 내부 스택트레이스를 JSON 로그의 exception에 보존하면서 외부 클라이언트에는 정제된 에러 응답만 전달하는 경계를 공개 behavior test로 검증했다.
+
+### P10-4. process와 deployment
+
+- uvicorn Config·Server 객체 생성, ASGI callable load, socket 바인딩 및 graceful shutdown 실행 경계를 확인했다.
+- process 생존(liveness 200)과 traffic 수신 준비(readiness 503 → 200 → 503) 헬스체크 상태를 분리했다.
+- 컨테이너 환경의 0.0.0.0 바인딩과 워커 프로세스 CLI 실행 명령 생성을 공개 behavior test로 검증했다.
 
 ## P5-2 세부 완료 기록
 
@@ -689,10 +695,10 @@
 - 완료: 메모리 로거 레벨 필터링, JSON 직렬화, request ID 컨텍스트 전파, 메트릭 집계, 내부 스택트레이스 분리를 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
-## P10-4 세부 진행 기록
+## P10-4 세부 완료 기록
 
 - P10-4 process와 deployment
-- 상태: 진행 중
+- 상태: 완료
 - 완료: `uvicorn.Config`가 import string과 host, port, worker 설정을 소유하지만 생성만으로 application을 import하거나 server를 시작하지 않음을 확인했다.
 - 완료: `config.load()`가 같은 process에서 ASGI callable을 import하고 middleware stack을 준비하며 socket이나 worker를 시작하지 않는 경계를 확인했다.
 - 완료: `uvicorn.Server` 객체 생성과 `server.run()`의 실제 socket·event loop·lifespan 시작 시점을 구분했다.
@@ -700,8 +706,9 @@
 - 완료: `time.monotonic()` 기반 deadline으로 startup 대기를 제한하고 server 조기 종료와 timeout을 별도 오류로 구분했다.
 - 완료: liveness는 process 응답 가능성, readiness는 traffic 수신 가능성을 표현하도록 상태 의미를 분리했다.
 - 완료: FastAPI lifespan 전·중·후 readiness가 `503 → 200 → 503` 상태로 바뀌고 liveness는 `200`을 유지하도록 HTTP endpoint에 연결했다.
-- 완료: server lifecycle과 health endpoint의 공개 behavior를 test로 검증했다.
-- 다음 개념: container 실행 명령과 Uvicorn worker process 모델
+- 완료: `build_container_command()`로 컨테이너 외부 수신을 위한 `0.0.0.0` 바인딩과 포트·워커 검증 및 CLI 명령 리스트 생성을 확인했다.
+- 완료: server lifecycle, health endpoint, container command 생성을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙
 

@@ -89,6 +89,28 @@ def run_server_lifecycle(
     return started, stopped
 
 
+def build_container_command(
+    app_target: str = "knowledge_lab.lessons.p9_3_fastapi_application:app",
+    host: str = "0.0.0.0",
+    port: int = 8000,
+    workers: int = 1,
+) -> list[str]:
+    if port < 1 or port > 65535:
+        raise ValueError("invalid port")
+    if workers < 1:
+        raise ValueError("workers must be >= 1")
+    return [
+        "uvicorn",
+        app_target,
+        "--host",
+        host,
+        "--port",
+        str(port),
+        "--workers",
+        str(workers),
+    ]
+
+
 def run() -> None:
     """Run the current process and deployment exercise."""
     print()
@@ -156,3 +178,6 @@ def run() -> None:
         print(f"readiness endpoint status: {ready_response.status_code}")
         print(f"readiness endpoint body: {ready_response.json()}")
     print(f"health ready after client: {health_state['ready']}")
+
+    print(f"base: {build_container_command(host='0.0.0.0', workers=1)}")
+    print(f"multi: {build_container_command(host='0.0.0.0', workers=4, port=9000)}")

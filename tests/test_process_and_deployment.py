@@ -10,7 +10,9 @@ from knowledge_lab.lessons.p10_4_process_and_deployment import (
     liveness_status,
     readiness_status,
     run_server_lifecycle,
+    build_container_command,
 )
+import pytest
 
 
 def test_server_lifecycle_starts_and_stops_in_current_process() -> None:
@@ -52,3 +54,31 @@ def test_health_endpoints_follow_application_lifespan() -> None:
         assert ready_response.json() == {"status": "ready"}
 
     assert health_state["ready"] is False
+
+
+def test_build_container_command_validates_and_formats_cli_arguments() -> None:
+    cmd = build_container_command(
+        app_target="my_module:app",
+        host="0.0.0.0",
+        port=8080,
+        workers=2,
+    )
+    assert cmd == [
+        "uvicorn",
+        "my_module:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8080",
+        "--workers",
+        "2",
+    ]
+
+    with pytest.raises(ValueError, match="invalid port"):
+        build_container_command(port=0)
+
+    with pytest.raises(ValueError, match="invalid port"):
+        build_container_command(port=70000)
+
+    with pytest.raises(ValueError, match="workers must be >= 1"):
+        build_container_command(workers=0)
