@@ -1,436 +1,104 @@
-# Python Backend & AI 학습 로드맵
+# Git Internals & Workflows 커리큘럼
 
-## 과정 목표
+## 학습 철학
 
-Python 문법을 이해하고, test와 type hint를 활용해 유지보수 가능한 package를 설계하며, 동기·비동기 실행 모델을 설명할 수 있는 상태를 먼저 만든다. 그 기반 위에 동일한 지식 노트 application을 CLI, FastAPI, FastMCP, LLM interface로 확장한다.
-
-완료 기준은 특정 library API를 외우는 것이 아니다. 아래 질문을 자신의 코드와 관찰 결과로 설명할 수 있어야 한다.
-
-- Python의 이름, 객체, 참조, mutability가 상태 변화에 어떤 영향을 주는가?
-- module import와 dependency가 언제 실행되고 어디에 cache되는가?
-- iterator와 generator는 값과 실행 상태를 어떻게 보존하는가?
-- thread, process, coroutine이 어떤 작업에 적합한가?
-- domain, persistence, HTTP, MCP, LLM boundary를 왜 분리했는가?
-- 실패, timeout, cancellation, retry, 비용을 어디에서 제어하는가?
+- Git은 단순한 '버전 관리 CLI 툴'이 아니라, **불변 객체(Immutable Object) 기반의 내용 주소화 저장소(Content-Addressed Storage)**이자 **방향성 비순환 그래프(DAG, Directed Acyclic Graph)**입니다.
+- 단순 문법 암기(`add`, `commit`, `push`)를 넘어서, 명령어 실행 시 `.git` 디렉터리 내부에서 객체와 참조가 어떻게 생성되고 포인터가 어떻게 전이되는지 직접 관찰합니다.
+- 본 프로젝트(`dev-lab`)의 작업 트리를 보호하기 위해, 모든 파괴적·실험적 실습은 **독립된 샌드박스(Docker 컨테이너 또는 `/tmp/git-lab-sandbox`)**에서 격리 수행합니다.
 
 ---
 
-## P1. 실행 모델과 기본 문법
+## 단계 요약
 
-### P1-1. 실행 환경과 첫 module
-
-- interpreter, REPL, script, module의 차이
-- `python -m`, `if __name__ == "__main__"`
-- expression, statement, indentation
-- `print`, `repr`, `type`
-
-### P1-2. 이름, 객체, type
-
-- 변수보다 정확한 개념인 name binding
-- dynamic typing: 이름이 아니라 객체가 type을 가진다는 의미
-- `None`, `bool`, `int`, `float`, `str`
-- `id`, identity와 equality
-
-### P1-3. 함수와 scope
-
-- parameter, return, keyword argument
-- local/global/nonlocal scope와 LEGB
-- default argument가 정의 시점에 평가되는 문제 재현
-
-### P1-4. 제어 흐름과 pattern matching
-
-- truthiness, `if`, conditional expression
-- `for`, `while`, `range`, `enumerate`, `zip`
-- `break`, `continue`, loop `else`
-- `match`의 적절한 사용 범위
-
-### P1 결과물
-
-- 문자열 명령을 받아 간단한 노트 record를 만들고 출력하는 단일 module
-- 실행 방식에 따른 module 실행 시점과 name binding 설명
+| 단계 | 소단원 | 핵심 내용 | 비고 |
+| :--- | :--- | :--- | :--- |
+| **G1** | Git의 객체 모델과 Plumbing | `blob`, `tree`, `commit`, `tag`, SHA-1/256, zlib 압축, `hash-object`, `cat-file`, `write-tree`, `commit-tree` | 저수준 명령어로 첫 커밋 조립 |
+| **G2** | 참조와 3대 영역 상태 전이 | Working Directory, Index(Staging), HEAD, `refs/heads`, `refs/tags`, `update-ref`, `symbolic-ref`, `switch`/`restore` | 상태 전이와 stat 캐시 |
+| **G3** | DAG 순회와 브랜치 병합 | Commit DAG, 부모 포인터, Fast-Forward vs 3-way Merge, 충돌 마커 원리, `cherry-pick`, `revert` | 분기점 탐색과 머지 메커니즘 |
+| **G4** | Rebase와 히스토리 재작성 | Rebase의 본질(커밋 재생과 새 SHA 생성), `rebase -i`, squash, fixup, reword, 충돌 해결 흐름, Golden Rule | 선형 히스토리 구축 |
+| **G5** | 원격 저장소와 분산 협업 모델 | Bare repository, Remote tracking branch(`origin/*`), `fetch` vs `pull`, upstream 설정, non-fast-forward push와 `--force-with-lease` | 멀티 유저 동시 작업 시뮬레이션 |
+| **G6** | 사고 복구와 내부 유지보수 | Detached HEAD 원리와 구출, `reflog` 시간 여행, Dangling commit 구출, `fsck`, `gc`와 packfile 최적화 | 망가진 Git 살려내기 |
 
 ---
 
-## P2. 핵심 자료구조와 문자열
-
-### P2-1. sequence와 slicing
-
-- `list`, `tuple`, unpacking
-- indexing, slicing, shallow copy
-- mutable list와 immutable tuple의 실제 차이
-
-### P2-2. mapping과 set
-
-- `dict`, insertion order, key/hashability
-- `set`, membership, 집합 연산
-- note와 tag를 어떤 구조로 표현할지 비교
-
-### P2-3. 문자열과 byte
-
-- Unicode code point, UTF-8, `str`과 `bytes`
-- encode/decode boundary
-- 문자열 formatting과 parsing
-
-### P2-4. comprehension
-
-- list/dict/set comprehension
-- generator expression과 eager/lazy 차이 예고
-- 가독성을 해치는 중첩 표현의 기준
-
-### P2 결과물
-
-- in-memory note collection
-- tag 추가, keyword 검색, 정렬과 중복 제거
-
----
-
-## P3. 객체 모델과 domain modeling
-
-### P3-1. mutability, aliasing, copy
-
-- 같은 객체를 가리키는 여러 이름
-- shallow/deep copy
-- 함수 인자 전달을 call by sharing으로 이해
-
-### P3-2. class와 instance
-
-- attribute lookup, instance/class attribute
-- method와 `self`
-- Java class 및 JavaScript prototype과 비교
-
-### P3-3. dataclass와 value object
-
-- `@dataclass`, equality, representation
-- `frozen`, `slots`, validation의 한계
-- note와 tag domain model
-
-### P3-4. protocol과 composition
-
-- inheritance보다 composition
-- duck typing
-- `typing.Protocol`을 이용한 structural subtyping
-
-### P3 결과물
-
-- `Note`, `Tag`, `NoteRepository` contract
-- dictionary 중심 코드에서 domain object로 리팩터링
-
----
-
-## P4. 오류, resource, module
-
-### P4-1. exception과 traceback
-
-- `try/except/else/finally`
-- exception hierarchy와 `raise ... from ...`
-- domain error와 infrastructure error 구분
-
-### P4-2. context manager
-
-- `with`가 resource lifetime을 다루는 방식
-- file close 실패 실험
-- class 기반 및 generator 기반 context manager
-
-### P4-3. module, package, import
-
-- import가 코드를 실행하고 cache하는 방식
-- absolute/relative import
-- circular import 문제 재현
-
-### P4-4. project와 dependency
-
-- virtual environment, pip, `pyproject.toml`
-- distribution package와 import package
-- dependency/lockfile/tool 선택 기준
-
-### P4 결과물
-
-- install 가능한 `knowledge_lab` package
-- CLI entry point와 명확한 exception boundary
-
----
-
-## P5. 함수형 도구와 lazy evaluation
-
-### P5-1. first-class function과 closure
-
-- 함수를 값으로 전달
-- closure가 외부 상태를 보존하는 방식
-- late binding 문제 재현
-
-### P5-2. iterable과 iterator
-
-- iterable/iterator protocol
-- `iter`, `next`, `StopIteration`
-- 한 번 소비되는 iterator에서 생기는 버그
-
-### P5-3. generator
-
-- `yield`, suspended execution state
-- generator pipeline과 memory 사용 관찰
-- `yield from`
-
-### P5-4. decorator
-
-- 함수를 감싸는 호출 구조
-- `functools.wraps`
-- logging/timing decorator와 framework decorator 연결
-
-### P5 결과물
-
-- 대량 note import를 처리하는 streaming pipeline
-- 검색과 변환 pipeline의 eager/lazy 비교
-
----
-
-## P6. type hint, test, 품질 도구
-
-### P6-1. type hint의 역할
-
-- runtime type과 static analysis의 차이
-- union, optional, collection generic
-- `Any`가 검사를 끄는 의미
-
-### P6-2. generic과 protocol
-
-- `TypeVar`, generic repository
-- `Protocol`, callable type
-- runtime validation과 type checking 분리
-
-### P6-3. test 설계
-
-- `unittest`의 arrange/act/assert
-- unit/integration test 경계
-- fake, stub, mock의 차이
-- pytest fixture와 parametrization은 필요성이 생긴 뒤 도입
-
-### P6-4. formatter, lint, type checker
-
-- Ruff와 mypy 설정
-- lint rule을 맹목적으로 늘리지 않는 기준
-- CI에서 재현 가능한 검증 명령
-
-### P6 결과물
-
-- typed application service
-- domain unit test와 repository contract test
-
----
-
-## P7. 파일과 SQLite persistence
-
-### P7-1. path와 file I/O
-
-- `pathlib`, text/binary mode
-- buffering, flush, atomic replace
-- serialization과 domain model의 분리
-
-### P7-2. JSON persistence
-
-- JSON type과 Python type 차이
-- schema 변경과 잘못된 data 처리
-- partial write 문제 재현
-
-### P7-3. SQLite와 transaction
-
-- connection, cursor, parameter binding
-- commit/rollback과 transaction boundary
-- SQL injection 문제
-
-### P7-4. repository adapter
-
-- in-memory/file/SQLite 구현 교체
-- dependency inversion을 과도하지 않게 적용
-- migration 기초
-
-### P7 결과물
-
-- CLI에서 사용하는 SQLite note repository
-- persistence integration test
-
----
-
-## P8. 동시성과 비동기
-
-### P8-1. blocking I/O와 thread
-
-- call stack이 기다리는 위치
-- `threading`, race condition, lock
-- GIL을 만능 설명으로 사용하지 않기
-
-### P8-2. process와 CPU-bound work
-
-- `multiprocessing`과 serialization 비용
-- thread/process 선택 실험
-- shared state 최소화
-
-### P8-3. coroutine과 event loop
-
-- coroutine object, `async def`, `await`
-- task와 event loop
-- async code에서 blocking call이 만드는 문제
-
-### P8-4. cancellation, timeout, backpressure
-
-- structured concurrency와 task lifecycle
-- timeout/cancellation 전파
-- bounded queue와 생산자·소비자
-
-### P8 결과물
-
-- 여러 note source를 동시에 import하는 worker
-- sync/thread/process/async 실행 결과 비교 문서
-
----
-
-## P9. HTTP에서 FastAPI까지
-
-### P9-1. HTTP boundary
-
-- method, path, header, body, status code
-- JSON serialization과 network failure
-- 작은 표준 라이브러리 HTTP 실험
-
-### P9-2. Pydantic validation
-
-- domain model과 transport schema 분리
-- parsing, validation, serialization
-- 잘못된 입력의 error model
-
-### P9-3. FastAPI application
-
-- route, dependency, lifespan
-- sync/async endpoint의 실행 차이
-- application service 연결
-
-### P9-4. API test와 운영 경계
-
-- in-process API test와 실제 network test
-- exception handler, logging, config
-- timeout, idempotency, pagination
-
-### P9 결과물
-
-- note CRUD/search HTTP API
-- OpenAPI schema와 integration test
-
----
-
-## P10. Architecture와 production basics
-
-### P10-1. configuration과 secret
-
-- environment variable와 settings
-- secret을 source와 log에서 분리
-- development/test/production 차이
-
-### P10-2. dependency boundary
-
-- domain/application/adapter 책임
-- framework type이 core로 새는 문제
-- dependency injection의 최소 형태
-
-### P10-3. observability
-
-- structured log, request ID
-- latency/error metric 기초
-- stack trace와 사용자용 오류 분리
-
-### P10-4. process와 deployment
-
-- ASGI server와 worker
-- graceful shutdown
-- container, health check, readiness 개념
-
-### P10 결과물
-
-- CLI와 HTTP가 같은 application core를 재사용
-- 설정·로그·종료 정책을 가진 서비스
-
----
-
-## P11. MCP와 FastMCP
-
-### P11-1. tool contract
-
-- MCP가 해결하는 integration 문제
-- tool/resource/prompt의 역할
-- 평범한 Python 함수로 input/output contract 먼저 설계
-
-### P11-2. FastMCP server
-
-- note search/get/create tool 노출
-- schema와 description이 model behavior에 미치는 영향
-- stdio와 network transport 비교
-
-### P11-3. 안전한 tool 설계
-
-- read/write tool 구분
-- validation, timeout, error, authorization boundary
-- prompt injection을 application 권한과 분리
-
-### P11-4. MCP test와 client
-
-- tool을 deterministic하게 직접 test
-- protocol integration test
-- FastAPI adapter와 중복되지 않는 core 재사용
-
-### P11 결과물
-
-- Knowledge Lab FastMCP server
-- API와 MCP가 공유하는 application service
-
----
-
-## P12. LLM application
-
-### P12-1. model I/O와 비결정성
-
-- message, token, context window
-- temperature와 structured output
-- model SDK를 adapter로 격리
-
-### P12-2. retrieval
-
-- keyword search baseline
-- chunk, embedding, vector similarity
-- retrieval와 generation을 분리해 평가
-
-### P12-3. tool calling
-
-- model이 tool을 선택하고 결과를 다시 받는 loop
-- 최대 step, timeout, 비용 제한
-- tool 결과를 신뢰할 수 없는 input으로 취급
-
-### P12-4. evaluation과 reliability
-
-- fake model을 이용한 deterministic test
-- golden dataset과 retrieval metric
-- citation, hallucination, prompt injection 관찰
-
-### P12 결과물
-
-- 자신의 노트를 검색하고 출처와 함께 답하는 assistant
-- FastMCP tool calling 경로
-- offline test와 선택적인 실제 model integration test
-
----
-
-## 선택 심화
-
-핵심 과정을 완료한 뒤 관심에 따라 하나를 선택한다.
-
-- RAG 심화: hybrid search, reranking, evaluation
-- Agent engineering: state machine, durable execution, human approval
-- Performance: profiling, memory, serialization, event loop tuning
-- Data engineering: batch/stream ingestion, workflow orchestration
-- Python internals: descriptor, bytecode, garbage collection, C extension
-- 운영 심화: tracing, queue, cache, rate limit, distributed deployment
-
-## 전체 완료 조건
-
-- Python 객체 모델과 실행 시점을 Java/JavaScript/Rust와 비교해 설명한다.
-- typed, tested package를 만들고 파일·SQLite adapter를 교체할 수 있다.
-- blocking/thread/process/async 모델을 workload에 따라 선택할 수 있다.
-- 하나의 application core를 CLI, FastAPI, FastMCP에서 재사용한다.
-- 외부 LLM 없이도 retrieval/tool logic을 test하며, 실제 model 호출의 비용·실패·보안 경계를 설명한다.
+## 상세 커리큘럼
+
+### G1. Git의 객체 모델과 저수준(Plumbing) 명령어
+- **G1-1. Content-Addressed Storage와 4대 불변 객체**
+  - Git 객체 4형제: `blob` (내용), `tree` (디렉터리 구조 및 파일명 메타데이터), `commit` (스냅샷 메타데이터), `tag` (annotated tag)
+  - 객체 헤더 포맷: `"{type} {length}\0{content}"`와 SHA-1 해시 계산
+  - zlib 압축과 `.git/objects/xx/yyyy...` 샤딩 디렉터리 구조
+  - `git hash-object -w`, `git cat-file -t`, `git cat-file -p`, `git cat-file -s`로 객체 직접 덤프
+- **G1-2. Plumbing 명령어로 커밋 수작업 조립하기**
+  - 고수준 `git add`, `git commit`을 전혀 쓰지 않고 커밋 생성하기
+  - 파일 해싱 -> `blob` 생성 -> 인덱스 조작(`git update-index`) -> `git write-tree`로 `tree` 객체 생성
+  - `git commit-tree`로 트리를 가리키는 `commit` 객체 생성 (Author, Committer, Commit message, Timestamp)
+  - 부모 커밋(`-p parent_hash`)을 지정해 2번째 커밋 수동 연결하고 `git log`로 DAG 검증하기
+
+### G2. 참조(References)와 3대 영역 상태 전이
+- **G2-1. Git의 3대 영역 (Working Tree, Index, HEAD)**
+  - Working Tree(작업 폴더), Staging Area(인덱스 바이너리 파일 `.git/index`), Repository(객체 DB + 커밋)
+  - `git status`가 파일의 `mtime`, `size` stat 캐시와 SHA-1을 비교하여 변경을 감지하는 메커니즘
+  - 변경 취소와 복구: 레거시 `git checkout`에서 `git switch`(브랜치 이동)와 `git restore`(작업/인덱스 복원)로의 분리 이유
+- **G2-2. References와 심볼릭 참조 (Refs & HEAD)**
+  - 브랜치(Branch)의 본질: `.git/refs/heads/<name>` 파일에 적힌 40자리 커밋 해시 포인터에 불과함
+  - 태그(Lightweight tag vs Annotated tag): 단순 참조 파일 vs 서명/메시지를 가진 태그 객체
+  - `HEAD`의 본질: 현재 작업 브랜치를 가리키는 심볼릭 참조 (`.git/HEAD` -> `ref: refs/heads/main`)
+  - 저수준 명령어: `git update-ref`, `git symbolic-ref`로 브랜치 생성 및 이동 관찰
+
+### G3. DAG 순회와 브랜치 병합
+- **G3-1. Commit DAG(방향성 비순환 그래프)와 Revision 표기법**
+  - 커밋 노드의 단방향 부모 링크: 자식이 부모를 참조하며, 부모는 자식을 모른다.
+  - `git log --graph --oneline --all`의 토폴로지 해석
+  - Revision 문법: `HEAD~` (부모), `HEAD^2` (머지 커밋의 두 번째 부모), `HEAD@{2}` (reflog 기준)
+  - 커밋 범위 비교: `main..feature` (도달 가능 집합 차이) vs `main...feature` (대칭 차집합)
+- **G3-2. Fast-Forward Merge vs 3-way Merge**
+  - Fast-forward: 공통 조상(Base)에서 한쪽만 진전되었을 때 단순히 브랜치 포인터만 전진
+  - 3-way Merge: 세 지점(Our HEAD, Their Branch, Common Ancestor/Merge Base)을 비교하여 새 머지 커밋 노드 생성
+  - `git merge-base` 명령어로 공통 조상 찾기
+  - 충돌(Conflict) 발생 원리와 Git 충돌 마커(`<<<<<<<`, `=======`, `>>>>>>>`) 구조 분석
+- **G3-3. Cherry-Pick과 Revert의 원리**
+  - `git cherry-pick`: 특정 커밋의 diff(패치)를 현재 HEAD 위에 적용하고 새로운 SHA-1 커밋 생성
+  - `git revert`: 이전 커밋의 변경 사항을 정확히 반대로 뒤집는(inverse diff) 새로운 커밋 생성 (히스토리 보존)
+
+### G4. Rebase와 히스토리 재작성
+- **G4-1. Rebase의 내부 메커니즘**
+  - Rebase = 분기점(Base)을 최신 upstream으로 옮겨 커밋들을 순차적으로 임시 영역에 보관 후 Replay
+  - 원본 커밋이 수정되는 것이 아니라, 새로운 내용/부모를 가진 **새로운 커밋 객체(신규 SHA-1)**가 생성됨
+  - Merge 히스토리(비선형, 보존형) vs Rebase 히스토리(선형, 가독성형)의 장단점 비교
+- **G4-2. Interactive Rebase (`git rebase -i`)**
+  - todo 리스트의 동작: `pick`, `reword`, `edit`, `squash`, `fixup`, `drop`
+  - 커밋 메시지 수정, 여러 커밋 하나로 합치기, 특정 커밋 쪼개기 실습
+  - Rebase 중 충돌 발생 시 내부 상태 (`.git/rebase-merge/`)와 해결 흐름 (`--continue`, `--abort`, `--skip`)
+- **G4-3. Git의 황금률 (Golden Rule of Rebasing)**
+  - "이미 공개된(원격에 푸시된) 브랜치는 절대 Rebase하지 않는다"의 컴퓨터 과학적 이유
+  - 협업자의 로컬 DAG와 원격 DAG가 어긋났을 때 발생하는 중복 커밋과 병합 지옥 체험
+
+### G5. 원격 저장소와 분산 협업 모델
+- **G5-1. Bare Repository와 Remote Tracking References**
+  - 작업 트리 없는 순수 객체 저장소: `git init --bare`의 구조와 원격 중앙 서버의 동작
+  - Remote Tracking Branch: `.git/refs/remotes/origin/*` (원격 서버의 스냅샷 로컬 캐시)
+  - `git remote -v`, `git remote add`
+- **G5-2. 동기화 프로토콜: Fetch, Merge, Pull**
+  - `git fetch`: 원격의 누락된 객체들을 로컬로 전송받고 `origin/*` 참조만 갱신 (로컬 작업 트리 변경 없음)
+  - `git merge origin/main`: 로컬 `main`에 `origin/main` 병합
+  - `git pull` = `fetch` + `merge` (또는 `git pull --rebase` = `fetch` + `rebase`)
+  - Tracking branch 연결: `git push -u origin <branch>` (`--set-upstream`)의 설정 파일(`config`) 영향
+- **G5-3. 동시성 충돌과 Push 정책**
+  - 두 개발자(Alice, Bob)가 동일 브랜치에 동시에 push할 때의 non-fast-forward 거부
+  - 거부당했을 때의 표준 해결 패턴: `pull --rebase` 후 재push
+  - `git push --force`의 위험성과 대안 `git push --force-with-lease`의 원자적(CAS) 검증 원리
+
+### G6. 사고 복구와 내부 유지보수
+- **G6-1. Detached HEAD 상태의 진실과 탈출**
+  - HEAD가 브랜치 이름이 아닌 특정 커밋 SHA-1을 직접 가리키는 상태
+  - Detached 상태에서 커밋 후 다른 브랜치로 전환하면 커밋이 유실되는 원리 (참조 부재)
+  - 유실되기 전 새 브랜치를 생성하여 영구 보존하는 방법
+- **G6-2. Reflog: Git의 최후 안전망**
+  - `.git/logs/`에 기록되는 HEAD 및 브랜치 포인터의 모든 변경 이력
+  - `git reset --hard`나 브랜치 강제 삭제(`git branch -D`)로 증발한 커밋을 `git reflog`로 찾아 복구하기
+  - `git checkout HEAD@{1}`, `git branch rescue-branch <lost-hash>`
+- **G6-3. Dangling Objects와 가비지 컬렉션 (GC)**
+  - 어떤 참조(브랜치, 태그, reflog)에서도 도달할 수 없는 고아 객체(Dangling commit/blob)
+  - `git fsck --lost-found`: 참조가 끊긴 고아 객체 검사
+  - `git gc` (Garbage Collection): 느슨한 객체(loose objects)들을 묶어 압축 팩파일(`pack-*.pack`, `pack-*.idx`)로 변환하고 고아 객체 영구 정리

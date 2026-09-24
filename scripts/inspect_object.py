@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Git 저수준 객체 파일(.git/objects)의 zlib 압축을 풀고 구조를 분석하는 도구.
 
 Git이 객체를 파일시스템에 저장하는 원형:
@@ -6,6 +7,7 @@ Git이 객체를 파일시스템에 저장하는 원형:
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import sys
 import zlib
@@ -57,8 +59,13 @@ def inspect_git_object(target_path: Path) -> None:
     header = decompressed[:null_idx].decode("ascii", errors="replace")
     payload = decompressed[null_idx + 1 :]
 
-    obj_type, declared_size_str = header.split(" ", 1)
-    declared_size = int(declared_size_str)
+    try:
+        obj_type, declared_size_str = header.split(" ", 1)
+        declared_size = int(declared_size_str)
+    except ValueError:
+        print(f"오류: 유효하지 않은 헤더 포맷: {header!r}", file=sys.stderr)
+        sys.exit(1)
+
     actual_size = len(payload)
     calculated_sha1 = hashlib.sha1(decompressed).hexdigest()
 
@@ -66,6 +73,7 @@ def inspect_git_object(target_path: Path) -> None:
     print(f" 객체 타입 (Type):       {obj_type}")
     print(f" 선언 크기 (Declared):   {declared_size} bytes")
     print(f" 실제 페이로드 (Actual): {actual_size} bytes")
+    print(f" 크기 일치 여부:         {declared_size == actual_size}")
     print(f" 계산된 SHA-1 해시:      {calculated_sha1}")
     print("=" * 60)
     print("[페이로드 내용 (Payload)]\n")
@@ -101,20 +109,27 @@ def resolve_object_file(arg: str, git_dir: Path) -> Path:
             return candidate
 
     print(
-        f"오류: 객체를 찾을 수 없습니다. 경로 또는 40자리 해시를 입력하세요: {arg}",
+        f"오류: 객체를 찾을 수 없습니다. 경로 또는 40자리 해시를 입력하세요: {arg}\n"
+        f"검색 기준 git_dir: {git_dir.resolve()}",
         file=sys.stderr,
     )
     sys.exit(1)
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
-        print("사용법: python scripts/inspect_git_object.py <객체파일경로 또는 40자리해시>")
-        print("예시:   python scripts/inspect_git_object.py .git/objects/4b/825dc...")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description="Git 저수준 객체 파일의 zlib 압축을 풀고 구조를 분석합니다."
+    )
+    parser.add_argument("target", help="객체 파일 경로 또는 40자리 SHA-1 해시")
+    parser.add_argument(
+        "--git-dir",
+        default=".git",
+        help="Git 디렉터리 경로 (기본값: .git)",
+    )
+    args = parser.parse_args()
 
-    git_dir = Path(".git")
-    target_path = resolve_object_file(sys.argv[1], git_dir)
+    git_dir = Path(args.git_dir)
+    target_path = resolve_object_file(args.target, git_dir)
     inspect_git_object(target_path)
 
 

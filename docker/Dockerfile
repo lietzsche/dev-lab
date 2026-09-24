@@ -12,14 +12,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Git 기본 설정 (Learner 기본 계정 및 main 기본 브랜치)
+# Git 전역 기본 설정
 RUN git config --global user.name "Learner" \
     && git config --global user.email "learner@devlab.local" \
     && git config --global init.defaultBranch main \
     && git config --global core.editor "vim"
 
+# 분석 도구 및 엔트리포인트 스크립트 복사
+COPY scripts/inspect_object.py /usr/local/bin/inspect_object
+RUN chmod +x /usr/local/bin/inspect_object
+
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # 작업 디렉터리 준비
 WORKDIR /workspace
 
-# 컨테이너 시작 시 실행될 쉘
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/bash"]

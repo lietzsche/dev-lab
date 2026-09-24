@@ -5,11 +5,11 @@ set -euo pipefail
 SANDBOX_DIR="${GIT_SANDBOX_DIR:-/tmp/git-lab-sandbox}"
 
 init_sandbox() {
-    echo "==> Git 학습용 샌드박스를 생성합니다: ${SANDBOX_DIR}"
+    echo "==> Git 학습용 격리 샌드박스를 생성합니다: ${SANDBOX_DIR}"
     
     if [ -d "${SANDBOX_DIR}" ]; then
-        echo "경고: 기존 샌드박스 디렉터리가 이미 존재합니다."
-        echo "초기화하려면 먼저 reset 또는 clean 명령을 실행하세요."
+        echo "경고: 기존 샌드박스 디렉터리가 이미 존재합니다: ${SANDBOX_DIR}"
+        echo "완전히 초기화하려면 '$0 reset'을 실행하세요."
         exit 1
     fi
 
@@ -18,9 +18,9 @@ init_sandbox() {
 
     # 1. 중앙 원격 베어(Bare) 저장소 생성
     echo "1) 중앙 원격 베어 저장소 (remote.git) 생성 중..."
-    git init --bare --initial-branch=main remote.git
+    git init --bare --initial-branch=main remote.git > /dev/null 2>&1
 
-    # 2. 초기 커밋을 위한 임시 작업 디렉터리
+    # 2. 초기 커밋 생성을 위한 임시 작업 디렉터리
     echo "2) 기본 초기 커밋 생성 및 푸시 중..."
     git clone remote.git temp-init > /dev/null 2>&1
     (
@@ -35,7 +35,7 @@ init_sandbox() {
     )
     rm -rf temp-init
 
-    # 3. 협업자 및 학습자 클론 생성
+    # 3. 협업자 Alice 저장소 생성
     echo "3) 협업자 Alice 저장소 생성 중..."
     git clone remote.git alice > /dev/null 2>&1
     (
@@ -44,6 +44,7 @@ init_sandbox() {
         git config user.email "alice@devlab.local"
     )
 
+    # 4. 협업자 Bob 저장소 생성
     echo "4) 협업자 Bob 저장소 생성 중..."
     git clone remote.git bob > /dev/null 2>&1
     (
@@ -52,6 +53,7 @@ init_sandbox() {
         git config user.email "bob@devlab.local"
     )
 
+    # 5. 학습자 전용 저장소 (learner) 생성
     echo "5) 학습자 작업 저장소 (learner) 생성 중..."
     git clone remote.git learner > /dev/null 2>&1
     (
@@ -60,15 +62,19 @@ init_sandbox() {
         git config user.email "learner@devlab.local"
     )
 
-    echo "==> 샌드박스 준비 완료!"
-    echo "디렉터리 구조:"
-    echo "  ${SANDBOX_DIR}/remote.git  (중앙 베어 저장소)"
-    echo "  ${SANDBOX_DIR}/learner     (학습자 전용 작업 공간)"
-    echo "  ${SANDBOX_DIR}/alice       (동료 Alice 작업 공간)"
-    echo "  ${SANDBOX_DIR}/bob         (동료 Bob 작업 공간)"
     echo ""
-    echo "학습 시작 명령:"
+    echo "=========================================================="
+    echo " [성공] Git 샌드박스 초기화가 완료되었습니다!"
+    echo "=========================================================="
+    echo "저장소 목록:"
+    echo "  - 중앙 원격 저장소: ${SANDBOX_DIR}/remote.git"
+    echo "  - 학습자 작업 공간: ${SANDBOX_DIR}/learner (메인 실습 공간)"
+    echo "  - 동료 Alice 공간: ${SANDBOX_DIR}/alice   (동시성/충돌 시뮬레이션용)"
+    echo "  - 동료 Bob 공간:   ${SANDBOX_DIR}/bob     (동시성/충돌 시뮬레이션용)"
+    echo ""
+    echo "실습 시작 명령:"
     echo "  cd ${SANDBOX_DIR}/learner"
+    echo "=========================================================="
 }
 
 clean_sandbox() {
@@ -77,13 +83,32 @@ clean_sandbox() {
         rm -rf "${SANDBOX_DIR}"
         echo "삭제 완료."
     else
-        echo "샌드박스 디렉터리가 존재하지 않습니다."
+        echo "알림: 삭제할 샌드박스 디렉터리가 존재하지 않습니다: ${SANDBOX_DIR}"
     fi
 }
 
 reset_sandbox() {
     clean_sandbox
     init_sandbox
+}
+
+status_sandbox() {
+    if [ ! -d "${SANDBOX_DIR}" ]; then
+        echo "오류: 샌드박스가 존재하지 않습니다. 먼저 '$0 init'을 실행하세요."
+        exit 1
+    fi
+
+    echo "==> 샌드박스 상태 점검: ${SANDBOX_DIR}"
+    for dir in learner alice bob; do
+        if [ -d "${SANDBOX_DIR}/${dir}" ]; then
+            echo "--- [${dir}] ---"
+            (
+                cd "${SANDBOX_DIR}/${dir}"
+                git status -s -b
+                git log --oneline -n 1 || true
+            )
+        fi
+    done
 }
 
 case "${1:-init}" in
@@ -96,8 +121,11 @@ case "${1:-init}" in
     reset)
         reset_sandbox
         ;;
+    status)
+        status_sandbox
+        ;;
     *)
-        echo "사용법: $0 {init|clean|reset}"
+        echo "사용법: $0 {init|clean|reset|status}"
         exit 1
         ;;
 esac
