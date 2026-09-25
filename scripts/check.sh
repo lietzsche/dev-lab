@@ -59,7 +59,26 @@ fi
 echo "  [OK] 특정 머신 종속 절대 경로 없음 (완전한 이식성 유지)"
 
 echo ""
-echo "==> 5. setup_sandbox.sh init / status / reset / clean 전체 동작 검증..."
+echo "==> 5. 커리큘럼과 진도표 구조 검사..."
+curriculum_ids="$(sed -n 's/^### \[\(G[0-9]-[0-9]\)\].*/\1/p' CURRICULUM.md | sort -u)"
+progress_ids="$(sed -n 's/^| \*\*\(G[0-9]-[0-9]\)\*\*.*/\1/p' PROGRESS.md | sort -u)"
+if [ "$(printf '%s\n' "${curriculum_ids}" | sed '/^$/d' | wc -l)" -ne 24 ]; then
+    echo "오류: Git 커리큘럼은 24개 소단원이어야 합니다." >&2
+    exit 1
+fi
+if [ "${curriculum_ids}" != "${progress_ids}" ]; then
+    echo "오류: 커리큘럼과 진도표의 단원 ID가 다릅니다." >&2
+    exit 1
+fi
+if [ "$(grep -c '| 대기 | - |$' PROGRESS.md)" -ne 24 ]; then
+    echo "오류: 초기 진도는 24개 모두 대기여야 합니다." >&2
+    exit 1
+fi
+echo "  [OK] 24개 단원 ID와 초기 진도 일치"
+
+
+echo ""
+echo "==> 6. setup_sandbox.sh init / status / reset / clean 전체 동작 검증..."
 test_sandbox_dir="/tmp/git-test-sandbox-$$"
 GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh init > /dev/null
 GIT_SANDBOX_DIR="${test_sandbox_dir}" ./scripts/setup_sandbox.sh status > /dev/null

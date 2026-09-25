@@ -10,6 +10,8 @@ Git의 내부 객체 모델(Content-Addressed Storage, Merkle DAG)과 분산 협
 
 전체 학습 순서와 과목 선택 기준은 [STUDY_ROADMAP.md](STUDY_ROADMAP.md)를 따릅니다.
 
+현재 과정은 6단계 24소단원이며, 객체 저장소부터 협업 정책·회귀 탐색·복구까지 다룹니다.
+
 ---
 
 ## 💡 학습 철학
