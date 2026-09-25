@@ -9,7 +9,7 @@
 - 대상: Java/Spring 5년 차, Python·데이터·AI workflow 실무 확장 중
 - 선수지식: Python·SQL·분산 기초
 - 결과물: 문서→embedding→serving pipeline 검증
-- 구성: 6단계, 18소단원
+- 구성: 6단계, 24소단원
 
 ## 환경
 
