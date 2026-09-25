@@ -9,7 +9,7 @@
 - 대상: Java/Spring 5년 차, Python·데이터·AI workflow 실무 확장 중
 - 선수지식: Git 완료 권장
 - 결과물: Spring API와 Python worker 장애 진단
-- 구성: 6단계, 18소단원
+- 구성: 6단계, 30소단원
 
 ## 환경
 
