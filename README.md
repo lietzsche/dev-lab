@@ -9,7 +9,7 @@
 - 대상: Java/Spring 5년 차, Python·데이터·AI workflow 실무 확장 중
 - 선수지식: 핵심 로드맵 후
 - 결과물: agent task runner CLI
-- 구성: 6단계, 18소단원
+- 구성: 6단계, 30소단원
 
 ## 환경
 
