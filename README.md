@@ -9,7 +9,7 @@ controller가 desired state를 조정하는 구조와 운영을 이해하기 위
 - 대상: Java/Spring 5년 차, Python·데이터·AI workflow 실무 확장 중
 - 선수지식: Containers 완료 권장
 - 결과물: API·worker rollout·관측·RBAC 검증
-- 구성: 6단계, 18소단원
+- 구성: 6단계, 30소단원
 
 ## 환경
 
