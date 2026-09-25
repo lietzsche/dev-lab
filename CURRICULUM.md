@@ -1,189 +1,371 @@
 # Distributed Systems Foundations 커리큘럼
 
-## 목적
+## 과정 목표
 
-부분 실패와 동시성 아래 불변식과 복구를 설계한다. 도구 암기보다 내부 상태와 실패 모델을 관찰한다.
+도구 사용법을 늘리는 데서 끝나지 않고 내부 상태, 불변식, 실패 모델과 운영 판단을 설명하고 검증한다. 완료 시 다음 질문에 자신의 실습 증거로 답할 수 있어야 한다.
 
-- 선수지식: Network·DB 기본
-- 최종 실습: 중복·지연·partition 아래 workflow 검증
-- 전체: 6단계, 18소단원
+- Model·Time·Failure 단계에서 가정과 불변식을 먼저 명시할 수 있는가?
+- Replication·Consistency 단계에서 업무 요구에 맞는 consistency 선택할 수 있는가?
+- Transaction·Concurrency 단계에서 DB와 application 불변식 결합할 수 있는가?
+- Messaging·Streaming 단계에서 delivery보다 business effect 기준 설계할 수 있는가?
+- Workflow·Data consistency 단계에서 중단 후 재개 가능한 long-running process할 수 있는가?
+- Reliability·Operation 단계에서 운영에서 가정을 검증하는 방법 확립할 수 있는가?
 
-## 단계 요약
+## 설계 기준
 
-| 단계 | 주제 | 관찰 대상 | 통합 실습 |
-| :--- | :--- | :--- | :--- |
-| **D1** | 시간·실패 | clock·order·deadline | 지연·부분 실패 |
-| **D2** | 복제·일관성 | version·lag·quorum | 동시 read/write |
-| **D3** | 동시성 | transaction·version·lock | lost update·deadlock |
-| **D4** | 메시징 | offset·ack·DLQ | crash·redelivery |
-| **D5** | Workflow | outbox·saga·retry | commit/publish 실패 |
-| **D6** | 운영 | trace·SLI·fault result | 부하·장애 검증 |
+- 단원 수보다 개념의 선행 관계와 완료 역량을 우선한다.
+- 정상 경로마다 실패 실험과 복구를 짝지어 학습한다.
+- 한 단계는 관찰 가능한 결과물로 끝나며 사용자가 `넘어가자`고 할 때만 다음 단계로 간다.
+- 전체 범위: 30소단원.
+
+## 단계 지도
+
+| 단계 | 주제 | 단원 수 | 단계 결과 |
+| :--- | :--- | ---: | :--- |
+| **D1** | Model·Time·Failure | 5 | 가정과 불변식을 먼저 명시 |
+| **D2** | Replication·Consistency | 5 | 업무 요구에 맞는 consistency 선택 |
+| **D3** | Transaction·Concurrency | 5 | DB와 application 불변식 결합 |
+| **D4** | Messaging·Streaming | 5 | delivery보다 business effect 기준 설계 |
+| **D5** | Workflow·Data consistency | 5 | 중단 후 재개 가능한 long-running process |
+| **D6** | Reliability·Operation | 5 | 운영에서 가정을 검증하는 방법 확립 |
 
 ## 소단원 지도
 
 | ID | 소단원 | 목표 | 선행 |
 | :--- | :--- | :--- | :--- |
-| **D1-1** | 시간과 순서 | 시간과 순서의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | - |
-| **D1-2** | timeout·deadline | timeout·deadline의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D1-1 |
-| **D1-3** | failure model | failure model의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D1-2 |
-| **D2-1** | replication lag | replication lag의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D1-3 |
-| **D2-2** | consistency model | consistency model의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D2-1 |
-| **D2-3** | quorum·split brain | quorum·split brain의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D2-2 |
-| **D3-1** | isolation anomaly | isolation anomaly의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D2-3 |
-| **D3-2** | optimistic locking | optimistic locking의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D3-1 |
-| **D3-3** | idempotency | idempotency의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D3-2 |
-| **D4-1** | queue·log·pubsub | queue·log·pubsub의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D3-3 |
-| **D4-2** | delivery semantics | delivery semantics의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D4-1 |
-| **D4-3** | ordering·backpressure | ordering·backpressure의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D4-2 |
-| **D5-1** | outbox·CDC | outbox·CDC의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D4-3 |
-| **D5-2** | saga·compensation | saga·compensation의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D5-1 |
-| **D5-3** | circuit breaker | circuit breaker의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D5-2 |
-| **D6-1** | distributed tracing | distributed tracing의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D5-3 |
-| **D6-2** | SLO·load shedding | SLO·load shedding의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D6-1 |
-| **D6-3** | fault injection | fault injection의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다 | D6-2 |
+| **D1-1** | system model·safety·liveness | system model·safety·liveness의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | - |
+| **D1-2** | physical·monotonic clock | physical·monotonic clock의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D1-1 |
+| **D1-3** | logical clock·causal order | logical clock·causal order의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D1-2 |
+| **D1-4** | partial failure·failure detector | partial failure·failure detector의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D1-3 |
+| **D1-5** | timeout·deadline·cancellation budget | timeout·deadline·cancellation budget의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D1-4 |
+| **D2-1** | replication topology·lag | replication topology·lag의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D1-5 |
+| **D2-2** | leader election·term·fencing | leader election·term·fencing의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D2-1 |
+| **D2-3** | quorum read/write | quorum read/write의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D2-2 |
+| **D2-4** | linearizable·sequential·eventual | linearizable·sequential·eventual의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D2-3 |
+| **D2-5** | CAP·PACELC를 실제 latency와 연결 | CAP·PACELC를 실제 latency와 연결의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D2-4 |
+| **D3-1** | ACID boundary·commit outcome | ACID boundary·commit outcome의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D2-5 |
+| **D3-2** | isolation anomaly·MVCC | isolation anomaly·MVCC의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D3-1 |
+| **D3-3** | optimistic concurrency·CAS | optimistic concurrency·CAS의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D3-2 |
+| **D3-4** | pessimistic lock·deadlock | pessimistic lock·deadlock의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D3-3 |
+| **D3-5** | distributed lock·lease·fencing | distributed lock·lease·fencing의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D3-4 |
+| **D4-1** | queue·pubsub·append log | queue·pubsub·append log의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D3-5 |
+| **D4-2** | partition·ordering·consumer group | partition·ordering·consumer group의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D4-1 |
+| **D4-3** | at-most/at-least/effectively-once | at-most/at-least/effectively-once의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D4-2 |
+| **D4-4** | ack·retry·DLQ·poison message | ack·retry·DLQ·poison message의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D4-3 |
+| **D4-5** | backpressure·flow control·load shedding | backpressure·flow control·load shedding의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D4-4 |
+| **D5-1** | idempotency key·dedup store | idempotency key·dedup store의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D4-5 |
+| **D5-2** | transactional outbox·CDC | transactional outbox·CDC의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D5-1 |
+| **D5-3** | saga orchestration·choreography | saga orchestration·choreography의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D5-2 |
+| **D5-4** | compensation·semantic rollback | compensation·semantic rollback의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D5-3 |
+| **D5-5** | workflow checkpoint·recovery | workflow checkpoint·recovery의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D5-4 |
+| **D6-1** | retry·backoff·jitter·budget | retry·backoff·jitter·budget의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D5-5 |
+| **D6-2** | circuit breaker·bulkhead | circuit breaker·bulkhead의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D6-1 |
+| **D6-3** | distributed tracing·correlation | distributed tracing·correlation의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D6-2 |
+| **D6-4** | SLI·SLO·error budget·capacity | SLI·SLO·error budget·capacity의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D6-3 |
+| **D6-5** | fault injection·load test·incident review | fault injection·load test·incident review의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | D6-4 |
 
-## 상세 커리큘럼
+## D1. Model·Time·Failure
 
-### [D1-1] 시간과 순서
+- 관찰 축: state machine·clock·order·failure detector
+- 통합 실습: delay·clock skew·crash·partition 주입
+- 핵심 실패: timeout을 failure로 오판·unknown outcome
 
-- 목표: 시간과 순서의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: clock·order·deadline를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: 지연·부분 실패 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D1-1] system model·safety·liveness
 
-### [D1-2] timeout·deadline
+- 이해할 것: system model·safety·liveness을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: state machine·clock·order·failure detector 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: delay·clock skew·crash·partition 주입에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: timeout을 failure로 오판·unknown outcome 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: timeout·deadline의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: clock·order·deadline를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: 지연·부분 실패 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D1-2] physical·monotonic clock
 
-### [D1-3] failure model
+- 이해할 것: physical·monotonic clock을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: state machine·clock·order·failure detector 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: delay·clock skew·crash·partition 주입에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: timeout을 failure로 오판·unknown outcome 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: failure model의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: clock·order·deadline를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: 지연·부분 실패 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D1-3] logical clock·causal order
 
-### [D2-1] replication lag
+- 이해할 것: logical clock·causal order을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: state machine·clock·order·failure detector 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: delay·clock skew·crash·partition 주입에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: timeout을 failure로 오판·unknown outcome 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: replication lag의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: version·lag·quorum를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: 동시 read/write 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D1-4] partial failure·failure detector
 
-### [D2-2] consistency model
+- 이해할 것: partial failure·failure detector을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: state machine·clock·order·failure detector 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: delay·clock skew·crash·partition 주입에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: timeout을 failure로 오판·unknown outcome 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: consistency model의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: version·lag·quorum를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: 동시 read/write 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D1-5] timeout·deadline·cancellation budget
 
-### [D2-3] quorum·split brain
+- 이해할 것: timeout·deadline·cancellation budget을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: state machine·clock·order·failure detector 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: delay·clock skew·crash·partition 주입에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: timeout을 failure로 오판·unknown outcome 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: quorum·split brain의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: version·lag·quorum를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: 동시 read/write 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### D1 단계 결과물
 
-### [D3-1] isolation anomaly
+- 가정과 불변식을 먼저 명시.
+- 핵심 명령·출력·diagram·실패 복구 기록을 `PROGRESS.md`에 남긴다.
 
-- 목표: isolation anomaly의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: transaction·version·lock를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: lost update·deadlock 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+## D2. Replication·Consistency
 
-### [D3-2] optimistic locking
+- 관찰 축: leader·log·quorum·lag·read guarantee
+- 통합 실습: replica delay와 failover 관찰
+- 핵심 실패: split brain·stale read·lost acknowledged write
 
-- 목표: optimistic locking의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: transaction·version·lock를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: lost update·deadlock 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D2-1] replication topology·lag
 
-### [D3-3] idempotency
+- 이해할 것: replication topology·lag을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: leader·log·quorum·lag·read guarantee 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: replica delay와 failover 관찰에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: split brain·stale read·lost acknowledged write 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: idempotency의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: transaction·version·lock를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: lost update·deadlock 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D2-2] leader election·term·fencing
 
-### [D4-1] queue·log·pubsub
+- 이해할 것: leader election·term·fencing을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: leader·log·quorum·lag·read guarantee 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: replica delay와 failover 관찰에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: split brain·stale read·lost acknowledged write 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: queue·log·pubsub의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: offset·ack·DLQ를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: crash·redelivery 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D2-3] quorum read/write
 
-### [D4-2] delivery semantics
+- 이해할 것: quorum read/write을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: leader·log·quorum·lag·read guarantee 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: replica delay와 failover 관찰에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: split brain·stale read·lost acknowledged write 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: delivery semantics의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: offset·ack·DLQ를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: crash·redelivery 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D2-4] linearizable·sequential·eventual
 
-### [D4-3] ordering·backpressure
+- 이해할 것: linearizable·sequential·eventual을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: leader·log·quorum·lag·read guarantee 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: replica delay와 failover 관찰에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: split brain·stale read·lost acknowledged write 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: ordering·backpressure의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: offset·ack·DLQ를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: crash·redelivery 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D2-5] CAP·PACELC를 실제 latency와 연결
 
-### [D5-1] outbox·CDC
+- 이해할 것: CAP·PACELC를 실제 latency와 연결을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: leader·log·quorum·lag·read guarantee 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: replica delay와 failover 관찰에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: split brain·stale read·lost acknowledged write 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: outbox·CDC의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: outbox·saga·retry를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: commit/publish 실패 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### D2 단계 결과물
 
-### [D5-2] saga·compensation
+- 업무 요구에 맞는 consistency 선택.
+- 핵심 명령·출력·diagram·실패 복구 기록을 `PROGRESS.md`에 남긴다.
 
-- 목표: saga·compensation의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: outbox·saga·retry를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: commit/publish 실패 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+## D3. Transaction·Concurrency
 
-### [D5-3] circuit breaker
+- 관찰 축: isolation·MVCC·lock·version·fencing token
+- 통합 실습: lost update·write skew·deadlock 재현
+- 핵심 실패: retry가 중복 효과 생성·stale lock holder
 
-- 목표: circuit breaker의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: outbox·saga·retry를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: commit/publish 실패 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D3-1] ACID boundary·commit outcome
 
-### [D6-1] distributed tracing
+- 이해할 것: ACID boundary·commit outcome을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: isolation·MVCC·lock·version·fencing token 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: lost update·write skew·deadlock 재현에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: retry가 중복 효과 생성·stale lock holder 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: distributed tracing의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: trace·SLI·fault result를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: 부하·장애 검증 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D3-2] isolation anomaly·MVCC
 
-### [D6-2] SLO·load shedding
+- 이해할 것: isolation anomaly·MVCC을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: isolation·MVCC·lock·version·fencing token 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: lost update·write skew·deadlock 재현에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: retry가 중복 효과 생성·stale lock holder 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: SLO·load shedding의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: trace·SLI·fault result를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: 부하·장애 검증 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D3-3] optimistic concurrency·CAS
 
-### [D6-3] fault injection
+- 이해할 것: optimistic concurrency·CAS을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: isolation·MVCC·lock·version·fencing token 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: lost update·write skew·deadlock 재현에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: retry가 중복 효과 생성·stale lock holder 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
 
-- 목표: fault injection의 내부 구조, 상태 전이와 실패 조건을 설명하고 검증한다.
-- 내부 관찰: trace·SLI·fault result를 확인해 실제 상태 표현을 설명한다.
-- 최소 실습: 부하·장애 검증 과정에서 조건을 바꾸고 결과를 비교한다.
-- 실패·반례: 정상과 실패 경로를 만들고 관찰 증거로 진단한다.
-- 완료 증거: 명령, 출력, 상태 전이와 복구 검증을 `PROGRESS.md`에 기록한다.
+### [D3-4] pessimistic lock·deadlock
+
+- 이해할 것: pessimistic lock·deadlock을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: isolation·MVCC·lock·version·fencing token 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: lost update·write skew·deadlock 재현에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: retry가 중복 효과 생성·stale lock holder 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D3-5] distributed lock·lease·fencing
+
+- 이해할 것: distributed lock·lease·fencing을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: isolation·MVCC·lock·version·fencing token 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: lost update·write skew·deadlock 재현에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: retry가 중복 효과 생성·stale lock holder 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### D3 단계 결과물
+
+- DB와 application 불변식 결합.
+- 핵심 명령·출력·diagram·실패 복구 기록을 `PROGRESS.md`에 남긴다.
+
+## D4. Messaging·Streaming
+
+- 관찰 축: queue/log·partition·offset·ack·consumer group
+- 통합 실습: crash 전후 redelivery와 rebalance
+- 핵심 실패: poison message·hot partition·out-of-order
+
+### [D4-1] queue·pubsub·append log
+
+- 이해할 것: queue·pubsub·append log을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: queue/log·partition·offset·ack·consumer group 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: crash 전후 redelivery와 rebalance에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: poison message·hot partition·out-of-order 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D4-2] partition·ordering·consumer group
+
+- 이해할 것: partition·ordering·consumer group을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: queue/log·partition·offset·ack·consumer group 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: crash 전후 redelivery와 rebalance에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: poison message·hot partition·out-of-order 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D4-3] at-most/at-least/effectively-once
+
+- 이해할 것: at-most/at-least/effectively-once을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: queue/log·partition·offset·ack·consumer group 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: crash 전후 redelivery와 rebalance에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: poison message·hot partition·out-of-order 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D4-4] ack·retry·DLQ·poison message
+
+- 이해할 것: ack·retry·DLQ·poison message을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: queue/log·partition·offset·ack·consumer group 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: crash 전후 redelivery와 rebalance에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: poison message·hot partition·out-of-order 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D4-5] backpressure·flow control·load shedding
+
+- 이해할 것: backpressure·flow control·load shedding을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: queue/log·partition·offset·ack·consumer group 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: crash 전후 redelivery와 rebalance에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: poison message·hot partition·out-of-order 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### D4 단계 결과물
+
+- delivery보다 business effect 기준 설계.
+- 핵심 명령·출력·diagram·실패 복구 기록을 `PROGRESS.md`에 남긴다.
+
+## D5. Workflow·Data consistency
+
+- 관찰 축: outbox·CDC·saga·dedup·state machine
+- 통합 실습: commit/publish·step/compensation 실패
+- 핵심 실패: dual write·compensation failure·stuck workflow
+
+### [D5-1] idempotency key·dedup store
+
+- 이해할 것: idempotency key·dedup store을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: outbox·CDC·saga·dedup·state machine 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: commit/publish·step/compensation 실패에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: dual write·compensation failure·stuck workflow 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D5-2] transactional outbox·CDC
+
+- 이해할 것: transactional outbox·CDC을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: outbox·CDC·saga·dedup·state machine 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: commit/publish·step/compensation 실패에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: dual write·compensation failure·stuck workflow 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D5-3] saga orchestration·choreography
+
+- 이해할 것: saga orchestration·choreography을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: outbox·CDC·saga·dedup·state machine 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: commit/publish·step/compensation 실패에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: dual write·compensation failure·stuck workflow 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D5-4] compensation·semantic rollback
+
+- 이해할 것: compensation·semantic rollback을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: outbox·CDC·saga·dedup·state machine 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: commit/publish·step/compensation 실패에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: dual write·compensation failure·stuck workflow 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D5-5] workflow checkpoint·recovery
+
+- 이해할 것: workflow checkpoint·recovery을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: outbox·CDC·saga·dedup·state machine 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: commit/publish·step/compensation 실패에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: dual write·compensation failure·stuck workflow 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### D5 단계 결과물
+
+- 중단 후 재개 가능한 long-running process.
+- 핵심 명령·출력·diagram·실패 복구 기록을 `PROGRESS.md`에 남긴다.
+
+## D6. Reliability·Operation
+
+- 관찰 축: retry budget·circuit·bulkhead·trace·SLO
+- 통합 실습: dependency degradation과 chaos experiment
+- 핵심 실패: retry storm·cascading failure·coordinated omission
+
+### [D6-1] retry·backoff·jitter·budget
+
+- 이해할 것: retry·backoff·jitter·budget을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: retry budget·circuit·bulkhead·trace·SLO 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: dependency degradation과 chaos experiment에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: retry storm·cascading failure·coordinated omission 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D6-2] circuit breaker·bulkhead
+
+- 이해할 것: circuit breaker·bulkhead을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: retry budget·circuit·bulkhead·trace·SLO 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: dependency degradation과 chaos experiment에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: retry storm·cascading failure·coordinated omission 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D6-3] distributed tracing·correlation
+
+- 이해할 것: distributed tracing·correlation을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: retry budget·circuit·bulkhead·trace·SLO 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: dependency degradation과 chaos experiment에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: retry storm·cascading failure·coordinated omission 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D6-4] SLI·SLO·error budget·capacity
+
+- 이해할 것: SLI·SLO·error budget·capacity을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: retry budget·circuit·bulkhead·trace·SLO 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: dependency degradation과 chaos experiment에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: retry storm·cascading failure·coordinated omission 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### [D6-5] fault injection·load test·incident review
+
+- 이해할 것: fault injection·load test·incident review을 구성하는 상태, 경계, 불변식과 비용.
+- 직접 관찰: retry budget·circuit·bulkhead·trace·SLO 중 이 단원과 관련된 상태를 명령·로그·metadata로 확인한다.
+- 실습: dependency degradation과 chaos experiment에서 조건 하나를 바꾸고 전후 결과를 비교한다.
+- 실패 실험: retry storm·cascading failure·coordinated omission 중 관련 상황을 재현하고 남은 상태를 진단한다.
+- 완료 기준: 결과를 먼저 예측하고, 관찰 증거로 설명하며, 안전하게 복구하거나 회귀 검증한다.
+
+### D6 단계 결과물
+
+- 운영에서 가정을 검증하는 방법 확립.
+- 핵심 명령·출력·diagram·실패 복구 기록을 `PROGRESS.md`에 남긴다.

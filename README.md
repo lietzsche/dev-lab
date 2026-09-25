@@ -9,7 +9,7 @@
 - 대상: Java/Spring 5년 차, Python·데이터·AI workflow 실무 확장 중
 - 선수지식: Network·DB 기본
 - 결과물: 중복·지연·partition 아래 workflow 검증
-- 구성: 6단계, 18소단원
+- 구성: 6단계, 30소단원
 
 ## 환경
 
