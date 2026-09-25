@@ -9,7 +9,7 @@
 - 대상: Java/Spring 5년 차, Python·데이터·AI workflow 실무 확장 중
 - 선수지식: Python·Data·분산 기초
 - 결과물: 조사 agent의 eval·trace·approval·비용 검증
-- 구성: 6단계, 18소단원
+- 구성: 6단계, 24소단원
 
 ## 환경
 
