@@ -9,7 +9,7 @@ JVM·동시성·transaction·proxy 모델로 Spring 장애를 진단하기 위�
 - 대상: Java/Spring 5년 차, Python·데이터·AI workflow 실무 확장 중
 - 선수지식: Java/Spring 실무
 - 결과물: Spring API를 부하·trace·dump로 검증
-- 구성: 6단계, 18소단원
+- 구성: 6단계, 30소단원
 
 ## 환경
 
