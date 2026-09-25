@@ -5,9 +5,9 @@ cd "${root}"
 for f in README.md CURRICULUM.md PROGRESS.md AGENTS.md STUDY_ROADMAP.md scripts/check.sh; do test -s "${f}" || exit 1; done
 c="$(sed -n 's/^### \[\(C[0-9]-[0-9]\)\].*/\1/p' CURRICULUM.md | sort -u)"
 r="$(sed -n 's/^| \*\*\(C[0-9]-[0-9]\)\*\*.*/\1/p' PROGRESS.md | sort -u)"
-test "$(printf '%s\n' "${c}" | sed '/^$/d' | wc -l)" -eq 18
+test "$(printf '%s\n' "${c}" | sed '/^$/d' | wc -l)" -eq 24
 test "${c}" = "${r}"
-test "$(grep -c '| 대기 | - |$' PROGRESS.md)" -eq 18
+test "$(grep -c '| 대기 | - |$' PROGRESS.md)" -eq 24
 if git grep -n -E '(/mnt/[a-z]/|/home/[^/]+/|[A-Za-z]:[/\\])' -- ':!scripts/check.sh'; then exit 1; fi
 bash -n scripts/check.sh
 git diff --check

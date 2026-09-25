@@ -9,7 +9,7 @@
 - 대상: Java/Spring 5년 차, Python·데이터·AI workflow 실무 확장 중
 - 선수지식: Linux 완료 권장
 - 결과물: API·worker image의 권한·resource·health 검증
-- 구성: 6단계, 18소단원
+- 구성: 6단계, 24소단원
 
 ## 환경
 
