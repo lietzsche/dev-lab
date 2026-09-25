@@ -9,7 +9,7 @@ JS runtime과 type 경계로 agent UI·자동화 도구를 개발하기 위한 �
 - 대상: Java/Spring 5년 차, Python·데이터·AI workflow 실무 확장 중
 - 선수지식: JavaScript 경험
 - 결과물: agent dashboard·Playwright·CLI 연결
-- 구성: 6단계, 18소단원
+- 구성: 6단계, 24소단원
 
 ## 환경
 
