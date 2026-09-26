@@ -40,6 +40,7 @@ from knowledge_lab.lessons import (
     p10_2_dependency_boundary,
     p10_3_observability,
     p10_4_process_and_deployment,
+    p11_1_tool_contract,
 )
 
 
@@ -82,7 +83,8 @@ def main() -> None:
     # p10_1_configuration_and_secrets.run()
     # p10_2_dependency_boundary.run()
     # p10_3_observability.run()
-    p10_4_process_and_deployment.run()
+    # p10_4_process_and_deployment.run()
+    p11_1_tool_contract.run()
 
 
 if __name__ == "__main__":

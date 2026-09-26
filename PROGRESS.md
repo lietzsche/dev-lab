@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P10-4 process와 deployment
+- 단계: P11-1 tool contract
 - 상태: 완료
 
 ## 준비된 기반
@@ -708,6 +708,17 @@
 - 완료: FastAPI lifespan 전·중·후 readiness가 `503 → 200 → 503` 상태로 바뀌고 liveness는 `200`을 유지하도록 HTTP endpoint에 연결했다.
 - 완료: `build_container_command()`로 컨테이너 외부 수신을 위한 `0.0.0.0` 바인딩과 포트·워커 검증 및 CLI 명령 리스트 생성을 확인했다.
 - 완료: server lifecycle, health endpoint, container command 생성을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P11-1 세부 완료 기록
+
+- P11-1 tool contract
+- 상태: 완료
+- 완료: `search_notes()`를 평범한 Python 함수로 먼저 설계하고 입력 정규화, 결과 개수 제한, 명시적 오류 조건을 계약으로 정의했다.
+- 완료: `TypedDict`로 반환 필드와 값 타입을 구체화하고 `signature()`와 `get_type_hints()`로 런타임에 함수 계약을 관찰했다.
+- 완료: 반환값을 JSON으로 직렬화·복원해 프로세스와 언어 경계를 통과할 수 있는 데이터 계약임을 확인했다.
+- 완료: MCP의 tool은 작업 수행, resource는 URI 기반 데이터 제공, prompt는 재사용할 메시지 틀이라는 역할 차이를 구분했다.
+- 완료: 검색 정규화, 결과 제한, 입력 오류, JSON 직렬화 가능성을 공개 behavior test로 검증했다.
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙
