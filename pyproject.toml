@@ -10,7 +10,8 @@ readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "Python Knowledge Lab learner" }]
 dependencies = [
-    "fastapi>=0.115,<0.116",
+    "fastapi>=0.141,<0.142",
+    "fastmcp>=4.0,<5",
     "pydantic>=2.13,<3",
     "uvicorn>=0.53,<0.54",
 ]
@@ -62,5 +63,10 @@ files = [
     "src/knowledge_lab/lessons/p10_2_dependency_boundary.py",
     "src/knowledge_lab/lessons/p10_3_observability.py",
     "src/knowledge_lab/lessons/p10_4_process_and_deployment.py",
+    "src/knowledge_lab/lessons/p11_1_tool_contract.py",
+    "src/knowledge_lab/lessons/p11_2_fastmcp_server.py",
+    "src/knowledge_lab/lessons/p11_3_safe_tool_design.py",
+    "src/knowledge_lab/lessons/p11_4_mcp_testing_and_client.py",
+    "src/knowledge_lab/lessons/p12_1_model_io_and_nondeterminism.py",
 ]
 strict = true

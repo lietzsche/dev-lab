@@ -18,7 +18,7 @@ from knowledge_lab.lessons import (
     p3_3_dataclasses_and_value_objects,
     p3_4_protocols_and_composition,
     p4_1_exceptions,
-    p11_1_tool_contract,
+    p12_1_model_io_and_nondeterminism,
 )
 
 
@@ -31,12 +31,12 @@ class MainTest(unittest.TestCase):
 
         lines = output.getvalue().splitlines()
 
-        self.assertIn("P11-1 tool contract 시작", lines)
+        self.assertIn("P12-1 model I/O와 비결정성 시작", lines)
 
     def test_current_lesson_module_is_importable(self) -> None:
         self.assertEqual(
-            "knowledge_lab.lessons.p11_1_tool_contract",
-            p11_1_tool_contract.__name__,
+            "knowledge_lab.lessons.p12_1_model_io_and_nondeterminism",
+            p12_1_model_io_and_nondeterminism.__name__,
         )
 
 

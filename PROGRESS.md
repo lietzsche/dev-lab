@@ -3,7 +3,7 @@
 ## 현재
 
 - 프로젝트: Python Knowledge Lab
-- 단계: P11-1 tool contract
+- 단계: P12-1 model I/O와 비결정성
 - 상태: 완료
 
 ## 준비된 기반
@@ -719,6 +719,60 @@
 - 완료: 반환값을 JSON으로 직렬화·복원해 프로세스와 언어 경계를 통과할 수 있는 데이터 계약임을 확인했다.
 - 완료: MCP의 tool은 작업 수행, resource는 URI 기반 데이터 제공, prompt는 재사용할 메시지 틀이라는 역할 차이를 구분했다.
 - 완료: 검색 정규화, 결과 제한, 입력 오류, JSON 직렬화 가능성을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P11-2 세부 완료 기록
+
+- P11-2 FastMCP server
+- 상태: 완료
+- 완료: `FastMCP` server 객체 생성과 transport 실행 시점을 분리하고, 객체 생성만으로는 요청 대기가 시작되지 않음을 확인했다.
+- 완료: 기존 `search_notes()`와 새 `get_note()`, `create_note()`를 tool로 등록해 평범한 함수와 FastMCP registry의 경계를 관찰했다.
+- 완료: 함수 signature, type hint, 기본값, `TypedDict`, docstring과 명시적 description이 input/output JSON Schema와 tool 설명으로 변환되는 과정을 확인했다.
+- 완료: 직접 함수 호출 결과와 FastMCP `ToolResult.structured_content`를 비교해 protocol 응답 포장 경계를 확인했다.
+- 완료: 같은 tool registry를 stdio와 HTTP transport로 실행하고, 프로세스 표준 스트림과 네트워크 주소 기반 통신의 차이를 비교했다.
+- 완료: tool 등록, schema, 설명, 입력 검증, 메모리 상태 변경과 구조화된 실행 결과를 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P11-3 세부 완료 기록
+
+- P11-3 안전한 tool 설계
+- 상태: 완료
+- 완료: 실제 상태 변경 여부로 read tool과 write tool을 구분하고 `read_only_hint`, `destructive_hint`, `idempotent_hint`, `open_world_hint`를 tool metadata에 표현했다.
+- 완료: 존재하지 않는 ID, 공백 제목, 최대 길이를 mutation 전에 검증하고 실패 시 원본 상태가 보존됨을 확인했다.
+- 완료: async tool timeout과 cancellation 지점을 관찰하고 timeout 이전에 상태를 변경하지 않는 실행 순서를 확인했다.
+- 완료: 일반 내부 예외는 마스킹하고 공개 가능한 업무 예외만 adapter에서 `ToolError`로 변환해 client 오류와 서버 원인을 분리했다.
+- 완료: model이 조작할 수 없는 `ContextVar` 기반 trusted role context에서 write 권한을 검사하고 모든 경로에서 token을 reset했다.
+- 완료: prompt injection 문자열이 tool 호출을 유도하더라도 application authorization을 우회하거나 상태를 변경하지 못함을 확인했다.
+- 완료: annotation, validation, timeout, error masking, authorization과 injection 방어선을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P11-4 세부 완료 기록
+
+- P11-4 MCP test와 client
+- 상태: 완료
+- 완료: `search_notes()`를 직접 호출해 같은 입력이 같은 값을 만들면서도 매번 새로운 반환 객체를 생성하는 deterministic behavior를 검증했다.
+- 완료: in-process `Client` session으로 MCP tool을 호출해 평범한 `dict`가 protocol 경계에서 `CallToolResult`와 structured content로 포장되는 과정을 확인했다.
+- 완료: 직접 함수 test와 MCP protocol integration test의 검사 범위와 실행 비용 차이를 구분했다.
+- 완료: FastAPI와 FastMCP adapter가 검색 로직을 복제하지 않고 같은 `search_notes()` core 함수를 재사용하도록 연결했다.
+- 완료: HTTP 응답과 MCP structured content가 같은 application contract를 제공함을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## P12-1 세부 완료 기록
+
+- P12-1 model I/O와 비결정성
+- 상태: 완료
+- 완료: model 입력을 `role`과 `content`를 가진 `Message` 계약과 순서가 보존되는 message 목록으로 표현했다.
+- 완료: 문자 수와 학습용 token 추정치를 구분하고 입력 token과 예약 출력 token이 context window 안에 들어가는지 계산했다.
+- 완료: seeded fake sampling으로 낮은 temperature의 안정성과 높은 temperature의 출력 다양성을 재현 가능하게 관찰했다.
+- 완료: model의 raw JSON 문자열을 `AnswerPayload`로 검증하고 JSON 문법 오류와 schema 필드 오류의 경계를 구분했다.
+- 완료: `ModelClient` Protocol과 `FakeModelClient`를 사용해 외부 model SDK를 application core에서 격리했다.
+- 완료: message 구성, context budget, sampling, structured output validation과 model adapter 전달을 공개 behavior test로 검증했다.
+- 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
+
+## 현재 작은 단계
+
+- P12-1 model I/O와 비결정성
+- 상태: 완료
 - 다음 소단원은 사용자가 `넘어가자`고 요청한 뒤 시작한다.
 
 ## 진행 규칙

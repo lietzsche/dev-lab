@@ -41,6 +41,10 @@ from knowledge_lab.lessons import (
     p10_3_observability,
     p10_4_process_and_deployment,
     p11_1_tool_contract,
+    p11_2_fastmcp_server,
+    p11_3_safe_tool_design,
+    p11_4_mcp_testing_and_client,
+    p12_1_model_io_and_nondeterminism,
 )
 
 
@@ -84,7 +88,11 @@ def main() -> None:
     # p10_2_dependency_boundary.run()
     # p10_3_observability.run()
     # p10_4_process_and_deployment.run()
-    p11_1_tool_contract.run()
+    # p11_1_tool_contract.run()
+    # p11_2_fastmcp_server.run()
+    # p11_3_safe_tool_design.run()
+    # p11_4_mcp_testing_and_client.run()
+    p12_1_model_io_and_nondeterminism.run()
 
 
 if __name__ == "__main__":
