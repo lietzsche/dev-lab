@@ -6,7 +6,7 @@ project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${project_root}"
 
 required_files=(
-    README.md CURRICULUM.md PROGRESS.md AGENTS.md
+    README.md CURRICULUM.md PROGRESS.md AGENTS.md STUDY_ROADMAP.md
     scripts/setup_sandbox.sh scripts/inspect_context.sh scripts/check.sh
     docker/Dockerfile docker/docker-compose.yml docker/entrypoint.sh
 )
@@ -48,6 +48,11 @@ if [ "${valid_state_count}" -ne 24 ] || [ "${in_progress_count}" -gt 1 ]; then
     exit 1
 fi
 printf '%s\n' '  [OK] 24 IDs and valid progress states'
+
+for document in README.md CURRICULUM.md PROGRESS.md STUDY_ROADMAP.md; do
+    grep -q 'B1~B2' "${document}"
+done
+printf '%s\n' '  [OK] roadmap checkpoint is consistent'
 
 printf '%s\n' '==> machine-specific path check'
 forbidden_pattern='(/mnt/[a-z]/|/home/[^/]+/|(^|[[:space:]])[A-Za-z]:/)'

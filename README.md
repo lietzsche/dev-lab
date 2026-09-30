@@ -3,9 +3,10 @@
 Bash 문법을 외우는 데서 끝나지 않고, 명령 한 줄이 parsing·expansion·process·file
 descriptor·exit status로 이어지는 과정을 직접 관찰하는 독립 학습 브랜치입니다.
 
-이 과정은 전체 장기 로드맵과 별도로 운영합니다. `main`의 학습자 프로필과
-`learn/git-internals`의 한 소단원 단위 진행·격리·복구 방식을 참고했지만, 다른 과목
-브랜치와 병합하지 않습니다.
+이 과정은 [STUDY_ROADMAP.md](STUDY_ROADMAP.md)의 공통 기반 과정입니다. `B1~B2`는
+Git 실습 전에 필요한 command·argv·quoting·expansion 체크포인트이고, `B3~B5`는
+Linux·container·CI/CD 전에 필요한 운영 기반입니다. `B6`는 운영 CLI가 실제 결과물로
+필요할 때 진행합니다. 과목 브랜치는 서로 병합하지 않습니다.
 
 ## 과정 목표
 
@@ -14,6 +15,15 @@ descriptor·exit status로 이어지는 과정을 직접 관찰하는 독립 학
 - process·subshell·job·signal·trap의 상태와 실패를 진단한다.
 - 안전하고 테스트 가능한 운영 자동화 CLI를 Bash로 작성한다.
 - Bash, POSIX `sh`, Python 등 다른 도구를 선택해야 하는 경계를 판단한다.
+
+## 로드맵 체크포인트
+
+- **B1~B2 — Git 진입 기반:** Git 자체를 배우는 과정이 아니라 shell 해석과 Git 오류를 구분할 최소 기반입니다.
+- **B3~B5 — 운영 기반:** Git과 병행하거나 이후에 진행하며 Linux·container·CI/CD로 이어집니다.
+- **B6 — 선택 결과물:** 반복 운영 작업을 Bash CLI로 만들 이유가 있을 때 진행합니다.
+
+Bash 전체 완료는 Git 시작 조건이 아닙니다. 현재 완료한 단원은 그대로 보존하며 B2 완료 뒤
+Python 학습으로 복귀하는 것이 기본 경로입니다.
 
 ## 학습 방식
 
