@@ -1,0 +1,12 @@
+services:
+  bash-sandbox:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    tty: true
+    stdin_open: true
+    volumes:
+      - bash-lab-data:/lab
+
+volumes:
+  bash-lab-data:
