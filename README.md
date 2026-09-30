@@ -12,6 +12,15 @@ Git의 내부 객체 모델(Content-Addressed Storage, Merkle DAG)과 분산 협
 
 현재 과정은 6단계 24소단원이며, 객체 저장소부터 협업 정책·회귀 탐색·복구까지 다룹니다.
 
+## 선수 범위와 학습 위치
+
+Bash 전체가 선수 과정은 아닙니다. `learn/bash`의 B1~B2에서 command·argv·exit status와
+quoting·expansion을 이해하면 이 과정을 시작할 수 있습니다. redirection·pipeline의 내부
+모델은 Git 학습과 병행하거나 Bash B3에서 이어서 학습합니다.
+
+G1~G3은 객체·ref·index·DAG·merge를 이해하는 핵심 체크포인트입니다. G4~G6은 history
+rewrite, 협업 정책, 회귀 탐색과 복구가 현재 역할에 중요할 때 바로 이어서 심화합니다.
+
 ---
 
 ## 💡 학습 철학

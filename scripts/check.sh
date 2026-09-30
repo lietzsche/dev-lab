@@ -76,6 +76,12 @@ if [ "$(grep -c '| 대기 | - |$' PROGRESS.md)" -ne 24 ]; then
 fi
 echo "  [OK] 24개 단원 ID와 초기 진도 일치"
 
+for document in README.md CURRICULUM.md STUDY_ROADMAP.md; do
+  grep -q 'B1~B2' "${document}"
+  grep -q 'G1~G3' "${document}"
+done
+echo "  [OK] Bash 선수 범위와 Git 체크포인트 일치"
+
 
 echo ""
 echo "==> 6. setup_sandbox.sh init / status / reset / clean 전체 동작 검증..."
