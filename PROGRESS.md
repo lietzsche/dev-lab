@@ -1,4 +1,4 @@
-# JVM & Spring Internals 진도표
+# Java Fundamentals & VS Code Development 진도표
 
 ## 진행 원칙
 
@@ -11,40 +11,40 @@
 
 | ID | 소단원 | 목표 | 선행 | 상태 | 완료일 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **J1-1** | bytecode·operand stack·dispatch | bytecode·operand stack·dispatch의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | - | 대기 | - |
-| **J1-2** | class loading·linking·initialization | class loading·linking·initialization의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J1-1 | 대기 | - |
-| **J1-3** | class loader identity·module | class loader identity·module의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J1-2 | 대기 | - |
-| **J1-4** | reflection·annotation·method handle | reflection·annotation·method handle의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J1-3 | 대기 | - |
-| **J1-5** | JIT·warmup·deoptimization 입문 | JIT·warmup·deoptimization 입문의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J1-4 | 대기 | - |
-| **J2-1** | heap·stack·object layout | heap·stack·object layout의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J1-5 | 대기 | - |
-| **J2-2** | allocation·TLAB·escape analysis | allocation·TLAB·escape analysis의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J2-1 | 대기 | - |
-| **J2-3** | GC root·reachability·reference type | GC root·reachability·reference type의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J2-2 | 대기 | - |
-| **J2-4** | collector·pause·throughput tradeoff | collector·pause·throughput tradeoff의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J2-3 | 대기 | - |
-| **J2-5** | JFR·heap dump·profiling·benchmark | JFR·heap dump·profiling·benchmark의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J2-4 | 대기 | - |
-| **J3-1** | Java Memory Model·visibility | Java Memory Model·visibility의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J2-5 | 대기 | - |
-| **J3-2** | synchronized·lock·condition | synchronized·lock·condition의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J3-1 | 대기 | - |
-| **J3-3** | atomic·CAS·concurrent collection | atomic·CAS·concurrent collection의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J3-2 | 대기 | - |
-| **J3-4** | executor·queue·backpressure | executor·queue·backpressure의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J3-3 | 대기 | - |
-| **J3-5** | virtual thread·structured concurrency·pinning | virtual thread·structured concurrency·pinning의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J3-4 | 대기 | - |
-| **J4-1** | bean definition·lifecycle·scope | bean definition·lifecycle·scope의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J3-5 | 대기 | - |
-| **J4-2** | dependency injection·cycle·lazy | dependency injection·cycle·lazy의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J4-1 | 대기 | - |
-| **J4-3** | proxy·AOP·self invocation | proxy·AOP·self invocation의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J4-2 | 대기 | - |
-| **J4-4** | configuration·auto-configuration·condition | configuration·auto-configuration·condition의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J4-3 | 대기 | - |
-| **J4-5** | event·validation·cache boundary | event·validation·cache boundary의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J4-4 | 대기 | - |
-| **J5-1** | transaction proxy·propagation | transaction proxy·propagation의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J4-5 | 대기 | - |
-| **J5-2** | isolation·locking·retry | isolation·locking·retry의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J5-1 | 대기 | - |
-| **J5-3** | JPA identity·flush·batch·N+1 | JPA identity·flush·batch·N+1의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J5-2 | 대기 | - |
-| **J5-4** | MVC lifecycle·exception·serialization | MVC lifecycle·exception·serialization의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J5-3 | 대기 | - |
-| **J5-5** | Security filter·authorization·async context | Security filter·authorization·async context의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J5-4 | 대기 | - |
-| **J6-1** | unit·slice·integration contract | unit·slice·integration contract의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J5-5 | 대기 | - |
-| **J6-2** | Testcontainers·migration·external dependency | Testcontainers·migration·external dependency의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J6-1 | 대기 | - |
-| **J6-3** | configuration·secret·profile boundary | configuration·secret·profile boundary의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J6-2 | 대기 | - |
-| **J6-4** | Micrometer·OpenTelemetry·structured log | Micrometer·OpenTelemetry·structured log의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J6-3 | 대기 | - |
-| **J6-5** | container·Kubernetes·graceful shutdown·incident | container·Kubernetes·graceful shutdown·incident의 내부 모델과 선택 기준을 설명하고 실제 상태로 검증 | J6-4 | 대기 | - |
+| **JF1-1** | JDK·CLI compile·execute | `javac`, `java`, classpath `-cp`의 동작 원리를 이해하고 CLI에서 컴파일 및 실행 검증 | - | 대기 | - |
+| **JF1-2** | VS Code Java environment & LSP | Eclipse JDT Language Server, settings.json, workspaceStorage 캐시의 구조를 이해하고 환경 구축 | JF1-1 | 대기 | - |
+| **JF1-3** | Package structure & naming boundary | 패키지 선언, 디렉터리 계층 매핑, 식별자 명명 규칙과 컴파일러 패키지 검증 | JF1-2 | 대기 | - |
+| **JF1-4** | Build tool & dependency management | Gradle 빌드 생명주기, sourceSets, 의존성 resolution, JAR 패키징 검증 | JF1-3 | 대기 | - |
+| **JF1-5** | VS Code test & debug workflow | JUnit 테스트 러너 연동, breakpoint 설정, 스택 프레임 및 변수 인스펙션 검증 | JF1-4 | 대기 | - |
+| **JF2-1** | Primitive types vs Reference types | 원시 타입과 참조 타입의 메모리 배치(스택 vs 힙) 및 Pass-by-value 불변식 검증 | JF1-5 | 대기 | - |
+| **JF2-2** | String pool & immutability | 문자열 리터럴 풀, 불변 객체 특성, `==` vs `.equals()`, StringBuilder 버퍼링 검증 | JF2-1 | 대기 | - |
+| **JF2-3** | Arrays & boundary invariants | 연속 메모리 할당, 0-indexed 불변식, `ArrayIndexOutOfBoundsException`과 다차원 배열 참조 검증 | JF2-2 | 대기 | - |
+| **JF2-4** | Wrapper classes & Autoboxing traps | 박싱/언박싱 비용, 캐싱 범위(-128~127), NullPointerException(NPE) 함정 검증 | JF2-3 | 대기 | - |
+| **JF2-5** | Constants & Enums | `static final` 상수, 타입 세이프 enum의 내부 클래스 모델과 인스턴스 상태 검증 | JF2-4 | 대기 | - |
+| **JF3-1** | Class anatomy & lifecycle | 필드, 생성자 오버로딩, `this()`, 인스턴스 초기화 블록의 실행 순서 검증 | JF2-5 | 대기 | - |
+| **JF3-2** | Encapsulation & Access control | `private`, default(package-private), `protected`, `public`의 패키지/상속 접근 경계 검증 | JF3-1 | 대기 | - |
+| **JF3-3** | Inheritance & Polymorphism | `extends`, 메서드 오버라이딩(`@Override`), `super`, 동적 바인딩과 다형적 참조 검증 | JF3-2 | 대기 | - |
+| **JF3-4** | Abstract class vs Interface | 상태 템플릿(추상 클래스) vs 순수 계약(인터페이스), default method와 다중 구현 충돌 검증 | JF3-3 | 대기 | - |
+| **JF3-5** | Record & Immutability | Java 16+ record의 불변 데이터 모델, 컴파일러 자동 생성 메서드, 컴팩트 생성자 검증 | JF3-4 | 대기 | - |
+| **JF4-1** | Exception hierarchy | `Throwable`, `Error`, `Exception`, `RuntimeException`의 계층 구조와 발생 원인 분석 | JF3-5 | 대기 | - |
+| **JF4-2** | Checked vs Unchecked exceptions | 컴파일 타임 계약(`throws`) vs 런타임 버그(`RuntimeException`), 예외 변환 패턴 검증 | JF4-1 | 대기 | - |
+| **JF4-3** | Resource management & try-with-resources | `AutoCloseable`, 자원 해제 순서, suppressed exceptions 누락 방지 검증 | JF4-2 | 대기 | - |
+| **JF4-4** | Custom exceptions & error propagation | 도메인 예외 정의, root cause stack trace 보존, 예외 래핑 기법 검증 | JF4-3 | 대기 | - |
+| **JF4-5** | Defensive programming & assertions | `Objects.requireNonNull`, 사전 조건/사후 조건 불변식 검증 및 실패 모델 수립 | JF4-4 | 대기 | - |
+| **JF5-1** | Generics syntax & Type erasure | 제네릭 타입 파라미터, 컴파일 타임 타입 검사와 런타임 타입 소거(Type Erasure) 검증 | JF4-5 | 대기 | - |
+| **JF5-2** | Wildcards & Variance | 상한 와일드카드(`? extends T`), 하한 와일드카드(`? super T`), PECS 원칙 검증 | JF5-1 | 대기 | - |
+| **JF5-3** | List interface & implementation trade-offs | `ArrayList`(연속 메모리/랜덤 액세스) vs `LinkedList`(노드 포인터/삽입삭제) 성능 트레이드오프 검증 | JF5-2 | 대기 | - |
+| **JF5-4** | Set & Map contract | `hashCode()`와 `equals()` 불변식 계약, 해시 충돌과 버킷 체이닝 동작 검증 | JF5-3 | 대기 | - |
+| **JF5-5** | Sorting & Comparators | `Comparable`(자연 순서) vs `Comparator`(외부 주입 전략), 정렬 안정성과 불변식 검증 | JF5-4 | 대기 | - |
+| **JF6-1** | Lambda expressions & Functional interfaces | `@FunctionalInterface`, 익명 클래스와 람다의 인스턴스화 차이, 렉시컬 스코프 검증 | JF5-5 | 대기 | - |
+| **JF6-2** | Stream pipeline fundamentals | 지연 연산(Lazy evaluation), 중간 연산(Intermediate) vs 최종 연산(Terminal) 실행 시점 검증 | JF6-1 | 대기 | - |
+| **JF6-3** | Stream collectors & reductions | `Collectors.toList/toMap/groupingBy`, `reduce` 연산과 불변 컬렉션 변환 검증 | JF6-2 | 대기 | - |
+| **JF6-4** | Optional & Null safety | `Optional` 래핑, `orElse` vs `orElseGet` 평가 시점 차이, 올바른 안티패턴 방지 검증 | JF6-3 | 대기 | - |
+| **JF6-5** | Modern I/O & Path operations | `java.nio.file.Path`, `Files`, 스트림 기반 파일 읽기/쓰기 및 안전한 I/O 처리 검증 | JF6-4 | 대기 | - |
 
 ## 세부 기록
 
-### J1-1. bytecode·operand stack·dispatch
+### JF1-1. JDK·CLI compile·execute
 
 - 계획:
 - 예측:
@@ -52,7 +52,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J1-2. class loading·linking·initialization
+### JF1-2. VS Code Java environment & LSP
 
 - 계획:
 - 예측:
@@ -60,7 +60,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J1-3. class loader identity·module
+### JF1-3. Package structure & naming boundary
 
 - 계획:
 - 예측:
@@ -68,7 +68,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J1-4. reflection·annotation·method handle
+### JF1-4. Build tool & dependency management
 
 - 계획:
 - 예측:
@@ -76,7 +76,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J1-5. JIT·warmup·deoptimization 입문
+### JF1-5. VS Code test & debug workflow
 
 - 계획:
 - 예측:
@@ -84,7 +84,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J2-1. heap·stack·object layout
+### JF2-1. Primitive types vs Reference types
 
 - 계획:
 - 예측:
@@ -92,7 +92,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J2-2. allocation·TLAB·escape analysis
+### JF2-2. String pool & immutability
 
 - 계획:
 - 예측:
@@ -100,7 +100,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J2-3. GC root·reachability·reference type
+### JF2-3. Arrays & boundary invariants
 
 - 계획:
 - 예측:
@@ -108,7 +108,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J2-4. collector·pause·throughput tradeoff
+### JF2-4. Wrapper classes & Autoboxing traps
 
 - 계획:
 - 예측:
@@ -116,7 +116,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J2-5. JFR·heap dump·profiling·benchmark
+### JF2-5. Constants & Enums
 
 - 계획:
 - 예측:
@@ -124,7 +124,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J3-1. Java Memory Model·visibility
+### JF3-1. Class anatomy & lifecycle
 
 - 계획:
 - 예측:
@@ -132,7 +132,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J3-2. synchronized·lock·condition
+### JF3-2. Encapsulation & Access control
 
 - 계획:
 - 예측:
@@ -140,7 +140,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J3-3. atomic·CAS·concurrent collection
+### JF3-3. Inheritance & Polymorphism
 
 - 계획:
 - 예측:
@@ -148,7 +148,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J3-4. executor·queue·backpressure
+### JF3-4. Abstract class vs Interface
 
 - 계획:
 - 예측:
@@ -156,7 +156,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J3-5. virtual thread·structured concurrency·pinning
+### JF3-5. Record & Immutability
 
 - 계획:
 - 예측:
@@ -164,7 +164,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J4-1. bean definition·lifecycle·scope
+### JF4-1. Exception hierarchy
 
 - 계획:
 - 예측:
@@ -172,7 +172,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J4-2. dependency injection·cycle·lazy
+### JF4-2. Checked vs Unchecked exceptions
 
 - 계획:
 - 예측:
@@ -180,7 +180,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J4-3. proxy·AOP·self invocation
+### JF4-3. Resource management & try-with-resources
 
 - 계획:
 - 예측:
@@ -188,7 +188,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J4-4. configuration·auto-configuration·condition
+### JF4-4. Custom exceptions & error propagation
 
 - 계획:
 - 예측:
@@ -196,7 +196,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J4-5. event·validation·cache boundary
+### JF4-5. Defensive programming & assertions
 
 - 계획:
 - 예측:
@@ -204,7 +204,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J5-1. transaction proxy·propagation
+### JF5-1. Generics syntax & Type erasure
 
 - 계획:
 - 예측:
@@ -212,7 +212,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J5-2. isolation·locking·retry
+### JF5-2. Wildcards & Variance
 
 - 계획:
 - 예측:
@@ -220,7 +220,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J5-3. JPA identity·flush·batch·N+1
+### JF5-3. List interface & implementation trade-offs
 
 - 계획:
 - 예측:
@@ -228,7 +228,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J5-4. MVC lifecycle·exception·serialization
+### JF5-4. Set & Map contract
 
 - 계획:
 - 예측:
@@ -236,7 +236,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J5-5. Security filter·authorization·async context
+### JF5-5. Sorting & Comparators
 
 - 계획:
 - 예측:
@@ -244,7 +244,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J6-1. unit·slice·integration contract
+### JF6-1. Lambda expressions & Functional interfaces
 
 - 계획:
 - 예측:
@@ -252,7 +252,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J6-2. Testcontainers·migration·external dependency
+### JF6-2. Stream pipeline fundamentals
 
 - 계획:
 - 예측:
@@ -260,7 +260,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J6-3. configuration·secret·profile boundary
+### JF6-3. Stream collectors & reductions
 
 - 계획:
 - 예측:
@@ -268,7 +268,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J6-4. Micrometer·OpenTelemetry·structured log
+### JF6-4. Optional & Null safety
 
 - 계획:
 - 예측:
@@ -276,7 +276,7 @@
 - 실패와 복구:
 - 배운 점:
 
-### J6-5. container·Kubernetes·graceful shutdown·incident
+### JF6-5. Modern I/O & Path operations
 
 - 계획:
 - 예측:

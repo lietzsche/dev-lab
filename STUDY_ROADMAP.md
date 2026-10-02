@@ -39,6 +39,7 @@
 
 | 브랜치 | 선택하는 조건 | 우선순위 |
 | :--- | :--- | :--- |
+| `learn/java-fundamentals` | VS Code 개발 환경 세팅과 Java 핵심 기본기(타입, OOP, 예외, 컬렉션, 함수형)를 다질 때 | JVM·Spring Internals 전 또는 독립 기초 트랙 |
 | `learn/typescript` | Agent UI, Playwright 플랫폼, Node 자동화 도구를 만들 때 | 필요 시 5~8 사이에 삽입 |
 | `learn/jvm-spring-internals` | JVM 장애 분석과 Spring 운영 설계를 강화할 때 | 상시 병행하지 않고 집중 과정으로 수행 |
 | `learn/rust` | 고성능 CLI, 실행 sandbox, native extension 등 명확한 결과물이 있을 때 | 핵심 로드맵 이후 |

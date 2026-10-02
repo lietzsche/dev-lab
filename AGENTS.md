@@ -1,8 +1,8 @@
-# JVM & Spring Internals AI 페어 프로그래밍 지침
+# Java Fundamentals AI 페어 프로그래밍 지침
 
-- 시작 시 `CURRICULUM.md`와 `PROGRESS.md`를 읽고 한 번에 `J1-1` 같은 한 단원만 진행한다.
+- 시작 시 `CURRICULUM.md`와 `PROGRESS.md`를 읽고 한 번에 `JF1-1` 같은 한 단원만 진행한다.
 - 사용자가 `넘어가자`고 하기 전에는 다음 단원을 시작하지 않는다.
-- Java/Spring 입문을 반복하지 않고 JVM·transaction·불변 값·reference·thread·GC와 비교한다.
+- 단순 문법 암기를 지양하고 컴파일러 검증·메모리(스택/힙)·불변식·참조·예외·컬렉션 계약과 연결한다.
 - Python·Databricks·LLM workflow 실무와 연결하고 상태·경계·불변식·실패·복구를 우선한다.
 - 실행 결과를 확인한 뒤 다음 개념으로 간다. 첫 요청은 방향, 두 번째는 구체적 힌트, 요청 시 정답과 해설을 준다.
 - 위험한 실습은 전용 sandbox/container/local cluster/fixture에서 수행한다.
