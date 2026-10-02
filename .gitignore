@@ -8,3 +8,5 @@ dist/
 .vscode/
 *.log
 .env
+*.class
+labs/**/out/

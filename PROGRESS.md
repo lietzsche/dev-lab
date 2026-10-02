@@ -6,12 +6,13 @@
 - 시작할 때 해당 단원만 `진행 중`으로 바꾼다.
 - 예측·관찰·실패 재현·복구·회귀 검증 후 `완료`로 바꾼다.
 - 사용자가 `넘어가자`고 하기 전에는 다음 단원을 시작하지 않는다.
+- 이후 실습은 Docker 기반 환경을 우선 사용하고, JDK·Gradle 등 실습 도구의 호스트 설치를 줄인다. 개념과 결과는 AI가 설명하고 사용자가 실행으로 확인한다.
 
 ## 현황
 
 | ID | 소단원 | 목표 | 선행 | 상태 | 완료일 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **JF1-1** | JDK·CLI compile·execute | `javac`, `java`, classpath `-cp`의 동작 원리를 이해하고 CLI에서 컴파일 및 실행 검증 | - | 대기 | - |
+| **JF1-1** | JDK·CLI compile·execute | `javac`, `java`, classpath `-cp`의 동작 원리를 이해하고 CLI에서 컴파일 및 실행 검증 | - | 완료 | 2026-10-02 |
 | **JF1-2** | VS Code Java environment & LSP | Eclipse JDT Language Server, settings.json, workspaceStorage 캐시의 구조를 이해하고 환경 구축 | JF1-1 | 대기 | - |
 | **JF1-3** | Package structure & naming boundary | 패키지 선언, 디렉터리 계층 매핑, 식별자 명명 규칙과 컴파일러 패키지 검증 | JF1-2 | 대기 | - |
 | **JF1-4** | Build tool & dependency management | Gradle 빌드 생명주기, sourceSets, 의존성 resolution, JAR 패키징 검증 | JF1-3 | 대기 | - |
@@ -46,11 +47,12 @@
 
 ### JF1-1. JDK·CLI compile·execute
 
-- 계획:
-- 예측:
-- 관찰 증거:
-- 실패와 복구:
-- 배운 점:
+- 계획: JDK 실행기·컴파일러 확인 → 단일 클래스 컴파일 및 실행 → 잘못된 클래스패스로 실패 재현 → 복구와 회귀 검증.
+- 예측: 사용자는 java만 있고 javac가 없으면 실행만 가능하다고 예상했다.
+- 관찰 증거: 사용자 터미널 출력에서 최초 java는 OpenJDK 21.0.12.1, javac는 Command not found였다. 복구 후 java와 javac 모두 21.0.12.1로 확인했다. `javac labs/jf1-1/src/Hello.java`는 소스 옆에 Hello.class를 생성했고, `java -cp labs/jf1-1/src Hello`는 `Hello, Java!`를 출력했다. 최종적으로 `javac -d labs/jf1-1/out/ labs/jf1-1/src/Hello.java` 후 out/Hello.class 생성을 확인하고 `java -cp labs/jf1-1/out Hello`로 같은 출력을 확인했다.
+- 실패와 복구: javac 명령을 찾지 못함 → Java 21 JDK 설치 안내 → 사용자 출력으로 javac 사용 가능 확인. `javac -d labs/jf1-1/src/Hello.java`는 소스 인자가 없어 `no source files` 발생 → 소스 인자를 전달해 복구. `java -cp . Hello`는 `ClassNotFoundException: Hello` 발생 → 생성 위치인 out을 클래스패스로 지정해 실행 성공. 복구 후 별도 출력 폴더로 재컴파일·재실행하여 회귀 검증했다.
+- 배운 점: javac는 소스를 검증하고 바이트코드를 생성하며 java는 클래스를 로드해 실행한다. -d는 출력 디렉터리, -cp는 클래스 탐색 루트다. 패키지가 없는 Hello는 각 클래스패스 루트의 Hello.class로 탐색하며 임의의 하위 폴더를 재귀 탐색하지 않는다.
+- 진행 방식: 사용자는 개념과 결과를 AI가 설명하고 직접 실행으로 확인하는 방식을 요청했다. 다음 단원은 사용자가 `넘어가자`고 할 때 시작한다.
 
 ### JF1-2. VS Code Java environment & LSP
 
