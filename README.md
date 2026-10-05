@@ -20,24 +20,43 @@
 - Spring Boot 2.1.x
 - 내장 H2 데이터베이스
 
-기준선은 아래 명령으로 검증한다.
+학습에 필요한 JDK와 Maven은 Docker image로 고정되어 있다. 로컬에 JDK나 Maven을 별도로 설치할 필요가 없다.
 
-```bash
-./scripts/verify-baseline.sh
-```
-
-로컬에 기준 JDK와 Maven이 없다면 Docker를 사용할 수 있다.
+기존 운영 기준선은 아래 명령으로 검증한다.
 
 ```bash
 ./scripts/verify-baseline.sh --docker
 ```
 
+두 JDK에서 동일한 전체 build를 실행하는 공통 진입점도 제공한다.
+
+```bash
+./scripts/build-with-jdk.sh 8
+./scripts/build-with-jdk.sh 17
+```
+
+두 번째 명령은 현재 작업에서 지시하기 전까지 먼저 실행하지 않는다. 각 작업은 [PROGRESS.md](PROGRESS.md)에 하나씩 공개된다.
+
 API 실행:
 
 ```bash
-./scripts/run-customer-api.sh --docker
+./scripts/run-customer-api.sh --docker 8
 curl http://localhost:8080/actuator/health
 curl http://localhost:8080/api/customers/CUST-1001
 ```
 
-현재 고객 요청과 진행 상태는 [PROGRESS.md](PROGRESS.md)를 따른다. 전체 단계의 상세 장애나 정답은 저장소 문서에 제공하지 않는다.
+batch 실행:
+
+```bash
+./scripts/run-settlement-batch.sh --docker 8
+```
+
+## 진행 방법
+
+- [PROGRESS.md](PROGRESS.md)의 현재 작업 하나만 수행한다.
+- 명령의 전체 출력에서 성공·실패가 발생한 경계를 먼저 관찰한다.
+- 결과를 Codex에게 전달하면 저장소 상태와 함께 검토한다.
+- 막히면 `힌트 1`부터 요청한다.
+- 현재 작업이 확인되기 전에는 다음 migration 문제나 해결책을 공개하지 않는다.
+
+전체 역량 순서는 [CURRICULUM.md](CURRICULUM.md), AI와의 운영 규칙은 [AGENTS.md](AGENTS.md)를 따른다.

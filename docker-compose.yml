@@ -4,21 +4,59 @@ services:
     working_dir: /workspace
     volumes:
       - .:/workspace
-      - maven-repository:/root/.m2
-    command: mvn -B verify
+      - maven-repository-jdk8:/root/.m2
+    command: /bin/sh -c "mvn -version && mvn -B clean verify"
+
+  build-jdk17:
+    image: maven:3.9.9-eclipse-temurin-17
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - maven-repository-jdk17:/root/.m2
+    command: /bin/sh -c "mvn -version && mvn -B clean verify"
 
   customer-api-jdk8:
     image: maven:3.6.3-jdk-8
     working_dir: /workspace
     volumes:
       - .:/workspace
-      - maven-repository:/root/.m2
+      - maven-repository-jdk8:/root/.m2
     ports:
       - "8080:8080"
     command:
       - /bin/sh
       - -c
-      - mvn -B -pl customer-api -am package -DskipTests && java -jar customer-api/target/customer-api.war
+      - mvn -B -pl customer-api -am clean package -DskipTests && java -jar customer-api/target/customer-api.war
+
+  customer-api-jdk17:
+    image: maven:3.9.9-eclipse-temurin-17
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - maven-repository-jdk17:/root/.m2
+    ports:
+      - "8080:8080"
+    command:
+      - /bin/sh
+      - -c
+      - mvn -B -pl customer-api -am clean package -DskipTests && java -jar customer-api/target/customer-api.war
+
+  settlement-batch-jdk8:
+    image: maven:3.6.3-jdk-8
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - maven-repository-jdk8:/root/.m2
+    command: /bin/sh -c "mvn -B -pl settlement-batch -am clean package -DskipTests && java -jar settlement-batch/target/settlement-batch-1.0.0-SNAPSHOT.jar"
+
+  settlement-batch-jdk17:
+    image: maven:3.9.9-eclipse-temurin-17
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - maven-repository-jdk17:/root/.m2
+    command: /bin/sh -c "mvn -B -pl settlement-batch -am clean package -DskipTests && java -jar settlement-batch/target/settlement-batch-1.0.0-SNAPSHOT.jar"
 
 volumes:
-  maven-repository:
+  maven-repository-jdk8:
+  maven-repository-jdk17:

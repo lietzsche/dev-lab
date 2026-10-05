@@ -4,8 +4,17 @@ set -euo pipefail
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repository_root"
 
-if [[ "${1:-}" == "--docker" ]]; then
-  exec docker compose run --rm --service-ports customer-api-jdk8
+if [[ "${1:-}" != "--docker" ]]; then
+  echo "usage: $0 --docker <8|17>" >&2
+  exit 2
 fi
 
-exec mvn -pl customer-api -am spring-boot:run
+case "${2:-}" in
+  8|17)
+    exec docker compose run --rm --service-ports "customer-api-jdk${2}"
+    ;;
+  *)
+    echo "usage: $0 --docker <8|17>" >&2
+    exit 2
+    ;;
+esac
