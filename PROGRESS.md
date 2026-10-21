@@ -2,8 +2,8 @@
 
 ## 현재 진행 상태
 - **현재 단계**: Level 2. 파일 검색과 텍스트 처리
-- **현재 세션**: Session 2.3 — 초고속 코드 검색 도구 (`rg` / `ripgrep`)
-- **최근 업데이트**: 2026-10-21 (Session 2.2 완료, Session 2.3 진행 중)
+- **현재 세션**: Session 2.4 — 파이프와 리다이렉션 (`|`, `>`, `>>`, `2>`)
+- **최근 업데이트**: 2026-10-21 (Session 2.3 완료, Session 2.4 진행 중)
 
 ---
 
@@ -20,8 +20,8 @@
 ### Level 2. 파일 검색과 텍스트 처리
 - [x] **Session 2.1**: 파일 이름과 조건으로 탐색 (`find`)
 - [x] **Session 2.2**: 텍스트 패턴 검색의 표준 (`grep`)
-- [ ] **Session 2.3**: 초고속 코드 검색 도구 (`rg` / `ripgrep`) *(진행 중)*
-- [ ] **Session 2.4**: 파이프와 리다이렉션 (`|`, `>`, `>>`, `2>`)
+- [x] **Session 2.3**: 초고속 코드 검색 도구 (`git grep` 활용)
+- [ ] **Session 2.4**: 파이프와 리다이렉션 (`|`, `>`, `>>`, `2>`) *(진행 중)*
 - [ ] **Session 2.5**: 줄 수 집계와 중복 제거·정렬 (`wc`, `sort`, `uniq`)
 - [ ] **Session 2.6**: 필드 추출과 텍스트 가공 (`cut`, `sed`, `awk` 기초)
 - [ ] **Session 2.7**: 실전 조합 — Java 코드 및 장애 로그 분석 파이프라인
@@ -74,3 +74,4 @@
 | 2026-10-21 | Session 1.1 ~ 1.6 | `pwd`, `history 15`, `Ctrl+R`/`Ctrl+S`(`stty -ixon`), 와일드카드(`*.log`, `application-*.yml`, `app-2026-10-2?.log`) 및 Windows Terminal 분할 창 조작 실습 | Level 1 완료 |
 | 2026-10-21 | Session 2.1 | `find <경로> -name "*.java"`, `find <경로> -type f -name "*Controller*.java"`, `.yml` 설정 파일 탐색 완료 | Session 2.1 완료 |
 | 2026-10-21 | Session 2.2 | `grep -n`, `grep -C 2 -n`, `grep -rn "@Transactional"`, `grep -nE "ERROR\|WARN"`, `git grep` 비교 실습 완료 | Session 2.2 완료 |
+| 2026-10-21 | Session 2.3 | 외부 도구 설치 없이 내장 `git grep -n`, `git grep -l "OrderRepository" -- "*.java"`, `git grep -nE "TODO\|FIXME"`로 고속 코드 탐색 완료 | Session 2.3 완료 |
