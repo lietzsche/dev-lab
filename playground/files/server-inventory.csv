@@ -1,0 +1,7 @@
+hostname,env,ip,port,role,status
+order-api-01,prod,10.20.1.11,8080,api,ACTIVE
+order-api-02,prod,10.20.1.12,8080,api,ACTIVE
+payment-gw-01,prod,10.20.2.21,8443,gateway,WARN
+batch-worker-01,prod,10.20.3.31,8081,batch,ACTIVE
+order-api-dev,dev,192.168.10.15,8080,api,ACTIVE
+redis-cache-01,prod,10.20.4.10,6379,cache,ACTIVE

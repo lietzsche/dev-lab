@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://10.20.5.100:5432/order_prod
+    username: prod_app_user
+    hikari:
+      maximum-pool-size: 30
+      connection-timeout: 3000
+
+logging:
+  level:
+    root: WARN
+    com.example.order: INFO

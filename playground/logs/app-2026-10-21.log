@@ -1,0 +1,30 @@
+2026-10-21 09:00:00.512 INFO  [main] c.e.order.OrderApplication - Starting OrderApplication v1.2.0 on order-api-01
+2026-10-21 09:00:02.840 INFO  [main] c.e.order.OrderApplication - Started OrderApplication in 2.328 seconds (JVM running for 2.910)
+2026-10-21 09:15:10.114 INFO  [http-nio-8080-exec-1] c.e.order.controller.OrderController - GET /api/orders/ORD-2001 status=200 elapsed=12ms
+2026-10-21 09:16:02.330 INFO  [http-nio-8080-exec-2] c.e.order.controller.OrderController - POST /api/orders orderId=ORD-2002 status=200 elapsed=84ms
+2026-10-21 09:18:45.901 WARN  [http-nio-8080-exec-4] c.e.o.service.PaymentGatewayService - Slow response from payment gateway orderId=ORD-2003 elapsed=2780ms
+2026-10-21 09:20:11.004 ERROR [http-nio-8080-exec-6] c.e.o.service.PaymentGatewayService - ERR_PAYMENT_TIMEOUT orderId=ORD-2004 elapsed=3002ms
+java.lang.RuntimeException: ERR_PAYMENT_TIMEOUT: gateway read timed out after 3000ms
+	at com.example.order.service.PaymentGatewayService.requestApproval(PaymentGatewayService.java:16)
+	at com.example.order.service.OrderService.placeOrder(OrderService.java:41)
+	at com.example.order.controller.OrderController.createOrder(OrderController.java:29)
+2026-10-21 09:21:05.412 INFO  [http-nio-8080-exec-3] c.e.order.controller.OrderController - GET /api/orders/ORD-2005 status=200 elapsed=15ms
+2026-10-21 09:22:39.811 ERROR [http-nio-8080-exec-8] c.e.o.service.PaymentGatewayService - ERR_PAYMENT_TIMEOUT orderId=ORD-2006 elapsed=3004ms
+java.lang.RuntimeException: ERR_PAYMENT_TIMEOUT: gateway read timed out after 3000ms
+	at com.example.order.service.PaymentGatewayService.requestApproval(PaymentGatewayService.java:16)
+	at com.example.order.service.OrderService.placeOrder(OrderService.java:41)
+	at com.example.order.controller.OrderController.createOrder(OrderController.java:29)
+2026-10-21 09:25:14.205 ERROR [http-nio-8080-exec-5] c.e.order.service.OrderService - ERR_DB_LOCK orderId=ORD-2007 elapsed=1502ms
+org.springframework.dao.CannotAcquireLockException: could not execute statement; lock timeout
+	at com.example.order.repository.OrderRepository.save(OrderRepository.java:19)
+	at com.example.order.service.OrderService.placeOrder(OrderService.java:43)
+2026-10-21 09:26:01.100 INFO  [http-nio-8080-exec-1] c.e.order.controller.OrderController - POST /api/orders orderId=ORD-2008 status=200 elapsed=77ms
+2026-10-21 09:28:19.650 ERROR [http-nio-8080-exec-9] c.e.order.service.OrderService - ERR_ORDER_NOT_FOUND orderId=ORD-4040 elapsed=5ms
+2026-10-21 09:30:55.990 ERROR [http-nio-8080-exec-2] c.e.o.service.PaymentGatewayService - ERR_PAYMENT_TIMEOUT orderId=ORD-2009 elapsed=3001ms
+java.lang.RuntimeException: ERR_PAYMENT_TIMEOUT: gateway read timed out after 3000ms
+	at com.example.order.service.PaymentGatewayService.requestApproval(PaymentGatewayService.java:16)
+	at com.example.order.service.OrderService.placeOrder(OrderService.java:41)
+	at com.example.order.controller.OrderController.createOrder(OrderController.java:29)
+2026-10-21 09:35:00.120 INFO  [http-nio-8080-exec-4] c.e.order.controller.PaymentController - GET /api/payments/health status=200 elapsed=4ms
+2026-10-21 09:40:12.450 WARN  [http-nio-8080-exec-7] c.e.order.service.OrderService - Retry scheduled for orderId=ORD-2007 attempt=1
+2026-10-21 09:45:00.001 INFO  [http-nio-8080-exec-10] c.e.order.controller.OrderController - GET /api/orders status=200 elapsed=22ms

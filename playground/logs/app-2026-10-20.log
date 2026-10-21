@@ -1,0 +1,11 @@
+2026-10-20 09:00:01.102 INFO  [main] c.e.order.OrderApplication - Starting OrderApplication v1.2.0 on order-api-01
+2026-10-20 09:00:03.410 INFO  [main] c.e.order.OrderApplication - Started OrderApplication in 2.308 seconds
+2026-10-20 10:12:15.220 INFO  [http-nio-8080-exec-1] c.e.order.controller.OrderController - GET /api/orders/ORD-1001 status=200 elapsed=18ms
+2026-10-20 11:05:44.890 WARN  [http-nio-8080-exec-3] c.e.o.service.PaymentGatewayService - Slow response from payment gateway orderId=ORD-1042 elapsed=2410ms
+2026-10-20 14:22:10.511 ERROR [http-nio-8080-exec-5] c.e.o.service.PaymentGatewayService - ERR_PAYMENT_TIMEOUT orderId=ORD-1099 elapsed=3005ms
+java.net.SocketTimeoutException: Read timed out
+	at com.example.order.service.PaymentGatewayService.requestApproval(PaymentGatewayService.java:16)
+	at com.example.order.service.OrderService.placeOrder(OrderService.java:41)
+2026-10-20 16:40:00.120 INFO  [http-nio-8080-exec-2] c.e.order.controller.OrderController - POST /api/orders orderId=ORD-1120 status=200 elapsed=95ms
+2026-10-20 18:01:33.704 ERROR [http-nio-8080-exec-7] c.e.order.service.OrderService - ERR_ORDER_NOT_FOUND orderId=ORD-9999 elapsed=6ms
+2026-10-20 23:59:50.001 INFO  [scheduling-1] c.e.order.OrderApplication - Daily metrics flushed successfully

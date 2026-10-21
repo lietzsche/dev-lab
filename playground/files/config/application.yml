@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: order-service
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+payment:
+  gateway:
+    base-url: https://pay.internal.example.com
+    timeout-ms: 3000
+    retry-count: 2

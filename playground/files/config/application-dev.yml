@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/order_dev
+    username: dev_user
+    hikari:
+      maximum-pool-size: 10
+
+logging:
+  level:
+    root: INFO
+    com.example.order: DEBUG
