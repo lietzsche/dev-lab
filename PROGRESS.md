@@ -2,8 +2,8 @@
 
 ## 현재 진행 상태
 - **현재 단계**: Level 2. 파일 검색과 텍스트 처리
-- **현재 세션**: Session 2.1 — 파일 이름과 조건으로 탐색 (`find`)
-- **최근 업데이트**: 2026-10-21 (Level 1 완료, Level 2.1 시작)
+- **현재 세션**: Session 2.2 — 텍스트 패턴 검색의 표준 (`grep`)
+- **최근 업데이트**: 2026-10-21 (Session 2.1 완료, Session 2.2 진행 중)
 
 ---
 
@@ -18,8 +18,8 @@
 - [x] **Session 1.6**: 명령어 히스토리와 와일드카드 (`history`, `Ctrl+R`, `*`, `?`)
 
 ### Level 2. 파일 검색과 텍스트 처리
-- [ ] **Session 2.1**: 파일 이름과 조건으로 탐색 (`find`) *(진행 중)*
-- [ ] **Session 2.2**: 텍스트 패턴 검색의 표준 (`grep`)
+- [x] **Session 2.1**: 파일 이름과 조건으로 탐색 (`find`)
+- [ ] **Session 2.2**: 텍스트 패턴 검색의 표준 (`grep`) *(진행 중)*
 - [ ] **Session 2.3**: 초고속 코드 검색 도구 (`rg` / `ripgrep`)
 - [ ] **Session 2.4**: 파이프와 리다이렉션 (`|`, `>`, `>>`, `2>`)
 - [ ] **Session 2.5**: 줄 수 집계와 중복 제거·정렬 (`wc`, `sort`, `uniq`)
@@ -72,3 +72,4 @@
 | 2026-10-21 | 환경 구축 | WSL2 Ubuntu 24.04 환경 확인 및 `playground/` 데이터셋 생성 완료 | Level 1.1 시작 대기 |
 | 2026-10-21 | 환경 문제 해결 | Windows Codex 경로 혼용 확인 후 WSL nvm 환경에 Codex 설치. `type -a`, `npm config get prefix`, `npm install -g @openai/codex@latest`, `hash -r`, `codex --version` 직접 실행 | codex-cli 0.163.0 정상 출력 확인 |
 | 2026-10-21 | Session 1.1 ~ 1.6 | `pwd`, `history 15`, `Ctrl+R`/`Ctrl+S`(`stty -ixon`), 와일드카드(`*.log`, `application-*.yml`, `app-2026-10-2?.log`) 및 Windows Terminal 분할 창 조작 실습 | Level 1 완료 |
+| 2026-10-21 | Session 2.1 | `find <경로> -name "*.java"`, `find <경로> -type f -name "*Controller*.java"`, `.yml` 설정 파일 탐색 완료 | Session 2.1 완료 |
