@@ -1,24 +1,24 @@
 # CLI Mastery 학습 진도 기록 (progress.md)
 
 ## 현재 진행 상태
-- **현재 단계**: Level 1. Bash와 터미널 조작
-- **현재 세션**: Session 1.1 — 현재 위치 확인과 디렉터리 탐색 (`pwd`, `ls`, `cd`)
-- **최근 업데이트**: 2026-10-21 (WSL2 Ubuntu 24.04 환경 구축 완료)
+- **현재 단계**: Level 2. 파일 검색과 텍스트 처리
+- **현재 세션**: Session 2.1 — 파일 이름과 조건으로 탐색 (`find`)
+- **최근 업데이트**: 2026-10-21 (Level 1 완료, Level 2.1 시작)
 
 ---
 
 ## 전체 진도 체크리스트
 
 ### Level 1. Bash와 터미널 조작
-- [ ] **Session 1.1**: 현재 위치 확인과 디렉터리 탐색 (`pwd`, `ls`, `cd`) *(진행 중)*
-- [ ] **Session 1.2**: 디렉터리와 파일 생성 (`mkdir`, `touch`, `Tab` 자동완성)
-- [ ] **Session 1.3**: 파일 복사, 이동/이름 변경, 안전 삭제 (`cp`, `mv`, `rm`)
-- [ ] **Session 1.4**: 파일과 로그 내용 읽기 (`cat`, `head`, `tail`, `less`)
-- [ ] **Session 1.5**: 터미널 커서 이동과 줄 편집 단축키 (`Ctrl+A/E/W/U/K/L`)
-- [ ] **Session 1.6**: 명령어 히스토리와 와일드카드 (`history`, `Ctrl+R`, `*`, `?`)
+- [x] **Session 1.1**: 현재 위치 확인과 디렉터리 탐색 (`pwd`, `ls`, `cd`)
+- [x] **Session 1.2**: 디렉터리와 파일 생성 (`mkdir`, `touch`, `Tab` 자동완성)
+- [x] **Session 1.3**: 파일 복사, 이동/이름 변경, 안전 삭제 (`cp`, `mv`, `rm`)
+- [x] **Session 1.4**: 파일과 로그 내용 읽기 (`cat`, `head`, `tail`, `less`)
+- [x] **Session 1.5**: 터미널 커서 이동과 줄 편집 단축키 (`Ctrl+A/E/W/U/K/L`)
+- [x] **Session 1.6**: 명령어 히스토리와 와일드카드 (`history`, `Ctrl+R`, `*`, `?`)
 
 ### Level 2. 파일 검색과 텍스트 처리
-- [ ] **Session 2.1**: 파일 이름과 조건으로 탐색 (`find`)
+- [ ] **Session 2.1**: 파일 이름과 조건으로 탐색 (`find`) *(진행 중)*
 - [ ] **Session 2.2**: 텍스트 패턴 검색의 표준 (`grep`)
 - [ ] **Session 2.3**: 초고속 코드 검색 도구 (`rg` / `ripgrep`)
 - [ ] **Session 2.4**: 파이프와 리다이렉션 (`|`, `>`, `>>`, `2>`)
@@ -70,3 +70,5 @@
 | 날짜 | 세션 | 수행한 작업 및 체득 명령어 | 비고 |
 | :--- | :--- | :--- | :--- |
 | 2026-10-21 | 환경 구축 | WSL2 Ubuntu 24.04 환경 확인 및 `playground/` 데이터셋 생성 완료 | Level 1.1 시작 대기 |
+| 2026-10-21 | 환경 문제 해결 | Windows Codex 경로 혼용 확인 후 WSL nvm 환경에 Codex 설치. `type -a`, `npm config get prefix`, `npm install -g @openai/codex@latest`, `hash -r`, `codex --version` 직접 실행 | codex-cli 0.163.0 정상 출력 확인 |
+| 2026-10-21 | Session 1.1 ~ 1.6 | `pwd`, `history 15`, `Ctrl+R`/`Ctrl+S`(`stty -ixon`), 와일드카드(`*.log`, `application-*.yml`, `app-2026-10-2?.log`) 및 Windows Terminal 분할 창 조작 실습 | Level 1 완료 |
