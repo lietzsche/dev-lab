@@ -27,7 +27,7 @@ scripts are fixed here:
 from dataclasses import dataclass
 
 from pptx.util import Inches
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+from pptx.enum.text import PP_ALIGN, MSO_ANCHOR, MSO_AUTO_SIZE
 
 from .theme import FONT_KR, DEFAULT_THEME
 from .shapes import set_font
@@ -113,6 +113,14 @@ def add_textbox(slide, left, top, width, text, size_pt, *,
     tb = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(box_h))
     tf = tb.text_frame
     tf.word_wrap = True
+    # python-pptx defaults new textboxes to SHAPE_TO_FIT_TEXT (<a:spAutoFit/>):
+    # PowerPoint/LibreOffice silently RESIZE the shape to fit its text on open,
+    # growing it past whatever height we just computed and overlapping
+    # whatever sits below. TEXT_TO_FIT_SHAPE (<a:normAutofit/>) does the
+    # opposite -- it shrinks the font to the box using the real renderer's
+    # own metrics, which is also a backstop against any remaining error in
+    # our own Pillow-based height estimate.
+    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
     tf.vertical_anchor = anchor
     tf.margin_left = Inches(margin_in)
     tf.margin_right = Inches(margin_in)
