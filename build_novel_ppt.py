@@ -8,12 +8,13 @@ import os
 import math
 from PIL import Image, ImageDraw, ImageFont
 from pptx import Presentation
-from pptx.util import Inches, Pt
+from pptx.util import Inches
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
-from pptx.enum.shapes import MSO_SHAPE
-from pptx.oxml.ns import qn
-from pptx.oxml import parse_xml
+
+from ppt_module import set_slide_background, add_rect, validate
+from ppt_module.textbox import add_textbox as _module_add_textbox
+from ppt_module.text_metrics import measure_block_height_in
 
 # ---------------------------------------------------------------------------
 # Color Palette (Literary Atelier)
@@ -290,79 +291,36 @@ def generate_plot_arc_chart():
 # ---------------------------------------------------------------------------
 # PPTX Helper Functions
 # ---------------------------------------------------------------------------
-def set_font(run, size_pt, bold=False, italic=False, color=INK_NAVY, font_name=FONT_KR):
-    run.font.name = font_name
-    run.font.size = Pt(size_pt)
-    run.font.bold = bold
-    run.font.italic = italic
-    run.font.color.rgb = color
-    rPr = run._r.get_or_add_rPr()
-    ea = rPr.find(qn("a:ea"))
-    if ea is None:
-        ea = parse_xml(f'<a:ea xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" typeface="{font_name}"/>')
-        rPr.append(ea)
-    else:
-        ea.set("typeface", font_name)
-
-
-def set_slide_background(slide, color):
-    bg = slide.background
-    fill = bg.fill
-    fill.solid()
-    fill.fore_color.rgb = color
-
-
-def disable_shadow(shape):
-    """Removes default PowerPoint/Impress drop shadow for clean flat editorial cards."""
-    shape.shadow.inherit = False
-    spPr = shape._element.spPr
-    for child in list(spPr):
-        if child.tag.endswith("effectLst"):
-            spPr.remove(child)
-    spPr.append(parse_xml('<a:effectLst xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"/>'))
-
-
-def add_rect(slide, left, top, width, height, fill_color=None, line_color=None, line_pt=1.0, rounded=False, radius=0.04):
-    shape_type = MSO_SHAPE.ROUNDED_RECTANGLE if rounded else MSO_SHAPE.RECTANGLE
-    shape = slide.shapes.add_shape(shape_type, Inches(left), Inches(top), Inches(width), Inches(height))
-    if rounded and shape.adjustments:
-        shape.adjustments[0] = radius
-    if fill_color is not None:
-        shape.fill.solid()
-        shape.fill.fore_color.rgb = fill_color
-    else:
-        shape.fill.background()
-    if line_color is not None:
-        shape.line.color.rgb = line_color
-        shape.line.width = Pt(line_pt)
-    else:
-        shape.line.fill.background()
-    disable_shadow(shape)
-    return shape
-
-
 def add_textbox(slide, left, top, width, height, text="", size_pt=12, bold=False, color=INK_NAVY,
                 align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP, line_spacing=1.25, margin_in=0.06):
-    tb = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
-    tf = tb.text_frame
-    tf.word_wrap = True
-    tf.vertical_anchor = anchor
-    tf.margin_left = Inches(margin_in)
-    tf.margin_right = Inches(margin_in)
-    tf.margin_top = Inches(margin_in * 0.7)
-    tf.margin_bottom = Inches(margin_in * 0.7)
-    if text:
-        p = tf.paragraphs[0]
-        p.alignment = align
-        p.line_spacing = line_spacing
-        r = p.add_run()
-        r.text = text
-        set_font(r, size_pt, bold=bold, color=color)
-    return tb, tf
+    """ppt_module.textbox.add_textbox 로 위임하는 호환 래퍼.
+
+    호출부 좌표/인자 순서는 그대로 두고 구현만 ppt_module로 교체했다.
+    이로써 두 가지 레이아웃 버그가 동시에 고쳐진다:
+    1. text 안의 "\\n"이 이제 진짜 <a:br/> 줄바꿈으로 렌더링된다 --
+       기존에는 하나의 run에 리터럴 개행문자로 박혀 PowerPoint/LibreOffice가
+       줄바꿈 없이 이어붙여 렌더링했다 (겹침/줄 수 어긋남의 주 원인).
+    2. 지정한 height보다 실제 줄바꿈된 텍스트가 더 크면, 조용히 박스
+       밖으로 넘치는 대신 글자 크기를 자동으로 줄이고 콘솔에 경고를 남긴다.
+    """
+    result = _module_add_textbox(
+        slide, left, top, width, text, size_pt,
+        height=height, bold=bold, color=color, align=align, anchor=anchor,
+        line_spacing=line_spacing, margin_in=margin_in, font_name=FONT_KR,
+    )
+    return result.shape, result.text_frame
 
 
 def add_header_and_footer(slide, section_kicker, action_title, subtitle, page_num, total_pages=10, dark=False):
-    """Consistent editorial header and footer across content slides."""
+    """Consistent editorial header and footer across content slides.
+
+    Kicker/title/subtitle used to sit at hand-picked fixed y-offsets that
+    assumed a single short line each; a longer kicker/title on some slides
+    overflowed its box height and visually collided with the line below it.
+    Heights are now measured from the real text via text_metrics, and each
+    box is placed right after the previous one's *actual* bottom edge, so
+    this can no longer happen regardless of how long the strings are.
+    """
     bg_col = BG_DARK if dark else BG_CREAM
     title_col = INK_LIGHT if dark else INK_NAVY
     sub_col = INK_LIGHT_MUTED if dark else INK_SLATE
@@ -371,23 +329,31 @@ def add_header_and_footer(slide, section_kicker, action_title, subtitle, page_nu
 
     set_slide_background(slide, bg_col)
 
-    # Top accent bar on left margin
-    add_rect(slide, 0.65, 0.42, 0.08, 0.78, fill_color=kicker_col)
+    header_left, header_w, header_margin, gap = 0.84, 11.8, 0.02, 0.09
+    inner_w = header_w - 2 * header_margin
+    y = 0.36
 
-    # Kicker
-    add_textbox(slide, 0.84, 0.36, 9.0, 0.28, text=section_kicker,
-                size_pt=10.5, bold=True, color=kicker_col, margin_in=0.02)
+    kicker_h = max(measure_block_height_in(section_kicker, 10.5, inner_w, bold=True) + 2 * header_margin * 0.7, 0.24)
+    add_textbox(slide, header_left, y, header_w, kicker_h, text=section_kicker,
+                size_pt=10.5, bold=True, color=kicker_col, margin_in=header_margin)
+    y += kicker_h + gap
 
-    # Action Title
-    add_textbox(slide, 0.84, 0.60, 11.8, 0.44, text=action_title,
-                size_pt=21.5, bold=True, color=title_col, margin_in=0.02)
+    title_h = max(measure_block_height_in(action_title, 21.5, inner_w, bold=True) + 2 * header_margin * 0.7, 0.32)
+    add_textbox(slide, header_left, y, header_w, title_h, text=action_title,
+                size_pt=21.5, bold=True, color=title_col, margin_in=header_margin)
+    y += title_h + gap
 
-    # Subtitle
-    add_textbox(slide, 0.84, 1.01, 11.8, 0.32, text=subtitle,
-                size_pt=12.0, bold=False, color=sub_col, margin_in=0.02)
+    subtitle_h = max(measure_block_height_in(subtitle, 12.0, inner_w) + 2 * header_margin * 0.7, 0.26)
+    add_textbox(slide, header_left, y, header_w, subtitle_h, text=subtitle,
+                size_pt=12.0, bold=False, color=sub_col, margin_in=header_margin)
+    y += subtitle_h
+
+    # Top accent bar spans the measured header block instead of a fixed guess
+    add_rect(slide, 0.65, 0.42, 0.08, max(y - 0.42 - gap, 0.6), fill_color=kicker_col)
 
     # Thin divider rule under header
-    add_rect(slide, 0.65, 1.38, 12.03, 0.015, fill_color=line_col)
+    divider_y = y + 0.08
+    add_rect(slide, 0.65, divider_y, 12.03, 0.015, fill_color=line_col)
 
     # Footer
     add_rect(slide, 0.65, 7.05, 12.03, 0.012, fill_color=line_col)
@@ -417,17 +383,26 @@ def build_slide_1_cover(prs, cover_art_path):
     add_textbox(slide, 0.85, 1.05, 3.35, 0.38, text="CREATIVE WRITING MASTERCLASS",
                 size_pt=10.5, bold=True, color=ACCENT_GOLD, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 
-    # Main Title
-    add_textbox(slide, 0.85, 1.68, 6.2, 1.85,
-                text="매혹적인\n소설 쓰기의 기술",
+    # Main Title -- 제목 높이를 실제 텍스트(2줄 포함)로 측정해 아래 밑줄·
+    # 부제를 그 뒤에 순차 배치한다. 고정 높이 1.85in은 42pt 두 줄에는
+    # 부족해 부제와 겹치는 원인이었다.
+    title_text = "매혹적인\n소설 쓰기의 기술"
+    title_h = measure_block_height_in(title_text, 42, 6.2 - 0.04, bold=True, line_spacing=1.18) + 0.03
+    add_textbox(slide, 0.85, 1.68, 6.2, title_h,
+                text=title_text,
                 size_pt=42, bold=True, color=INK_LIGHT, line_spacing=1.18, margin_in=0.02)
+    cover_y = 1.68 + title_h
 
     # Accent underline
-    add_rect(slide, 0.85, 3.65, 1.6, 0.07, fill_color=ACCENT_RUST)
+    cover_y += 0.10
+    add_rect(slide, 0.85, cover_y, 1.6, 0.07, fill_color=ACCENT_RUST)
+    cover_y += 0.07 + 0.10
 
     # Subtitle
-    add_textbox(slide, 0.85, 3.92, 6.0, 0.95,
-                text="아이디어의 첫 불꽃부터 마지막 문장의 퇴고까지,\n독자의 밤을 빼앗는 서사 설계의 10가지 핵심 원칙",
+    subtitle_text = "아이디어의 첫 불꽃부터 마지막 문장의 퇴고까지,\n독자의 밤을 빼앗는 서사 설계의 10가지 핵심 원칙"
+    subtitle_h = measure_block_height_in(subtitle_text, 15, 6.0 - 0.04, line_spacing=1.4) + 0.03
+    add_textbox(slide, 0.85, cover_y, 6.0, subtitle_h,
+                text=subtitle_text,
                 size_pt=15, bold=False, color=INK_LIGHT_MUTED, line_spacing=1.4, margin_in=0.02)
 
     # Bottom 4 module preview cards
@@ -522,7 +497,7 @@ def build_slide_2_pillars(prs):
 
         add_textbox(slide, x + 0.94, y + 0.14, 4.8, 0.34, text=title,
                     size_pt=15.5, bold=True, color=INK_NAVY, margin_in=0.01)
-        add_textbox(slide, x + 0.94, y + 0.45, 4.8, 0.26, text=sub,
+        add_textbox(slide, x + 0.94, y + 0.49, 4.8, 0.26, text=sub,
                     size_pt=10.8, bold=True, color=col, margin_in=0.01)
 
         add_textbox(slide, x + 0.26, y + 0.78, 5.45, 0.95, text=body,
@@ -602,8 +577,8 @@ def build_slide_3_logline(prs):
         add_rect(slide, 5.26, ry, 7.42, 0.96, fill_color=BG_WHITE, line_color=ACCENT_RUST, line_pt=1.3, rounded=True, radius=0.05)
         add_rect(slide, 5.26, ry, 0.09, 0.96, fill_color=ACCENT_RUST)
         add_textbox(slide, 5.46, ry + 0.08, 4.2, 0.24, text="[완성된 로그라인]", size_pt=9.8, bold=True, color=ACCENT_RUST, margin_in=0.01)
-        add_rect(slide, 9.75, ry + 0.08, 2.78, 0.24, fill_color=SOFT_RUST_BG, rounded=True, radius=0.2)
-        add_textbox(slide, 9.75, ry + 0.08, 2.78, 0.24, text=point, size_pt=9.0, bold=True, color=ACCENT_RUST, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        add_rect(slide, 9.75, ry + 0.08, 2.78, 0.27, fill_color=SOFT_RUST_BG, rounded=True, radius=0.2)
+        add_textbox(slide, 9.75, ry + 0.08, 2.78, 0.27, text=point, size_pt=9.0, bold=True, color=ACCENT_RUST, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.0)
         add_textbox(slide, 5.46, ry + 0.36, 7.05, 0.54, text=strong, size_pt=10.6, bold=True, color=INK_NAVY, line_spacing=1.22, margin_in=0.01)
 
 
@@ -882,8 +857,8 @@ def build_slide_8_show_dont_tell(prs):
         add_rect(slide, 5.52, ry, 7.16, 1.10, fill_color=BG_WHITE, line_color=ACCENT_TEAL, line_pt=1.3, rounded=True, radius=0.04)
         add_rect(slide, 5.52, ry, 0.09, 1.10, fill_color=ACCENT_TEAL)
         add_textbox(slide, 5.72, ry + 0.08, 3.8, 0.24, text=f"[{s_lbl}]", size_pt=9.5, bold=True, color=ACCENT_TEAL, margin_in=0.01)
-        add_rect(slide, 9.65, ry + 0.08, 2.88, 0.24, fill_color=SOFT_TEAL_BG, rounded=True, radius=0.2)
-        add_textbox(slide, 9.65, ry + 0.08, 2.88, 0.24, text=f"✓ {note}", size_pt=9.0, bold=True, color=ACCENT_TEAL, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        add_rect(slide, 9.65, ry + 0.08, 2.88, 0.27, fill_color=SOFT_TEAL_BG, rounded=True, radius=0.2)
+        add_textbox(slide, 9.65, ry + 0.08, 2.88, 0.27, text=f"✓ {note}", size_pt=9.0, bold=True, color=ACCENT_TEAL, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.0)
         add_textbox(slide, 5.72, ry + 0.38, 6.8, 0.64, text=s_txt, size_pt=10.8, bold=True, color=INK_NAVY, line_spacing=1.24, margin_in=0.01)
 
     add_rect(slide, 0.65, 5.28, 12.03, 1.60, fill_color=INK_NAVY, rounded=True, radius=0.04)
@@ -981,7 +956,7 @@ def build_slide_9_revision(prs):
         add_textbox(slide, 5.68, py + 0.16, 1.05, 0.34, text=pbadge, size_pt=10.0, bold=True, color=BG_WHITE, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 
         add_textbox(slide, 6.86, py + 0.14, 5.6, 0.30, text=ptitle, size_pt=14.0, bold=True, color=INK_NAVY, margin_in=0.01)
-        add_textbox(slide, 6.86, py + 0.42, 5.6, 0.24, text=psub, size_pt=10.2, bold=True, color=pcol, margin_in=0.01)
+        add_textbox(slide, 6.86, py + 0.46, 5.6, 0.24, text=psub, size_pt=10.2, bold=True, color=pcol, margin_in=0.01)
 
         add_textbox(slide, 5.68, py + 0.72, 6.8, 0.88, text=pcheck, size_pt=10.3, bold=False, color=INK_SLATE, line_spacing=1.26, margin_in=0.01)
 
@@ -1048,7 +1023,7 @@ def build_slide_10_closing(prs):
     add_textbox(slide, 0.85, 6.04, 11.63, 0.44,
                 text="“최악의 초고라도 백지보다는 언제나 위대하다. 백지는 고칠 수 없지만, 쓰인 문장은 반드시 빛나게 다듬을 수 있다.”",
                 size_pt=14.0, bold=True, color=INK_LIGHT, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    add_textbox(slide, 0.85, 6.46, 11.63, 0.32,
+    add_textbox(slide, 0.85, 6.49, 11.63, 0.32,
                 text="오늘 당신의 첫 번째 문장을 시작하세요  —  Happy Writing!",
                 size_pt=11.0, bold=False, color=SOFT_GOLD_BG, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 
@@ -1073,7 +1048,11 @@ def main():
     build_slide_9_revision(prs)
     build_slide_10_closing(prs)
 
-    out_kr = "/home/stxtory/ppt/소설쓰기_가이드.pptx"
+    warnings = validate.check_presentation(prs)
+    if not warnings:
+        print("[ppt_module.validate] 겹침/칸 밖 이탈 없음")
+
+    out_kr = os.path.join(os.path.dirname(os.path.abspath(__file__)), "소설쓰기_가이드.pptx")
     prs.save(out_kr)
     print("Saved:", out_kr)
 
