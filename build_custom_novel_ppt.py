@@ -8,12 +8,13 @@ import os
 import math
 from PIL import Image, ImageDraw, ImageFont
 from pptx import Presentation
-from pptx.util import Inches, Pt
+from pptx.util import Inches
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
-from pptx.enum.shapes import MSO_SHAPE
-from pptx.oxml.ns import qn
-from pptx.oxml import parse_xml
+
+from ppt_module import set_slide_background, add_rect, validate
+from ppt_module.textbox import add_textbox as _module_add_textbox
+from ppt_module.text_metrics import measure_block_height_in
 
 # ---------------------------------------------------------------------------
 # Color Palette (Philosophical Archive & Literary Atelier)
@@ -258,77 +259,27 @@ def generate_genre_matrix():
 # ---------------------------------------------------------------------------
 # PPTX Helper Functions
 # ---------------------------------------------------------------------------
-def set_font(run, size_pt, bold=False, italic=False, color=INK_NAVY, font_name=FONT_KR):
-    run.font.name = font_name
-    run.font.size = Pt(size_pt)
-    run.font.bold = bold
-    run.font.italic = italic
-    run.font.color.rgb = color
-    rPr = run._r.get_or_add_rPr()
-    ea = rPr.find(qn("a:ea"))
-    if ea is None:
-        ea = parse_xml(f'<a:ea xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" typeface="{font_name}"/>')
-        rPr.append(ea)
-    else:
-        ea.set("typeface", font_name)
-
-
-def set_slide_background(slide, color):
-    bg = slide.background
-    fill = bg.fill
-    fill.solid()
-    fill.fore_color.rgb = color
-
-
-def disable_shadow(shape):
-    shape.shadow.inherit = False
-    spPr = shape._element.spPr
-    for child in list(spPr):
-        if child.tag.endswith("effectLst"):
-            spPr.remove(child)
-    spPr.append(parse_xml('<a:effectLst xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"/>'))
-
-
-def add_rect(slide, left, top, width, height, fill_color=None, line_color=None, line_pt=1.0, rounded=False, radius=0.04):
-    shape_type = MSO_SHAPE.ROUNDED_RECTANGLE if rounded else MSO_SHAPE.RECTANGLE
-    shape = slide.shapes.add_shape(shape_type, Inches(left), Inches(top), Inches(width), Inches(height))
-    if rounded and shape.adjustments:
-        shape.adjustments[0] = radius
-    if fill_color is not None:
-        shape.fill.solid()
-        shape.fill.fore_color.rgb = fill_color
-    else:
-        shape.fill.background()
-    if line_color is not None:
-        shape.line.color.rgb = line_color
-        shape.line.width = Pt(line_pt)
-    else:
-        shape.line.fill.background()
-    disable_shadow(shape)
-    return shape
-
-
 def add_textbox(slide, left, top, width, height, text="", size_pt=12, bold=False, color=INK_NAVY,
                 align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP, line_spacing=1.25, margin_in=0.06):
-    tb = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
-    tf = tb.text_frame
-    tf.word_wrap = True
-    tf.vertical_anchor = anchor
-    tf.margin_left = Inches(margin_in)
-    tf.margin_right = Inches(margin_in)
-    tf.margin_top = Inches(margin_in * 0.7)
-    tf.margin_bottom = Inches(margin_in * 0.7)
-    if text:
-        p = tf.paragraphs[0]
-        p.alignment = align
-        p.line_spacing = line_spacing
-        r = p.add_run()
-        r.text = text
-        set_font(r, size_pt, bold=bold, color=color)
-    return tb, tf
+    """ppt_module.textbox.add_textbox 로 위임하는 호환 래퍼.
+
+    호출부 좌표/인자 순서는 그대로 두고 구현만 ppt_module로 교체했다.
+    text 안의 "\\n"이 이제 진짜 <a:br/> 줄바꿈으로 렌더링되고, 지정한
+    height보다 실제 텍스트가 더 크면 조용히 넘치는 대신 글자 크기를
+    자동으로 줄이고 콘솔에 경고를 남긴다.
+    """
+    result = _module_add_textbox(
+        slide, left, top, width, text, size_pt,
+        height=height, bold=bold, color=color, align=align, anchor=anchor,
+        line_spacing=line_spacing, margin_in=margin_in, font_name=FONT_KR,
+    )
+    return result.shape, result.text_frame
 
 
 def add_header_and_footer(slide, section_kicker, action_title, subtitle, page_num, total_pages=10, dark=False):
+    """kicker/title/subtitle 높이를 실제 텍스트 측정값으로 계산해 순차
+    배치한다 (build_novel_ppt.py와 동일한 수정 -- 고정 오프셋 때문에
+    길이가 긴 문구가 바로 아래 줄과 겹치던 문제의 근본 수정)."""
     bg_col = BG_DARK if dark else BG_CREAM
     title_col = INK_LIGHT if dark else INK_NAVY
     sub_col = INK_LIGHT_MUTED if dark else INK_SLATE
@@ -336,14 +287,30 @@ def add_header_and_footer(slide, section_kicker, action_title, subtitle, page_nu
     line_col = BORDER_DARK if dark else BORDER_WARM
 
     set_slide_background(slide, bg_col)
-    add_rect(slide, 0.65, 0.42, 0.08, 0.78, fill_color=kicker_col)
-    add_textbox(slide, 0.84, 0.36, 9.5, 0.28, text=section_kicker,
-                size_pt=10.5, bold=True, color=kicker_col, margin_in=0.02)
-    add_textbox(slide, 0.84, 0.60, 11.8, 0.44, text=action_title,
-                size_pt=21.0, bold=True, color=title_col, margin_in=0.02)
-    add_textbox(slide, 0.84, 1.01, 11.8, 0.32, text=subtitle,
-                size_pt=11.8, bold=False, color=sub_col, margin_in=0.02)
-    add_rect(slide, 0.65, 1.38, 12.03, 0.015, fill_color=line_col)
+
+    header_left, header_w, header_margin, gap = 0.84, 11.8, 0.02, 0.09
+    inner_w = header_w - 2 * header_margin
+    y = 0.36
+
+    kicker_h = max(measure_block_height_in(section_kicker, 10.5, inner_w, bold=True) + 2 * header_margin * 0.7, 0.24)
+    add_textbox(slide, header_left, y, header_w, kicker_h, text=section_kicker,
+                size_pt=10.5, bold=True, color=kicker_col, margin_in=header_margin)
+    y += kicker_h + gap
+
+    title_h = max(measure_block_height_in(action_title, 21.0, inner_w, bold=True) + 2 * header_margin * 0.7, 0.32)
+    add_textbox(slide, header_left, y, header_w, title_h, text=action_title,
+                size_pt=21.0, bold=True, color=title_col, margin_in=header_margin)
+    y += title_h + gap
+
+    subtitle_h = max(measure_block_height_in(subtitle, 11.8, inner_w) + 2 * header_margin * 0.7, 0.26)
+    add_textbox(slide, header_left, y, header_w, subtitle_h, text=subtitle,
+                size_pt=11.8, bold=False, color=sub_col, margin_in=header_margin)
+    y += subtitle_h
+
+    add_rect(slide, 0.65, 0.42, 0.08, max(y - 0.42 - gap, 0.6), fill_color=kicker_col)
+
+    divider_y = y + 0.08
+    add_rect(slide, 0.65, divider_y, 12.03, 0.015, fill_color=line_col)
 
     add_rect(slide, 0.65, 7.05, 12.03, 0.012, fill_color=line_col)
     add_textbox(slide, 0.65, 7.10, 8.0, 0.28,
@@ -368,14 +335,23 @@ def build_slide_1_cover(prs, cover_art_path):
     add_textbox(slide, 0.85, 0.98, 4.15, 0.38, text="ARCHIVE-DRIVEN FICTION PROPOSAL",
                 size_pt=10.5, bold=True, color=ACCENT_GOLD, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 
-    add_textbox(slide, 0.85, 1.58, 6.2, 1.85,
-                text="비문학의 사유에서\n소설의 서사로",
+    # 제목 높이를 실제 텍스트(2줄 포함)로 측정해 아래 밑줄·부제를 그 뒤에
+    # 순차 배치한다 (build_novel_ppt.py와 동일한 수정).
+    title_text = "비문학의 사유에서\n소설의 서사로"
+    title_h = measure_block_height_in(title_text, 42, 6.2 - 0.04, bold=True, line_spacing=1.18) + 0.03
+    add_textbox(slide, 0.85, 1.58, 6.2, title_h,
+                text=title_text,
                 size_pt=42, bold=True, color=INK_LIGHT, line_spacing=1.18, margin_in=0.02)
+    cover_y = 1.58 + title_h
 
-    add_rect(slide, 0.85, 3.55, 1.6, 0.07, fill_color=ACCENT_RUST)
+    cover_y += 0.10
+    add_rect(slide, 0.85, cover_y, 1.6, 0.07, fill_color=ACCENT_RUST)
+    cover_y += 0.07 + 0.10
 
-    add_textbox(slide, 0.85, 3.80, 6.0, 1.15,
-                text="『파편들』(67p) · 『리뷰s』(86p) · 『ETC』(4p) 심층 텍스트 분석을 통해\n당신의 고유한 철학적 문제의식을 4편의 소설 기획안으로 설계하다",
+    subtitle_text = "『파편들』(67p) · 『리뷰s』(86p) · 『ETC』(4p) 심층 텍스트 분석을 통해\n당신의 고유한 철학적 문제의식을 4편의 소설 기획안으로 설계하다"
+    subtitle_h = measure_block_height_in(subtitle_text, 14.2, 6.0 - 0.04, line_spacing=1.42) + 0.03
+    add_textbox(slide, 0.85, cover_y, 6.0, subtitle_h,
+                text=subtitle_text,
                 size_pt=14.2, bold=False, color=INK_LIGHT_MUTED, line_spacing=1.42, margin_in=0.02)
 
     cards = [
@@ -436,13 +412,35 @@ def build_slide_2_corpus_analysis(prs, chart_path):
         ),
     ]
 
+    # dbody 높이를 고정 상수로 찍어두면 더 긴 요약문이 들어오는 순간 카드
+    # 밖으로 흘러넘친다. 세 카드 모두에 들어갈 수 있는 가장 큰 글자 크기를
+    # 먼저 찾고, 그 결과로 카드 높이/간격을 역산해 다음 카드와 겹치지 않게
+    # 배치한다.
+    top_part, bottom_margin, inter_gap = 0.60, 0.06, 0.06
+    dy_start, container_bottom = 1.54, 5.62
+    available_total = container_bottom - dy_start
+
+    dbody_size = 9.6
+    while dbody_size > 7.5:
+        dbody_h = max(measure_block_height_in(dbody, dbody_size, 5.13, line_spacing=1.22) for *_, dbody, _ in docs) + 0.014
+        card_h = top_part + dbody_h + bottom_margin
+        total = len(docs) * card_h + (len(docs) - 1) * inter_gap
+        if total <= available_total:
+            break
+        dbody_size -= 0.2
+    dbody_size = max(dbody_size, 7.5)
+    dbody_h = max(measure_block_height_in(dbody, dbody_size, 5.13, line_spacing=1.22) for *_, dbody, _ in docs) + 0.014
+    card_h = top_part + dbody_h + bottom_margin
+    stride = card_h + inter_gap
+
     for i, (dtitle, dsub, dbody, dcol) in enumerate(docs):
-        dy = 1.54 + i * 1.38
-        add_rect(slide, 7.20, dy, 5.48, 1.26, fill_color=BG_WHITE, line_color=BORDER_WARM, line_pt=1.0, rounded=True, radius=0.04)
-        add_rect(slide, 7.20, dy, 0.09, 1.26, fill_color=dcol)
+        dy = dy_start + i * stride
+        add_rect(slide, 7.20, dy, 5.48, card_h, fill_color=BG_WHITE, line_color=BORDER_WARM, line_pt=1.0, rounded=True, radius=0.04)
+        add_rect(slide, 7.20, dy, 0.09, card_h, fill_color=dcol)
         add_textbox(slide, 7.40, dy + 0.08, 5.15, 0.26, text=dtitle, size_pt=12.0, bold=True, color=INK_NAVY, margin_in=0.01)
         add_textbox(slide, 7.40, dy + 0.34, 5.15, 0.24, text=dsub, size_pt=10.2, bold=True, color=dcol, margin_in=0.01)
-        add_textbox(slide, 7.40, dy + 0.60, 5.15, 0.60, text=dbody, size_pt=9.6, bold=False, color=INK_SLATE, line_spacing=1.22, margin_in=0.01)
+        add_textbox(slide, 7.40, dy + top_part, 5.15, dbody_h, text=dbody, size_pt=dbody_size, bold=False, color=INK_SLATE,
+                    line_spacing=1.22, margin_in=0.01)
 
     # Bottom Right Synthesis Quote from user's own text
     add_rect(slide, 7.20, 5.70, 5.48, 1.18, fill_color=INK_NAVY, rounded=True, radius=0.04)
@@ -598,14 +596,43 @@ def build_proposal_slide(prs, page_num, kicker, action_title, subtitle,
     add_textbox(slide, 0.94, 2.30, 11.55, 0.62, text=f"[로그라인]  {logline}", size_pt=10.8, bold=True, color=INK_NAVY, line_spacing=1.24, margin_in=0.01)
 
     # Bottom Left: Character & World Architecture (Width 5.05)
-    add_rect(slide, 0.65, 3.14, 5.05, 3.74, fill_color=BG_SAND, line_color=BORDER_WARM, line_pt=1.0, rounded=True, radius=0.03)
+    add_rect(slide, 0.65, 3.14, 5.05, 3.84, fill_color=BG_SAND, line_color=BORDER_WARM, line_pt=1.0, rounded=True, radius=0.03)
     add_textbox(slide, 0.85, 3.24, 4.65, 0.28, text="입체적 인물 설계 및 핵심 장치", size_pt=12.5, bold=True, color=INK_NAVY, margin_in=0.01)
 
-    for idx, (clabel, cval) in enumerate(char_specs):
-        cy = 3.58 + idx * 0.62
-        add_rect(slide, 0.85, cy, 4.65, 0.54, fill_color=BG_WHITE, line_color=BORDER_WARM, rounded=True, radius=0.05)
-        add_textbox(slide, 0.98, cy + 0.05, 4.40, 0.20, text=clabel, size_pt=9.5, bold=True, color=accent_col, margin_in=0.01)
-        add_textbox(slide, 0.98, cy + 0.24, 4.40, 0.26, text=cval, size_pt=9.6, bold=False, color=INK_SLATE, margin_in=0.01)
+    # 행 높이를 고정 상수(0.54in)로 찍어두면, 그보다 긴 설명문이 들어오는
+    # 즉시 한 줄짜리 value 박스 밖으로 흘러넘쳐 다음 행과 겹친다. 컨테이너에
+    # 다 들어가는 가장 큰 글자 크기를 직접 탐색해, 5행이 항상 컨테이너 안에서
+    # 겹치지 않고 끝나도록 한다 (박스 높이만 사후에 비례 축소하면 실제
+    # 텍스트가 필요로 하는 높이와 안 맞아 여전히 넘칠 수 있다).
+    row_gap = 0.06
+    top_pad, label_h, label_pad, bottom_pad = 0.03, 0.22, 0.02, 0.04
+    inner_w = 4.40 - 2 * 0.01
+    container_top, container_bottom = 3.58, 3.14 + 3.84 - 0.06
+    available = container_bottom - container_top - row_gap * (len(char_specs) - 1)
+    row_overhead = top_pad + label_h + label_pad + bottom_pad
+
+    val_size = 9.6
+    while val_size > 7.0:
+        total_needed = sum(
+            row_overhead + measure_block_height_in(cval, val_size, inner_w, line_spacing=1.05) + 0.014
+            for _, cval in char_specs
+        )
+        if total_needed <= available:
+            break
+        val_size -= 0.2
+    val_size = max(val_size, 7.0)
+
+    cy = container_top
+    for clabel, cval in char_specs:
+        val_h = measure_block_height_in(cval, val_size, inner_w, line_spacing=1.05) + 0.014
+        row_h = row_overhead + val_h
+        add_rect(slide, 0.85, cy, 4.65, row_h, fill_color=BG_WHITE, line_color=BORDER_WARM, rounded=True, radius=0.05)
+        add_textbox(slide, 0.98, cy + top_pad, 4.40, label_h, text=clabel, size_pt=9.5, bold=True, color=accent_col,
+                    line_spacing=1.0, margin_in=0.01)
+        val_top = cy + top_pad + label_h + label_pad
+        add_textbox(slide, 0.98, val_top, 4.40, val_h, text=cval, size_pt=val_size, bold=False, color=INK_SLATE,
+                    line_spacing=1.05, margin_in=0.01)
+        cy += row_h + row_gap
 
     # Bottom Right Top: 3-Act Narrative Arc (Width 6.80)
     add_rect(slide, 5.88, 3.14, 6.80, 2.52, fill_color=BG_WHITE, line_color=BORDER_WARM, line_pt=1.0, rounded=True, radius=0.03)
@@ -785,23 +812,24 @@ def build_slide_9_style_clinic(prs):
     ]
 
     for idx, (tag, b_lbl, b_txt, a_lbl, a_txt, tip) in enumerate(translations):
-        ry = 1.52 + idx * 1.32
+        ry = 1.52 + idx * 1.34
         # Left Non-fiction style box
-        add_rect(slide, 0.65, ry, 4.55, 1.20, fill_color=BG_SAND, line_color=BORDER_WARM, line_pt=1.0, rounded=True, radius=0.04)
-        add_textbox(slide, 0.80, ry + 0.06, 4.25, 0.22, text=tag, size_pt=9.3, bold=True, color=ACCENT_RUST, margin_in=0.01)
-        add_textbox(slide, 0.80, ry + 0.28, 4.25, 0.20, text=b_lbl, size_pt=8.8, bold=True, color=INK_MUTED, margin_in=0.01)
+        add_rect(slide, 0.65, ry, 4.55, 1.30, fill_color=BG_SAND, line_color=BORDER_WARM, line_pt=1.0, rounded=True, radius=0.04)
+        add_textbox(slide, 0.80, ry + 0.06, 4.25, 0.22, text=tag, size_pt=9.3, bold=True, color=ACCENT_RUST, line_spacing=1.0, margin_in=0.01)
+        add_textbox(slide, 0.80, ry + 0.28, 4.25, 0.20, text=b_lbl, size_pt=8.8, bold=True, color=INK_MUTED, line_spacing=1.0, margin_in=0.01)
         add_textbox(slide, 0.80, ry + 0.48, 4.25, 0.66, text=b_txt, size_pt=9.6, bold=False, color=INK_SLATE, line_spacing=1.20, margin_in=0.01)
 
         # Arrow
         add_textbox(slide, 5.22, ry + 0.36, 0.36, 0.44, text="→", size_pt=20, bold=True, color=ACCENT_RUST, align=PP_ALIGN.CENTER)
 
         # Right Fiction style box
-        add_rect(slide, 5.60, ry, 7.08, 1.20, fill_color=BG_WHITE, line_color=ACCENT_TEAL, line_pt=1.3, rounded=True, radius=0.04)
-        add_rect(slide, 5.60, ry, 0.09, 1.20, fill_color=ACCENT_TEAL)
-        add_textbox(slide, 5.80, ry + 0.06, 6.75, 0.22, text=a_lbl, size_pt=9.3, bold=True, color=ACCENT_TEAL, margin_in=0.01)
-        add_textbox(slide, 5.80, ry + 0.28, 6.75, 0.60, text=a_txt, size_pt=9.8, bold=True, color=INK_NAVY, line_spacing=1.22, margin_in=0.01)
-        add_rect(slide, 5.80, ry + 0.90, 6.72, 0.24, fill_color=SOFT_TEAL_BG, rounded=True, radius=0.15)
-        add_textbox(slide, 5.88, ry + 0.90, 6.56, 0.24, text=f"✓ 전환 핵심: {tip}", size_pt=8.8, bold=True, color=ACCENT_TEAL, anchor=MSO_ANCHOR.MIDDLE, margin_in=0.01)
+        add_rect(slide, 5.60, ry, 7.08, 1.30, fill_color=BG_WHITE, line_color=ACCENT_TEAL, line_pt=1.3, rounded=True, radius=0.04)
+        add_rect(slide, 5.60, ry, 0.09, 1.30, fill_color=ACCENT_TEAL)
+        add_textbox(slide, 5.80, ry + 0.06, 6.75, 0.22, text=a_lbl, size_pt=9.3, bold=True, color=ACCENT_TEAL, line_spacing=1.0, margin_in=0.01)
+        add_textbox(slide, 5.80, ry + 0.28, 6.75, 0.60, text=a_txt, size_pt=9.8, bold=True, color=INK_NAVY, line_spacing=1.15, margin_in=0.01)
+        add_rect(slide, 5.80, ry + 0.90, 6.72, 0.34, fill_color=SOFT_TEAL_BG, rounded=True, radius=0.15)
+        add_textbox(slide, 5.88, ry + 0.90, 6.56, 0.34, text=f"✓ 전환 핵심: {tip}", size_pt=8.8, bold=True, color=ACCENT_TEAL,
+                    anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.0, margin_in=0.01)
 
     # Bottom 3 Micro-Habits for Non-fiction Writers
     add_rect(slide, 0.65, 5.56, 12.03, 1.32, fill_color=INK_NAVY, rounded=True, radius=0.04)
@@ -816,9 +844,9 @@ def build_slide_9_style_clinic(prs):
     ]
     for i, (ct, cd) in enumerate(checks):
         cx = 0.88 + i * 3.92
-        add_rect(slide, cx, 5.96, 3.72, 0.80, fill_color=BG_DARK_CARD, line_color=BORDER_DARK, rounded=True, radius=0.05)
-        add_textbox(slide, cx + 0.12, 6.02, 3.48, 0.22, text=ct, size_pt=10.0, bold=True, color=INK_LIGHT, margin_in=0.01)
-        add_textbox(slide, cx + 0.12, 6.26, 3.48, 0.46, text=cd, size_pt=8.9, bold=False, color=INK_LIGHT_MUTED, line_spacing=1.18, margin_in=0.01)
+        add_rect(slide, cx, 5.96, 3.72, 0.88, fill_color=BG_DARK_CARD, line_color=BORDER_DARK, rounded=True, radius=0.05)
+        add_textbox(slide, cx + 0.12, 6.00, 3.48, 0.22, text=ct, size_pt=10.0, bold=True, color=INK_LIGHT, margin_in=0.01)
+        add_textbox(slide, cx + 0.12, 6.24, 3.48, 0.56, text=cd, size_pt=8.9, bold=False, color=INK_LIGHT_MUTED, line_spacing=1.05, margin_in=0.01)
 
 
 def build_slide_10_roadmap(prs):
@@ -894,7 +922,7 @@ def build_slide_10_roadmap(prs):
     add_textbox(slide, 0.85, 6.00, 11.63, 0.46,
                 text="“관객이 도무지 관객의 자리에 머물지 못하도록 하는, 작품을 향유하기보다 다른 작품을 기어이 생산하도록 추동하는 작품”",
                 size_pt=13.2, bold=True, color=INK_LIGHT, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    add_textbox(slide, 0.85, 6.44, 11.63, 0.34,
+    add_textbox(slide, 0.85, 6.47, 11.63, 0.34,
                 text="당신이 『파편들』 P.46에 적었던 바로 그 ‘살아 작동하는 허구’를 이제 당신의 첫 소설로 시작해 보세요.",
                 size_pt=10.8, bold=False, color=SOFT_GOLD_BG, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 
@@ -919,7 +947,11 @@ def main():
     build_slide_9_style_clinic(prs)
     build_slide_10_roadmap(prs)
 
-    out_path = "/home/stxtory/ppt/맞춤형_소설기획_제안서.pptx"
+    warnings = validate.check_presentation(prs)
+    if not warnings:
+        print("[ppt_module.validate] 겹침/칸 밖 이탈 없음")
+
+    out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "맞춤형_소설기획_제안서.pptx")
     prs.save(out_path)
     print("Saved:", out_path)
 
