@@ -24,9 +24,10 @@ from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.oxml import parse_xml
 from pptx.util import Inches, Pt
 
-from ppt_module import add_rect as _module_add_rect, validate
+from ppt_module import FONT_KR, add_rect as _module_add_rect, validate
 from ppt_module.textbox import add_textbox as _module_add_textbox
 from ppt_module.text_metrics import measure_block_height_in
+from ppt_module.text_metrics import get_pil_font
 
 OUT_PATH = os.path.join(HERE, "캐시의_도시_발전기획서.pptx")
 
@@ -58,7 +59,6 @@ SOFT_GOLD = RGBColor(251, 243, 225)
 SOFT_PLUM = RGBColor(244, 233, 238)
 SOFT_INDIGO = RGBColor(232, 237, 247)
 
-FONT_KR = "Noto Sans CJK KR"
 TOTAL_PAGES = 8
 FOOTER = "《캐시의 도시》 발전 기획서  |  기획안 02 심화 · v2"
 
@@ -574,14 +574,15 @@ def render_preview(out_dir):
 
     os.makedirs(out_dir, exist_ok=True)
     dpi = 110
-    reg = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
-    bold = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
     cache = {}
 
     def font(pt, b):
         key = (pt, b)
         if key not in cache:
-            cache[key] = ImageFont.truetype(bold if b else reg, int(round(pt * dpi / 72)), index=1)
+            # Reuse the module's installed-font fallback chain. The previous
+            # hard-coded Noto path made --preview crash on machines where only
+            # Nanum/DejaVu fonts were installed.
+            cache[key] = get_pil_font(pt, bold=b)
         return cache[key]
 
     def rgb(c):
@@ -665,8 +666,8 @@ def main():
     slide_next(prs)
 
     warnings = validate.check_presentation(prs)
-    if not warnings:
-        print("[ppt_module.validate] 겹침/칸 밖 이탈 없음")
+    assert not warnings, warnings
+    print("[ppt_module.validate] 겹침/칸 밖 이탈 없음")
 
     prs.save(OUT_PATH)
     print(f"저장: {OUT_PATH}")

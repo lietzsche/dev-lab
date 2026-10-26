@@ -12,7 +12,7 @@ from pptx.util import Inches
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 
-from ppt_module import set_slide_background, add_rect, validate
+from ppt_module import FONT_KR, set_slide_background, add_rect, validate
 from ppt_module.textbox import add_textbox as _module_add_textbox
 from ppt_module.text_metrics import measure_block_height_in
 
@@ -42,10 +42,9 @@ SOFT_RUST_BG = RGBColor(250, 236, 230)   # #FAECE6 Highlight Tint
 SOFT_TEAL_BG = RGBColor(232, 242, 241)   # #E8F2F1 Teal Tint
 SOFT_GOLD_BG = RGBColor(251, 244, 228)   # #FBF4E4 Gold Tint
 
-FONT_KR = "Noto Sans CJK KR"
-
 ASSET_DIR = "/tmp/ppt_novel_assets"
 os.makedirs(ASSET_DIR, exist_ok=True)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 # ---------------------------------------------------------------------------
@@ -55,6 +54,8 @@ def get_pil_font(size, bold=False):
     candidates = [
         "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc" if bold else "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
         "/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc",
+        "/usr/share/fonts/truetype/nanum/NanumBarunGothicBold.ttf" if bold else "/usr/share/fonts/truetype/nanum/NanumBarunGothic.ttf",
+        "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf" if bold else "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
     ]
     for path in candidates:
@@ -1049,10 +1050,10 @@ def main():
     build_slide_10_closing(prs)
 
     warnings = validate.check_presentation(prs)
-    if not warnings:
-        print("[ppt_module.validate] 겹침/칸 밖 이탈 없음")
+    assert not warnings, warnings
+    print("[ppt_module.validate] 겹침/칸 밖 이탈 없음")
 
-    out_kr = os.path.join(os.path.dirname(os.path.abspath(__file__)), "소설쓰기_가이드.pptx")
+    out_kr = os.path.join(PROJECT_ROOT, "소설쓰기_가이드.pptx")
     prs.save(out_kr)
     print("Saved:", out_kr)
 

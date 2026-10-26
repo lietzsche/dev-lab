@@ -12,8 +12,8 @@ from pptx.util import Inches
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 
-from ppt_module import set_slide_background, add_rect, validate
-from ppt_module.textbox import add_textbox as _module_add_textbox
+from ppt_module import FONT_KR, set_slide_background, add_rect, validate
+from ppt_module.textbox import MULTILINE_FIT_HEADROOM, add_textbox as _module_add_textbox
 from ppt_module.text_metrics import measure_block_height_in
 
 # ---------------------------------------------------------------------------
@@ -45,10 +45,9 @@ SOFT_GOLD_BG = RGBColor(251, 243, 225)
 SOFT_PLUM_BG = RGBColor(244, 233, 238)
 SOFT_INDIGO_BG = RGBColor(232, 237, 247)
 
-FONT_KR = "Noto Sans CJK KR"
-
 ASSET_DIR = "/tmp/ppt_custom_novel_assets"
 os.makedirs(ASSET_DIR, exist_ok=True)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 # ---------------------------------------------------------------------------
@@ -58,6 +57,8 @@ def get_pil_font(size, bold=False):
     candidates = [
         "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc" if bold else "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
         "/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc",
+        "/usr/share/fonts/truetype/nanum/NanumBarunGothicBold.ttf" if bold else "/usr/share/fonts/truetype/nanum/NanumBarunGothic.ttf",
+        "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf" if bold else "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
     ]
     for path in candidates:
@@ -260,7 +261,8 @@ def generate_genre_matrix():
 # PPTX Helper Functions
 # ---------------------------------------------------------------------------
 def add_textbox(slide, left, top, width, height, text="", size_pt=12, bold=False, color=INK_NAVY,
-                align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP, line_spacing=1.25, margin_in=0.06):
+                align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP, line_spacing=1.25, margin_in=0.06,
+                min_size_pt=8.0):
     """ppt_module.textbox.add_textbox 로 위임하는 호환 래퍼.
 
     호출부 좌표/인자 순서는 그대로 두고 구현만 ppt_module로 교체했다.
@@ -272,6 +274,7 @@ def add_textbox(slide, left, top, width, height, text="", size_pt=12, bold=False
         slide, left, top, width, text, size_pt,
         height=height, bold=bold, color=color, align=align, anchor=anchor,
         line_spacing=line_spacing, margin_in=margin_in, font_name=FONT_KR,
+        min_size_pt=min_size_pt,
     )
     return result.shape, result.text_frame
 
@@ -385,7 +388,9 @@ def build_slide_2_corpus_analysis(prs, chart_path):
     add_textbox(slide, 0.85, 1.63, 6.0, 0.30,
                 text="작성 원고 3종 핵심 개념어 출현 빈도 Top 12 (실제 텍스트 집계)",
                 size_pt=12.5, bold=True, color=INK_NAVY, margin_in=0.01)
-    slide.shapes.add_picture(chart_path, Inches(0.75), Inches(1.98), width=Inches(6.15))
+    # Preserve the chart's aspect ratio while constraining it to the card. A
+    # width-only insertion made the tall source image cross the footer rule.
+    slide.shapes.add_picture(chart_path, Inches(1.00), Inches(1.98), height=Inches(4.72))
 
     # Right: 3 Source Document Cards + Synthesis Box
     docs = [
@@ -421,15 +426,15 @@ def build_slide_2_corpus_analysis(prs, chart_path):
     available_total = container_bottom - dy_start
 
     dbody_size = 9.6
-    while dbody_size > 7.5:
-        dbody_h = max(measure_block_height_in(dbody, dbody_size, 5.13, line_spacing=1.22) for *_, dbody, _ in docs) + 0.014
+    while dbody_size > 7.0:
+        dbody_h = max(measure_block_height_in(dbody, dbody_size, 5.13, line_spacing=1.22) for *_, dbody, _ in docs) / MULTILINE_FIT_HEADROOM + 0.014
         card_h = top_part + dbody_h + bottom_margin
         total = len(docs) * card_h + (len(docs) - 1) * inter_gap
         if total <= available_total:
             break
         dbody_size -= 0.2
-    dbody_size = max(dbody_size, 7.5)
-    dbody_h = max(measure_block_height_in(dbody, dbody_size, 5.13, line_spacing=1.22) for *_, dbody, _ in docs) + 0.014
+    dbody_size = max(dbody_size, 7.0)
+    dbody_h = max(measure_block_height_in(dbody, dbody_size, 5.13, line_spacing=1.22) for *_, dbody, _ in docs) / MULTILINE_FIT_HEADROOM + 0.014
     card_h = top_part + dbody_h + bottom_margin
     stride = card_h + inter_gap
 
@@ -440,7 +445,7 @@ def build_slide_2_corpus_analysis(prs, chart_path):
         add_textbox(slide, 7.40, dy + 0.08, 5.15, 0.26, text=dtitle, size_pt=12.0, bold=True, color=INK_NAVY, margin_in=0.01)
         add_textbox(slide, 7.40, dy + 0.34, 5.15, 0.24, text=dsub, size_pt=10.2, bold=True, color=dcol, margin_in=0.01)
         add_textbox(slide, 7.40, dy + top_part, 5.15, dbody_h, text=dbody, size_pt=dbody_size, bold=False, color=INK_SLATE,
-                    line_spacing=1.22, margin_in=0.01)
+                    line_spacing=1.22, margin_in=0.01, min_size_pt=7.0)
 
     # Bottom Right Synthesis Quote from user's own text
     add_rect(slide, 7.20, 5.70, 5.48, 1.18, fill_color=INK_NAVY, rounded=True, radius=0.04)
@@ -604,8 +609,8 @@ def build_proposal_slide(prs, page_num, kicker, action_title, subtitle,
     # 다 들어가는 가장 큰 글자 크기를 직접 탐색해, 5행이 항상 컨테이너 안에서
     # 겹치지 않고 끝나도록 한다 (박스 높이만 사후에 비례 축소하면 실제
     # 텍스트가 필요로 하는 높이와 안 맞아 여전히 넘칠 수 있다).
-    row_gap = 0.06
-    top_pad, label_h, label_pad, bottom_pad = 0.03, 0.22, 0.02, 0.04
+    row_gap = 0.03
+    top_pad, label_h, label_pad, bottom_pad = 0.02, 0.20, 0.01, 0.02
     inner_w = 4.40 - 2 * 0.01
     container_top, container_bottom = 3.58, 3.14 + 3.84 - 0.06
     available = container_bottom - container_top - row_gap * (len(char_specs) - 1)
@@ -614,7 +619,7 @@ def build_proposal_slide(prs, page_num, kicker, action_title, subtitle,
     val_size = 9.6
     while val_size > 7.0:
         total_needed = sum(
-            row_overhead + measure_block_height_in(cval, val_size, inner_w, line_spacing=1.05) + 0.014
+            row_overhead + measure_block_height_in(cval, val_size, inner_w, line_spacing=1.05) / MULTILINE_FIT_HEADROOM + 0.014
             for _, cval in char_specs
         )
         if total_needed <= available:
@@ -624,14 +629,14 @@ def build_proposal_slide(prs, page_num, kicker, action_title, subtitle,
 
     cy = container_top
     for clabel, cval in char_specs:
-        val_h = measure_block_height_in(cval, val_size, inner_w, line_spacing=1.05) + 0.014
+        val_h = measure_block_height_in(cval, val_size, inner_w, line_spacing=1.05) / MULTILINE_FIT_HEADROOM + 0.014
         row_h = row_overhead + val_h
         add_rect(slide, 0.85, cy, 4.65, row_h, fill_color=BG_WHITE, line_color=BORDER_WARM, rounded=True, radius=0.05)
         add_textbox(slide, 0.98, cy + top_pad, 4.40, label_h, text=clabel, size_pt=9.5, bold=True, color=accent_col,
-                    line_spacing=1.0, margin_in=0.01)
+                    line_spacing=1.0, margin_in=0.01, min_size_pt=7.0)
         val_top = cy + top_pad + label_h + label_pad
         add_textbox(slide, 0.98, val_top, 4.40, val_h, text=cval, size_pt=val_size, bold=False, color=INK_SLATE,
-                    line_spacing=1.05, margin_in=0.01)
+                    line_spacing=1.05, margin_in=0.01, min_size_pt=7.0)
         cy += row_h + row_gap
 
     # Bottom Right Top: 3-Act Narrative Arc (Width 6.80)
@@ -827,8 +832,8 @@ def build_slide_9_style_clinic(prs):
         add_rect(slide, 5.60, ry, 0.09, 1.30, fill_color=ACCENT_TEAL)
         add_textbox(slide, 5.80, ry + 0.06, 6.75, 0.22, text=a_lbl, size_pt=9.3, bold=True, color=ACCENT_TEAL, line_spacing=1.0, margin_in=0.01)
         add_textbox(slide, 5.80, ry + 0.28, 6.75, 0.60, text=a_txt, size_pt=9.8, bold=True, color=INK_NAVY, line_spacing=1.15, margin_in=0.01)
-        add_rect(slide, 5.80, ry + 0.90, 6.72, 0.34, fill_color=SOFT_TEAL_BG, rounded=True, radius=0.15)
-        add_textbox(slide, 5.88, ry + 0.90, 6.56, 0.34, text=f"✓ 전환 핵심: {tip}", size_pt=8.8, bold=True, color=ACCENT_TEAL,
+        add_rect(slide, 5.80, ry + 0.88, 6.72, 0.38, fill_color=SOFT_TEAL_BG, rounded=True, radius=0.15)
+        add_textbox(slide, 5.88, ry + 0.88, 6.56, 0.38, text=f"✓ 전환 핵심: {tip}", size_pt=8.8, bold=True, color=ACCENT_TEAL,
                     anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.0, margin_in=0.01)
 
     # Bottom 3 Micro-Habits for Non-fiction Writers
@@ -844,9 +849,9 @@ def build_slide_9_style_clinic(prs):
     ]
     for i, (ct, cd) in enumerate(checks):
         cx = 0.88 + i * 3.92
-        add_rect(slide, cx, 5.96, 3.72, 0.88, fill_color=BG_DARK_CARD, line_color=BORDER_DARK, rounded=True, radius=0.05)
+        add_rect(slide, cx, 5.96, 3.72, 0.92, fill_color=BG_DARK_CARD, line_color=BORDER_DARK, rounded=True, radius=0.05)
         add_textbox(slide, cx + 0.12, 6.00, 3.48, 0.22, text=ct, size_pt=10.0, bold=True, color=INK_LIGHT, margin_in=0.01)
-        add_textbox(slide, cx + 0.12, 6.24, 3.48, 0.56, text=cd, size_pt=8.9, bold=False, color=INK_LIGHT_MUTED, line_spacing=1.05, margin_in=0.01)
+        add_textbox(slide, cx + 0.12, 6.24, 3.48, 0.62, text=cd, size_pt=8.9, bold=False, color=INK_LIGHT_MUTED, line_spacing=1.05, margin_in=0.01)
 
 
 def build_slide_10_roadmap(prs):
@@ -948,10 +953,10 @@ def main():
     build_slide_10_roadmap(prs)
 
     warnings = validate.check_presentation(prs)
-    if not warnings:
-        print("[ppt_module.validate] 겹침/칸 밖 이탈 없음")
+    assert not warnings, warnings
+    print("[ppt_module.validate] 겹침/칸 밖 이탈 없음")
 
-    out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "맞춤형_소설기획_제안서.pptx")
+    out_path = os.path.join(PROJECT_ROOT, "맞춤형_소설기획_제안서.pptx")
     prs.save(out_path)
     print("Saved:", out_path)
 

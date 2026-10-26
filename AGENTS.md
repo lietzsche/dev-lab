@@ -4,7 +4,7 @@
 
 ## 배경: 왜 이 문서가 필요한가
 
-`build_novel_ppt.py`, `build_custom_novel_ppt.py`는 모든 도형/텍스트박스의 좌표(`left`, `top`,
+`ppt_module/builders/novel_guide.py`, `ppt_module/builders/custom_novel.py`는 과거 모든 도형/텍스트박스의 좌표(`left`, `top`,
 `width`, `height`)를 손으로 추측한 상수로 박아넣은 스크립트입니다. 이 방식에는 두 가지 구조적
 결함이 있고, 실제로 지금 산출물에서 "글자가 위아래로 겹치거나 칸 밖으로 나가는" 증상으로
 나타나고 있습니다.
@@ -20,7 +20,7 @@
    도형과 겹칩니다. 검증 코드가 전혀 없어서 이런 겹침이 빌드 시점에는 드러나지 않습니다.
 
 위 두 문제를 근본적으로 해결한 재사용 가능한 모듈을 `ppt_module/`에 만들었고, 이 저장소의 pptx를
-생성하는 세 스크립트 — `build_novel_ppt.py`, `build_custom_novel_ppt.py`,
+생성하는 세 스크립트 — `ppt_module/builders/novel_guide.py`, `ppt_module/builders/custom_novel.py`,
 `cache_city/build_cache_city_ppt.py` — 모두 이미 `ppt_module/` 기반으로 재작성되어 있습니다.
 **앞으로 이 스크립트들을 더 손보거나 새 PPTX 스크립트를 만들 때도 반드시 `ppt_module/`을
 사용해야 합니다.** `slide.shapes.add_textbox(...)`와 `run.text = ...`를 직접 호출하는 코드를
@@ -83,7 +83,7 @@ found.`가 출력되어야 정상입니다. 새 슬라이드 빌더를 작성할
 
 ## 세 스크립트의 현재 상태
 
-- `build_novel_ppt.py`, `build_custom_novel_ppt.py`, `cache_city/build_cache_city_ppt.py`
+- `ppt_module/builders/novel_guide.py`, `ppt_module/builders/custom_novel.py`, `cache_city/build_cache_city_ppt.py`
   모두 `ppt_module`에 위임하는 호환 래퍼(`add_textbox`/`rect`/`text` 등, 파일마다 이름은
   다르지만 내부 구현은 전부 `ppt_module.textbox.add_textbox` / `ppt_module.shapes.add_rect`)로
   이미 교체되어 있습니다. 각 파일의 `main()`은 저장 직전에 `validate.check_presentation(prs)`를
@@ -93,7 +93,7 @@ found.`가 출력되어야 정상입니다. 새 슬라이드 빌더를 작성할
   하지 않았음) — 다만 좌표 계산이 필요한 모든 지점에서 실측 높이(`measure_block_height_in`)를
   쓰도록 바꿨습니다.
 - 이미 생성된 세 `.pptx` 파일을 고치려면, 해당 슬라이드를 만드는 함수를 고친 뒤 스크립트를
-  재실행해서 pptx를 다시 생성하세요 (`python3 build_novel_ppt.py` 등, 각 스크립트는 저장 경로를
+  재실행해서 pptx를 다시 생성하세요 (`python3 -m ppt_module.builders.novel_guide` 등, 각 스크립트는 저장 경로를
   스크립트 자신의 위치 기준 상대경로로 계산합니다). 기존 pptx 파일을 바이너리로 직접 패치하지
   마세요.
 - `cache_city/build_cache_city_ppt.py --preview DIR`는 이 스크립트 자체에 내장된, 독립적인

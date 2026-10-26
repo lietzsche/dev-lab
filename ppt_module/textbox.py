@@ -31,9 +31,21 @@ from pptx.enum.text import PP_ALIGN, MSO_ANCHOR, MSO_AUTO_SIZE
 
 from .theme import FONT_KR, DEFAULT_THEME
 from .shapes import set_font
-from .text_metrics import measure_block_height_in
+from .text_metrics import count_wrapped_lines, measure_block_height_in
 
 _VERT_MARGIN_RATIO = 0.7  # matches the legacy scripts' top/bottom margin convention
+# A box that only just fits according to Pillow is fragile: PowerPoint, LibreOffice,
+# and browser-based OOXML viewers use different fallback fonts and line metrics.
+# Keep deliberate vertical headroom so a two-line heading remains separated even
+# when another renderer measures the same glyphs a little taller.
+MULTILINE_FIT_HEADROOM = 0.90
+
+
+def _fit_headroom(text, size_pt, width_in, bold):
+    """Reserve extra height only where line-to-line collisions are possible."""
+    if count_wrapped_lines(text, size_pt, width_in, bold=bold) > 1:
+        return MULTILINE_FIT_HEADROOM
+    return 1.0
 
 
 @dataclass
@@ -51,10 +63,14 @@ class TextBoxResult:
 def _shrink_to_fit(text, width_in, avail_height_in, start_size_pt, bold, line_spacing, min_size_pt, step=0.5):
     size = start_size_pt
     while size > min_size_pt:
-        if measure_block_height_in(text, size, width_in, bold=bold, line_spacing=line_spacing) <= avail_height_in:
+        target_height_in = avail_height_in * _fit_headroom(text, size, width_in, bold)
+        if measure_block_height_in(text, size, width_in, bold=bold, line_spacing=line_spacing) <= target_height_in:
             return size, False
         size -= step
-    overflow = measure_block_height_in(text, min_size_pt, width_in, bold=bold, line_spacing=line_spacing) > avail_height_in
+    target_height_in = avail_height_in * _fit_headroom(text, min_size_pt, width_in, bold)
+    overflow = measure_block_height_in(
+        text, min_size_pt, width_in, bold=bold, line_spacing=line_spacing
+    ) > target_height_in
     return min_size_pt, overflow
 
 
@@ -88,7 +104,7 @@ def add_textbox(slide, left, top, width, text, size_pt, *,
 
     if height is None:
         needed_text_h = measure_block_height_in(text, size_pt, content_width_in, bold=bold, line_spacing=line_spacing)
-        box_h = needed_text_h + 2 * v_margin_in
+        box_h = needed_text_h / _fit_headroom(text, size_pt, content_width_in, bold) + 2 * v_margin_in
         if max_height is not None and box_h > max_height:
             avail = max_height - 2 * v_margin_in
             size_pt, overflowed = _shrink_to_fit(text, content_width_in, avail, size_pt, bold, line_spacing, min_size_pt)
@@ -99,7 +115,8 @@ def add_textbox(slide, left, top, width, text, size_pt, *,
         if autoshrink:
             avail = max(box_h - 2 * v_margin_in, 0.02)
             needed_text_h = measure_block_height_in(text, size_pt, content_width_in, bold=bold, line_spacing=line_spacing)
-            if needed_text_h > avail:
+            target_height = avail * _fit_headroom(text, size_pt, content_width_in, bold)
+            if needed_text_h > target_height:
                 size_pt, overflowed = _shrink_to_fit(text, content_width_in, avail, size_pt, bold, line_spacing, min_size_pt)
 
     if overflowed and warn:

@@ -6,7 +6,10 @@ from dataclasses import dataclass
 
 from pptx.dml.color import RGBColor
 
-FONT_KR = "Noto Sans CJK KR"
+# The deck is primarily reviewed on Windows/PowerPoint and in VS Code's local
+# webview. Malgun Gothic is available in both of those Windows renderers, which
+# avoids layout shifts caused by requesting an uninstalled Noto family.
+FONT_KR = "Malgun Gothic"
 
 # Standard PowerPoint widescreen slide size used by every generator in this repo.
 SLIDE_W_IN = 13.333
