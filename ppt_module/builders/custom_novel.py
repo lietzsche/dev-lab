@@ -266,7 +266,7 @@ def add_textbox(slide, left, top, width, height, text="", size_pt=12, bold=False
     """ppt_module.textbox.add_textbox 로 위임하는 호환 래퍼.
 
     호출부 좌표/인자 순서는 그대로 두고 구현만 ppt_module로 교체했다.
-    text 안의 "\\n"이 이제 물리적으로 분리된 텍스트박스로 렌더링되고, 지정한
+    text 안의 "\\n"이 이제 독립된 DrawingML 문단으로 렌더링되고, 지정한
     height보다 실제 텍스트가 더 크면 조용히 넘치는 대신 글자 크기를
     자동으로 줄이고 콘솔에 경고를 남긴다.
     """
