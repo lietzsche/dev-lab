@@ -10,8 +10,9 @@ scripts are fixed here:
    ``<a:t>`` run, which PowerPoint/LibreOffice render as nothing (the two
    lines get mashed together) rather than as two lines. Every multi-line
    string in the legacy scripts (dozens of call sites) is silently affected.
-   ``add_textbox`` here splits on "\\n" and emits a real ``<a:br/>`` between
-   segments.
+   ``add_textbox`` here splits on "\\n" and emits separate DrawingML
+   paragraphs with explicit spacing between segments. This also works around
+   browser OOXML viewers that ignore ``<a:br/>``.
 
 2. Box heights in the legacy scripts are hand-picked constants with no
    relation to the actual text length / font size / wrap width, so anything
@@ -26,12 +27,12 @@ scripts are fixed here:
 
 from dataclasses import dataclass
 
-from pptx.util import Inches
+from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR, MSO_AUTO_SIZE
 
 from .theme import FONT_KR, DEFAULT_THEME
 from .shapes import set_font
-from .text_metrics import count_wrapped_lines, measure_block_height_in
+from .text_metrics import _PARAGRAPH_GAP_FACTOR, count_wrapped_lines, measure_block_height_in
 
 _VERT_MARGIN_RATIO = 0.7  # matches the legacy scripts' top/bottom margin convention
 # A box that only just fits according to Pillow is fragile: PowerPoint, LibreOffice,
@@ -74,11 +75,14 @@ def _shrink_to_fit(text, width_in, avail_height_in, start_size_pt, bold, line_sp
     return min_size_pt, overflow
 
 
-def _write_runs(paragraph, text, size_pt, bold, italic, color, font_name):
+def _write_paragraphs(text_frame, text, size_pt, bold, italic, color, font_name, align, line_spacing):
     segments = str(text).split("\n")
     for i, seg in enumerate(segments):
-        if i > 0:
-            paragraph.add_line_break()
+        paragraph = text_frame.paragraphs[0] if i == 0 else text_frame.add_paragraph()
+        paragraph.alignment = align
+        paragraph.line_spacing = line_spacing
+        if i < len(segments) - 1:
+            paragraph.space_after = Pt(size_pt * _PARAGRAPH_GAP_FACTOR)
         run = paragraph.add_run()
         run.text = seg
         set_font(run, size_pt, bold=bold, italic=italic, color=color, font_name=font_name)
@@ -144,11 +148,8 @@ def add_textbox(slide, left, top, width, text, size_pt, *,
     tf.margin_top = Inches(v_margin_in)
     tf.margin_bottom = Inches(v_margin_in)
 
-    p = tf.paragraphs[0]
-    p.alignment = align
-    p.line_spacing = line_spacing
     if text:
-        _write_runs(p, text, size_pt, bold, italic, color, font_name)
+        _write_paragraphs(tf, text, size_pt, bold, italic, color, font_name, align, line_spacing)
 
     return TextBoxResult(
         shape=tb, text_frame=tf,

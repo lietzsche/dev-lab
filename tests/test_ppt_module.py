@@ -14,10 +14,12 @@ class TextboxSafetyTests(unittest.TestCase):
         prs.slide_height = Inches(7.5)
         return prs, prs.slides.add_slide(prs.slide_layouts[6])
 
-    def test_explicit_newline_is_drawingml_break(self):
+    def test_explicit_newline_is_separate_drawingml_paragraph(self):
         _, slide = self._slide()
         result = add_textbox(slide, 1, 1, 4, "첫 줄\n둘째 줄", 18)
-        self.assertIn("<a:br/>", result.shape.element.xml)
+        self.assertNotIn("<a:br/>", result.shape.element.xml)
+        self.assertEqual([p.text for p in result.text_frame.paragraphs], ["첫 줄", "둘째 줄"])
+        self.assertGreater(result.text_frame.paragraphs[0].space_after.pt, 0)
 
     def test_fixed_multiline_box_keeps_headroom(self):
         _, slide = self._slide()

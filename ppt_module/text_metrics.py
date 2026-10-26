@@ -45,6 +45,7 @@ _DPI = 96.0
 # still showed visible overlap at 1.2, 1.3 tracks CJK line height much more
 # closely.
 _LEADING_FACTOR = 1.3
+_PARAGRAPH_GAP_FACTOR = 0.12
 _DRAW = ImageDraw.Draw(Image.new("RGB", (4, 4)))
 
 
@@ -102,8 +103,8 @@ def wrap_text(text, size_pt, width_in, bold=False):
     """Returns the list of visually-wrapped lines `text` would occupy in a
     box `width_in` inches wide. Explicit "\\n" in `text` are treated as hard
     paragraph breaks (matching how add_textbox() in this package renders them
-    as real <a:br/> line breaks, NOT how a bare run.text="a\\nb" renders in
-    raw python-pptx, which is as a single unbroken line)."""
+    as separate DrawingML paragraphs, NOT how a bare run.text="a\\nb" renders
+    in raw python-pptx, which is as a single unbroken line)."""
     font = get_pil_font(size_pt, bold=bold)
     max_width_px = max(width_in, 0.05) * _DPI
     out = []
@@ -127,4 +128,6 @@ def measure_block_height_in(text, size_pt, width_in, bold=False, line_spacing=1.
     layout engine -- better to reserve a hair too much height than to repeat
     the overlap bug this module exists to fix."""
     n_lines = count_wrapped_lines(text, size_pt, width_in, bold=bold)
-    return n_lines * line_height_in(size_pt, line_spacing=line_spacing) * safety_margin
+    hard_breaks = max(len(str(text).split("\n")) - 1, 0)
+    paragraph_gaps = hard_breaks * size_pt * _PARAGRAPH_GAP_FACTOR / 72.0
+    return n_lines * line_height_in(size_pt, line_spacing=line_spacing) * safety_margin + paragraph_gaps
