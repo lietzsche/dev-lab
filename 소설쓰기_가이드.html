@@ -71,6 +71,11 @@ a { color: inherit; }
 table.cmp { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 table.cmp th, table.cmp td { text-align: left; padding: 0.55rem 0.7rem; vertical-align: top; }
 table.cmp thead th { background: #1A212E; color: #F2EFE9; }
+/* tbody rows always sit on a light background by design (even inside a
+   .slide.dark section), so their text color must be pinned here too --
+   otherwise it inherits .slide.dark's light text color and reads as
+   near-invisible light-on-light. */
+table.cmp tbody td { color: #1A212E; }
 table.cmp tbody tr:nth-child(odd) td { background: #FFFFFF; }
 table.cmp tbody tr:nth-child(even) td { background: #F8F5F0; }
 table.cmp td.revised { background: #FFFFFF; border-left: 3px solid #C6532D; font-weight: 600; }

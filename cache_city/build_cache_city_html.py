@@ -276,8 +276,6 @@ EARLY_CHAPTERS = [
             "완벽한 하루가 끝난다. 그러나 독자는 이미 이상함을 느낀다: 아무도 진짜로 ‘생각’하지 않는다.",
         ],
         details="시야 오른쪽 위에 뜨는 파란 자막 · 99.7%라는 숫자가 주는 안도감 · 몸은 편안한데 묘하게 텅 빈 느낌.",
-        question="진우의 거짓 믿음(‘생각은 비용이다’)을 대사로 직접 말하게 할지, 행동으로만 보여줄지 — "
-                 "추천: 행동으로만. 대사로 말하는 순간 설교가 된다.",
         link="그런데 바로 그날 밤 → 2장",
     ),
     dict(
@@ -291,8 +289,6 @@ EARLY_CHAPTERS = [
             "진우의 직업적 반응: 흥미, 짜증, ‘누가 이렇게 멍청한 요청을 계속 보냈나’라는 가벼운 조소.",
         ],
         details="재요청 카운터가 끊임없이 올라가는 숫자 · 광고 이미지(#A-0417, 초코 케익)가 반복 송출되는 로그 화면.",
-        question="‘무연고 사망자’라는 사실을 지금 얼마나 구체적으로 보여줄지 — "
-                 "추천: 신원 정보는 시스템이 익명화해 아직 안 보이게. 그래야 4장의 발견이 진짜 반전이 된다.",
         link="그래서 그는 가장 쉬운 해결책을 쓴다 → 3장",
     ),
     dict(
@@ -306,8 +302,6 @@ EARLY_CHAPTERS = [
             "패턴이 뭔가 더 크다는 감(gut)이 온다 — 하지만 아직 설명할 수 없다.",
         ],
         details="‘차단’ 버튼을 누르는 손짓의 간단함과 문제의 실제 크기 사이의 대비 · 홀로 있는 방의 모니터 불빛.",
-        question="패턴 확산을 능동적으로 조사하게 만드는 계기를 더 구체적인 사물로 만들 것 — "
-                 "추천: 헤아림이 처음으로 ‘추천 응답 없음’을 띄우는 장면. 그의 임플란트도 이 질문엔 답이 없다는 좋은 전조.",
         link="그러나 그는 멈출 수 없다 → 4장에서 패턴을 따라간다",
     ),
     dict(
@@ -321,8 +315,6 @@ EARLY_CHAPTERS = [
             "진우는 ‘무연고’가 아니었다는 사실 앞에 선다. 서술로 충격을 말하지 말고, 서명란을 오래 들여다보는 손 같은 사물로만 보여줄 것.",
         ],
         details="윤해의 원칙 대사(“믿고 싶은 기억은 복원하지 않아요…”) · 공방의 질감(종이·먼지·소리로 기억을 복원하는 도구) — 도시의 매끈함과 정면으로 대비.",
-        question="반전 공개를 몇 % 보여줄지 — 기존 ‘결정 2’의 추천대로 이번 장에서 완전 공개(보호자=진우) 유지. "
-                 "‘직업 → 자기 자신’으로 동력이 바뀌는 지점이 초반부 안에 들어가야 서사가 실제로 작동한다.",
         link="이후 진우는 더 이상 ‘버그’가 아니라 ‘자기 자신’을 쫓는다 → 5장, 중간점 반전",
     ),
 ]
@@ -354,9 +346,7 @@ def slide_chapters_early(deck):
             f'<p class="small muted" style="margin:0 0 0.5rem;">📍 {esc(ch["setting"])} &nbsp;·&nbsp; 👁 {esc(ch["pov"])}</p>'
             f'<ol class="small" style="margin:0 0 0.6rem;padding-left:1.1rem;">{beats_html}</ol>'
             f'<p class="small"><strong>핵심 디테일</strong> · {esc(ch["details"])}</p>'
-            f'<p class="small" style="background:{ch["color"]}1a;padding:0.5rem 0.7rem;border-radius:0.4rem;margin:0.5rem 0;">'
-            f'<strong>작가가 정할 것</strong> · {esc(ch["question"])}</p>'
-            f'<p class="small muted" style="margin:0;">↳ {esc(ch["link"])}</p>',
+            f'<p class="small muted" style="margin:0.4rem 0 0;">↳ {esc(ch["link"])}</p>',
             accent=ch["color"],
         ))
     body = f"""
