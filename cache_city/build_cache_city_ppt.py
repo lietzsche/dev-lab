@@ -166,13 +166,16 @@ def slide_cover(prs):
     cy, cw, cmargin, cgap = 1.12, 6.0, 0.02, 0.06
     inner_cw = cw - 2 * cmargin
     title_h = measure_block_height_in("캐시의 도시", 50, inner_cw, bold=True) + 2 * cmargin * 0.7 + 0.04
-    text(s, 0.85, cy, cw, title_h, "캐시의 도시", size=50, bold=True, color=INK_LIGHT, margin=cmargin)
+    text(s, 0.85, cy, cw, title_h, "캐시의 도시", size=50, bold=True, color=INK_LIGHT,
+         spacing=1.0, margin=cmargin)
     cy += title_h + cgap
     sub_h = measure_block_height_in("혹은, 부하테스트", 20, inner_cw) + 2 * cmargin * 0.7
-    text(s, 0.85, cy, cw, sub_h, "혹은, 부하테스트", size=20, color=GOLD, margin=cmargin)
+    text(s, 0.85, cy, cw, sub_h, "혹은, 부하테스트", size=20, color=GOLD,
+         spacing=1.0, margin=cmargin)
     cy += sub_h + cgap
     meta_h = measure_block_height_in("사변적 SF  ·  단편 원고지 90매  ·  8장면", 12, inner_cw) + 2 * cmargin * 0.7
-    text(s, 0.85, cy, cw, meta_h, "사변적 SF  ·  단편 원고지 90매  ·  8장면", size=12, color=INK_LIGHT_MUTED, margin=cmargin)
+    text(s, 0.85, cy, cw, meta_h, "사변적 SF  ·  단편 원고지 90매  ·  8장면", size=12,
+         color=INK_LIGHT_MUTED, spacing=1.0, margin=cmargin)
     cy += meta_h
 
     rect(s, 0.85, 3.30, 5.85, 2.55, fill=BG_DARK_CARD, line=BORDER_DARK, rounded=True, radius=0.04)

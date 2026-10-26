@@ -1,6 +1,7 @@
 import unittest
 
 from pptx import Presentation
+from pptx.enum.text import MSO_AUTO_SIZE
 from pptx.util import Inches
 
 from ppt_module import add_textbox, validate
@@ -30,6 +31,7 @@ class TextboxSafetyTests(unittest.TestCase):
         fit_ratio, line_count = validate._text_fit_ratio(result.shape)
         self.assertEqual(line_count, 2)
         self.assertLessEqual(fit_ratio, MULTILINE_FIT_HEADROOM + 0.035)
+        self.assertEqual(result.text_frame.auto_size, MSO_AUTO_SIZE.NONE)
 
     def test_validator_reports_tightly_packed_multiline_text(self):
         _, slide = self._slide()
