@@ -92,6 +92,11 @@ table.cmp tbody td { color: {ink_navy}; }
 table.cmp tbody tr:nth-child(odd) td { background: {bg_white}; }
 table.cmp tbody tr:nth-child(even) td { background: {bg_cream}; }
 table.cmp td.revised { background: {bg_white}; border-left: 3px solid {accent}; font-weight: 600; }
+code {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace;
+  background: {border_warm}55; padding: 0.1rem 0.4rem; border-radius: 0.25rem; font-size: 0.92em;
+}
+.slide.dark code { background: {border_dark}; color: {ink_light}; }
 .quote {
   font-size: 1.05rem; font-style: italic; border-left: 3px solid {accent};
   padding-left: 0.8rem; margin: 0.6rem 0;

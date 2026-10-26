@@ -51,7 +51,9 @@
 | `html_module/components.py` | `card`, `pill`, `grid`, `kv_list`, `quote`, `compare_table` |
 | `html_module/builders/novel_guide.py` | 《매혹적인 소설 쓰기의 기술》 생성 → `소설쓰기_가이드.html` |
 | `html_module/builders/custom_novel.py` | 《비문학의 사유에서 소설의 서사로》 생성 → `맞춤형_소설기획_제안서.html` |
+| `html_module/builders/vim_guide.py` | Vim으로 소설 쓰기 실전 가이드 생성 → `vim_가이드.html` (프로젝트 콘텐츠가 아닌 범용 도구 가이드) |
 | `cache_city/build_cache_city_html.py` | 《캐시의 도시》 발전 기획서 생성 → `cache_city/캐시의_도시_발전기획서.html` |
+| `cache_city/build_chapter01_html.py` | 1장 심화 기획 문서 생성 → `cache_city/1장_히트율_99.7%.html` |
 
 ## 《캐시의 도시》 기획서의 챕터 구조
 

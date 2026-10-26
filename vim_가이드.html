@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim으로 소설 쓰기 — 실전 가이드</title>
+<style>
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  background: #F6F4EF;
+  color: #161C28;
+  line-height: 1.6;
+}
+a { color: inherit; }
+.toc {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+  padding: 0.7rem 1rem;
+  background: #161C28;
+  border-bottom: 3px solid #2A6866;
+}
+.toc a {
+  font-size: 0.78rem; font-weight: 700; text-decoration: none;
+  color: #AFB8C6;
+  padding: 0.3rem 0.6rem; border-radius: 999px;
+  border: 1px solid #3A465C;
+  white-space: nowrap;
+}
+.toc a:hover { color: #F4F1EA; border-color: #2A6866; }
+.deck-title {
+  font-weight: 800; color: #C24E2A; margin-right: 0.6rem;
+  font-size: 0.85rem; align-self: center;
+}
+.slide {
+  padding: 2.4rem clamp(1rem, 5vw, 4rem);
+  border-bottom: 1px solid #D6CFC2;
+  scroll-margin-top: 3.2rem;
+}
+.slide.dark { background: #161C28; color: #F4F1EA; border-bottom-color: #3A465C; }
+.slide .kicker {
+  font-size: 0.8rem; font-weight: 800; letter-spacing: 0.04em;
+  color: #2A6866; text-transform: uppercase; margin: 0 0 0.3rem;
+}
+.slide.dark .kicker { color: #C24E2A; }
+.slide h2 {
+  font-size: clamp(1.3rem, 2.4vw, 1.9rem); margin: 0 0 0.35rem; line-height: 1.3;
+}
+.slide .subtitle { color: #4E5766; margin: 0 0 1.4rem; max-width: 64rem; }
+.slide.dark .subtitle { color: #AFB8C6; }
+.card {
+  background: #FFFFFF; border: 1px solid #D6CFC2; border-radius: 0.6rem;
+  padding: 1rem 1.1rem;
+}
+.slide.dark .card { background: #222B3C; border-color: #3A465C; }
+.card.accent-bar { border-left: 4px solid #2A6866; }
+.grid { display: grid; gap: 0.9rem; }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
+.pill {
+  display: inline-block; font-size: 0.72rem; font-weight: 700;
+  padding: 0.15rem 0.6rem; border-radius: 999px; color: #fff;
+}
+.kv { display: grid; grid-template-columns: 7rem 1fr; gap: 0.3rem 0.8rem; font-size: 0.92rem; }
+.kv dt { font-weight: 700; color: #2A6866; }
+.slide.dark .kv dt { color: #C24E2A; }
+.kv dd { margin: 0; }
+table.cmp { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+table.cmp th, table.cmp td { text-align: left; padding: 0.55rem 0.7rem; vertical-align: top; }
+table.cmp thead th { background: #161C28; color: #F4F1EA; }
+/* tbody rows always sit on a light background by design (even inside a
+   .slide.dark section), so their text color must be pinned here too --
+   otherwise it inherits .slide.dark's light text color and reads as
+   near-invisible light-on-light. */
+table.cmp tbody td { color: #161C28; }
+table.cmp tbody tr:nth-child(odd) td { background: #FFFFFF; }
+table.cmp tbody tr:nth-child(even) td { background: #F6F4EF; }
+table.cmp td.revised { background: #FFFFFF; border-left: 3px solid #2A6866; font-weight: 600; }
+code {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace;
+  background: #D6CFC255; padding: 0.1rem 0.4rem; border-radius: 0.25rem; font-size: 0.92em;
+}
+.slide.dark code { background: #3A465C; color: #F4F1EA; }
+.quote {
+  font-size: 1.05rem; font-style: italic; border-left: 3px solid #2A6866;
+  padding-left: 0.8rem; margin: 0.6rem 0;
+}
+.muted { color: #828A96; }
+.slide.dark .muted { color: #AFB8C6; }
+.small { font-size: 0.85rem; }
+footer.page-footer {
+  padding: 1.2rem clamp(1rem, 5vw, 4rem); font-size: 0.8rem; color: #828A96;
+  display: flex; justify-content: space-between;
+}
+@media print {
+  .toc { display: none; }
+  .slide { break-after: page; border: none; }
+}
+</style>
+</head>
+<body>
+<nav class="toc">
+  <span class="deck-title">Vim으로 소설 쓰기 — 실전 가이드</span>
+  <a href="#modes">모드</a>
+<a href="#quickstart">빠른 시작</a>
+<a href="#movement">이동</a>
+<a href="#editing">편집</a>
+<a href="#search">검색·치환</a>
+<a href="#prose-tips">집필 팁</a>
+<a href="#troubleshooting">막혔을 때</a>
+</nav>
+<section class="slide dark" id="modes">
+
+    <span class="pill" style="background:#C24E2A;">VIM · 모드 기반 에디터</span>
+    <h1 style="font-size:clamp(1.8rem,4vw,2.6rem);margin:0.6rem 0 0.4rem;">Vim의 전부는 ‘모드’다</h1>
+    <p class="muted" style="max-width:46rem;">명령 수십 개를 외울 필요 없다. 지금 내가 어느 모드에 있는지만
+    항상 알고 있으면 된다 — 나머지는 그 안에서 쓰는 단축키일 뿐이다.</p>
+    <div class="grid grid-2" style="margin-top:1.2rem;">
+      <div class="card accent-bar" style="border-left-color:#2A6866;"><strong>Normal 모드 (기본값)</strong><p class="small" style="margin:0.4rem 0 0;">파일을 열면 항상 이 모드로 시작한다. 글자를 치면 타이핑되는 게 아니라 ‘명령’으로 해석된다 (예: j는 아래로 이동). 이동·삭제·복사·저장 같은 명령은 전부 여기서 친다.</p></div>
+      <div class="card accent-bar" style="border-left-color:#CE942C;"><strong>Insert 모드 (타이핑)</strong><p class="small" style="margin:0.4rem 0 0;"><code>i</code>를 눌러야 들어간다. 여기서만 글자가 실제로 입력된다. 한글은 평소 쓰던 입력기(IME)가 그대로 작동한다 — 별도 설정 필요 없음. 다 썼으면 <code>Esc</code>로 Normal로 돌아간다.</p></div>
+    </div>
+    <div class="card" style="background:#161C28;color:#F4F1EA;margin-top:0.8rem;font-size:1.05rem;"><strong>헤매면 무조건 <code>Esc</code>.</strong> 어느 모드에 있든 Esc를 누르면 Normal 모드로 돌아온다. 화면에 이상한 글자가 찍히거나 명령이 안 먹히면, 십중팔구 지금 모드를 헷갈린 것이다 — Esc부터 누르고 다시 생각할 것.</div>
+    
+<p class="small muted" style="margin-top:1.4rem;">01 / 07</p>
+</section><section class="slide" id="quickstart">
+
+    <p class="kicker">지금 당장 쓰기 시작하는 법</p>
+<h2>이 다섯 단계만 알면 오늘부터 Vim으로 쓸 수 있다</h2>
+    <div class="grid grid-2"><div class="card accent-bar" style="border-left-color:#2A6866;"><strong class='small' style='color:#2A6866;'>1. 파일 열기</strong><p class='small' style='margin:0.4rem 0 0;'>터미널에서 <code>vim cache_city/원고/1장_히트율_99.7%.md</code> 입력 후 Enter.</p></div><div class="card accent-bar" style="border-left-color:#2A6866;"><strong class='small' style='color:#2A6866;'>2. 쓰기 시작</strong><p class='small' style='margin:0.4rem 0 0;'><code>i</code>를 누른다 (화면 아래 <code>-- INSERT --</code>가 뜨면 성공). 이제부터 치는 대로 글자가 입력된다.</p></div><div class="card accent-bar" style="border-left-color:#2A6866;"><strong class='small' style='color:#2A6866;'>3. 쓰기 멈출 때</strong><p class='small' style='margin:0.4rem 0 0;'><code>Esc</code>를 눌러 Normal 모드로 돌아간다. 이동·저장 같은 명령은 Insert 상태에서는 먹히지 않는다.</p></div><div class="card accent-bar" style="border-left-color:#2A6866;"><strong class='small' style='color:#2A6866;'>4. 저장</strong><p class='small' style='margin:0.4rem 0 0;'>Normal 모드에서 <code>:w</code> 입력 후 Enter. 화면 맨 아래에 명령이 입력되는 줄이 뜨는 걸 볼 수 있다.</p></div><div class="card accent-bar" style="border-left-color:#2A6866;"><strong class='small' style='color:#2A6866;'>5. 저장하고 끝내기</strong><p class='small' style='margin:0.4rem 0 0;'>Normal 모드에서 <code>:wq</code> 입력 후 Enter. 저장과 종료를 한 번에 한다.</p></div></div>
+    <div class="card" style=""><strong>자주 하는 실수</strong> · <code>:wq</code>를 쳤는데 안 꺼지고 이상한 반응이 온다면, 아직 Insert 모드일 수 있다 — <code>Esc</code>를 먼저 누르고 다시 <code>:wq</code>를 입력할 것.</div>
+    
+<p class="small muted" style="margin-top:1.4rem;">02 / 07</p>
+</section><section class="slide" id="movement">
+
+    <p class="kicker">이동</p>
+<h2>커서를 옮기는 명령들 (전부 Normal 모드에서)</h2>
+    <table class="cmp"><thead><tr><th>명령</th><th>동작</th></tr></thead><tbody><tr><td>h / j / k / l</td><td>왼쪽 / 아래 / 위 / 오른쪽으로 한 칸 이동</td></tr><tr><td>w / b</td><td>다음 단어 시작 / 이전 단어 시작으로 이동</td></tr><tr><td>0 / $</td><td>줄 맨 앞 / 줄 맨 끝으로 이동</td></tr><tr><td>gg / G</td><td>문서 맨 처음 / 문서 맨 끝으로 이동</td></tr><tr><td>{숫자}G</td><td>해당 줄 번호로 이동 (예: 10G → 10번째 줄)</td></tr><tr><td>Ctrl-f / Ctrl-b</td><td>한 화면 아래로 / 위로 스크롤</td></tr><tr><td>/단어 + Enter</td><td>아래 방향으로 ‘단어’ 검색</td></tr><tr><td>n / N</td><td>검색한 단어의 다음 위치 / 이전 위치로 이동</td></tr></tbody></table>
+    
+<p class="small muted" style="margin-top:1.4rem;">03 / 07</p>
+</section><section class="slide dark" id="editing">
+
+    <p class="kicker">편집</p>
+<h2>삽입 진입·삭제·복사·되돌리기</h2>
+    <table class="cmp"><thead><tr><th>명령</th><th>동작</th></tr></thead><tbody><tr><td>i / a</td><td>현재 글자 앞 / 뒤에서 Insert 모드 시작</td></tr><tr><td>I / A</td><td>줄 맨 앞 / 맨 끝에서 Insert 모드 시작</td></tr><tr><td>o / O</td><td>아래 / 위에 새 줄을 만들고 Insert 모드 시작</td></tr><tr><td>x</td><td>커서 위 글자 한 개 삭제</td></tr><tr><td>dd</td><td>현재 줄 전체 삭제 (잘라내기 — 다시 붙여넣기 가능)</td></tr><tr><td>dw</td><td>커서부터 다음 단어 시작까지 삭제</td></tr><tr><td>d$</td><td>커서부터 줄 끝까지 삭제</td></tr><tr><td>cw</td><td>커서부터 단어 끝까지 삭제하고 바로 Insert 모드로 (수정할 때 가장 유용)</td></tr><tr><td>yy</td><td>현재 줄 복사 (잘라내지 않음)</td></tr><tr><td>p / P</td><td>복사/삭제한 내용을 커서 뒤 / 앞에 붙여넣기</td></tr><tr><td>u</td><td>방금 한 일 되돌리기 (undo) — 여러 번 누르면 더 이전으로</td></tr><tr><td>Ctrl-r</td><td>되돌린 것을 다시 적용 (redo)</td></tr><tr><td>.</td><td>방금 한 편집 명령을 그대로 한 번 더 반복</td></tr></tbody></table>
+    
+<p class="small muted" style="margin-top:1.4rem;">04 / 07</p>
+</section><section class="slide" id="search">
+
+    <p class="kicker">저장·종료·검색·치환</p>
+<h2>콜론(:)으로 시작하는 명령들</h2>
+    <table class="cmp"><thead><tr><th>명령</th><th>동작</th></tr></thead><tbody><tr><td>:w</td><td>저장</td></tr><tr><td>:q</td><td>종료 (저장 안 한 변경이 있으면 거부됨)</td></tr><tr><td>:wq 또는 :x</td><td>저장하고 종료</td></tr><tr><td>:q!</td><td>저장하지 않고 강제 종료 (실수로 망쳤을 때)</td></tr><tr><td>/찾을말 + Enter</td><td>아래쪽으로 검색</td></tr><tr><td>:%s/old/new/g</td><td>문서 전체에서 old를 new로 전부 치환</td></tr><tr><td>:%s/old/new/gc</td><td>치환할 때마다 확인(y/n)을 물어봄 — 안전하게 바꿀 때</td></tr></tbody></table>
+    
+<p class="small muted" style="margin-top:1.4rem;">05 / 07</p>
+</section><section class="slide" id="prose-tips">
+
+    <p class="kicker">산문 쓰기에 유용한 팁</p>
+<h2>소설 원고 작업에서 특히 쓸 만한 것들</h2>
+    <div class="grid grid-2">
+      <div class="card" style=""><strong>단어 수 세기</strong><p class="small" style="margin:0.4rem 0;">Normal 모드에서 <code>g</code> 다음 <code>Ctrl-g</code> — 화면 아래에 줄 수·단어 수·글자 수가 뜬다.</p></div>
+      <div class="card" style=""><strong>자동 줄바꿈 보기</strong><p class="small" style="margin:0.4rem 0;"><code>:set wrap linebreak</code> — 긴 문장이 화면 끝에서 단어 중간이 아니라 단어 단위로 꺾여 보인다. 파일 내용 자체는 바뀌지 않는다 (보이는 방식만 바뀜).</p></div>
+      <div class="card" style=""><strong>두 줄 합치기</strong><p class="small" style="margin:0.4rem 0;">Normal 모드에서 <code>J</code> — 현재 줄과 다음 줄을 한 줄로 합친다. 문단을 다시 다듬을 때 유용.</p></div>
+      <div class="card" style=""><strong>한글 입력</strong><p class="small" style="margin:0.4rem 0;">Insert 모드에서는 평소 쓰는 한글 입력기가 그대로 작동한다. Vim 쪽에서 따로 설정할 게 없다.</p></div>
+    </div>
+    
+<p class="small muted" style="margin-top:1.4rem;">06 / 07</p>
+</section><section class="slide dark" id="troubleshooting">
+
+    <p class="kicker">막혔을 때</p>
+<h2>자주 만나는 상황과 탈출법</h2>
+    <table class="cmp"><thead><tr><th>상황</th><th>해결</th></tr></thead><tbody><tr><td>화면에 이상한 글자가 찍히거나 명령이 안 먹힐 때</td><td>Esc를 눌러 Normal 모드로 돌아간 뒤 다시 시도</td></tr><tr><td>:wq를 쳤는데 안 꺼질 때</td><td>아직 Insert 모드였을 수 있다 — Esc를 먼저, 그다음 :wq</td></tr><tr><td>실수로 문단을 통째로 지웠을 때</td><td>u를 눌러 되돌리기. 여러 번 누르면 계속 이전으로 돌아간다</td></tr><tr><td>저장 없이 그냥 나가고 싶을 때 (연습 중 실수했을 때)</td><td>:q! 입력</td></tr><tr><td>지금 몇 번째 줄인지 모를 때</td><td>Normal 모드에서 Ctrl-g — 화면 아래에 현재 줄 번호가 뜬다</td></tr></tbody></table>
+    
+<p class="small muted" style="margin-top:1.4rem;">07 / 07</p>
+</section>
+<footer class="page-footer"><span>Vim으로 소설 쓰기 · 실전 가이드</span><span>7 sections</span></footer>
+</body>
+</html>
