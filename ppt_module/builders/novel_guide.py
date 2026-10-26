@@ -298,7 +298,7 @@ def add_textbox(slide, left, top, width, height, text="", size_pt=12, bold=False
 
     호출부 좌표/인자 순서는 그대로 두고 구현만 ppt_module로 교체했다.
     이로써 두 가지 레이아웃 버그가 동시에 고쳐진다:
-    1. text 안의 "\\n"이 이제 독립된 DrawingML 문단으로 렌더링된다 --
+    1. text 안의 "\\n"이 이제 물리적으로 분리된 텍스트박스로 렌더링된다 --
        기존에는 하나의 run에 리터럴 개행문자로 박혀 PowerPoint/LibreOffice가
        줄바꿈 없이 이어붙여 렌더링했다 (겹침/줄 수 어긋남의 주 원인).
     2. 지정한 height보다 실제 줄바꿈된 텍스트가 더 크면, 조용히 박스

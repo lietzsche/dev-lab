@@ -103,7 +103,7 @@ def wrap_text(text, size_pt, width_in, bold=False):
     """Returns the list of visually-wrapped lines `text` would occupy in a
     box `width_in` inches wide. Explicit "\\n" in `text` are treated as hard
     paragraph breaks (matching how add_textbox() in this package renders them
-    as separate DrawingML paragraphs, NOT how a bare run.text="a\\nb" renders
+    as separate text shapes, NOT how a bare run.text="a\\nb" renders
     in raw python-pptx, which is as a single unbroken line)."""
     font = get_pil_font(size_pt, bold=bold)
     max_width_px = max(width_in, 0.05) * _DPI
